@@ -1,0 +1,66 @@
+{
+  "resources/assets/theme/css/keenicons/fonts/keenicons-duotone.svg": {
+    "file": "assets/keenicons-duotone-BzRXiZuU.svg",
+    "src": "resources/assets/theme/css/keenicons/fonts/keenicons-duotone.svg"
+  },
+  "resources/assets/theme/css/keenicons/fonts/keenicons-duotone.ttf": {
+    "file": "assets/keenicons-duotone-DGcKa84C.ttf",
+    "src": "resources/assets/theme/css/keenicons/fonts/keenicons-duotone.ttf"
+  },
+  "resources/assets/theme/css/keenicons/fonts/keenicons-duotone.woff": {
+    "file": "assets/keenicons-duotone-CKhy9TPl.woff",
+    "src": "resources/assets/theme/css/keenicons/fonts/keenicons-duotone.woff"
+  },
+  "resources/assets/theme/css/keenicons/fonts/keenicons-filled.svg": {
+    "file": "assets/keenicons-filled-CrMg3cU0.svg",
+    "src": "resources/assets/theme/css/keenicons/fonts/keenicons-filled.svg"
+  },
+  "resources/assets/theme/css/keenicons/fonts/keenicons-filled.ttf": {
+    "file": "assets/keenicons-filled-CE921hZa.ttf",
+    "src": "resources/assets/theme/css/keenicons/fonts/keenicons-filled.ttf"
+  },
+  "resources/assets/theme/css/keenicons/fonts/keenicons-filled.woff": {
+    "file": "assets/keenicons-filled-BkDGg1uE.woff",
+    "src": "resources/assets/theme/css/keenicons/fonts/keenicons-filled.woff"
+  },
+  "resources/assets/theme/css/keenicons/fonts/keenicons-outline.svg": {
+    "file": "assets/keenicons-outline-AHGPNOLp.svg",
+    "src": "resources/assets/theme/css/keenicons/fonts/keenicons-outline.svg"
+  },
+  "resources/assets/theme/css/keenicons/fonts/keenicons-outline.ttf": {
+    "file": "assets/keenicons-outline-CZvMTwJs.ttf",
+    "src": "resources/assets/theme/css/keenicons/fonts/keenicons-outline.ttf"
+  },
+  "resources/assets/theme/css/keenicons/fonts/keenicons-outline.woff": {
+    "file": "assets/keenicons-outline-B2SVicN3.woff",
+    "src": "resources/assets/theme/css/keenicons/fonts/keenicons-outline.woff"
+  },
+  "resources/assets/theme/css/keenicons/fonts/keenicons-solid.svg": {
+    "file": "assets/keenicons-solid-CtVlmjct.svg",
+    "src": "resources/assets/theme/css/keenicons/fonts/keenicons-solid.svg"
+  },
+  "resources/assets/theme/css/keenicons/fonts/keenicons-solid.ttf": {
+    "file": "assets/keenicons-solid-BpuJqYZv.ttf",
+    "src": "resources/assets/theme/css/keenicons/fonts/keenicons-solid.ttf"
+  },
+  "resources/assets/theme/css/keenicons/fonts/keenicons-solid.woff": {
+    "file": "assets/keenicons-solid-Bg1JIIe2.woff",
+    "src": "resources/assets/theme/css/keenicons/fonts/keenicons-solid.woff"
+  },
+  "resources/assets/theme/css/theme.css": {
+    "file": "assets/theme-DEXrzSmF.css",
+    "src": "resources/assets/theme/css/theme.css",
+    "isEntry": true
+  },
+  "resources/css/app.css": {
+    "file": "assets/app-GZSNTWwN.css",
+    "src": "resources/css/app.css",
+    "isEntry": true
+  },
+  "resources/js/app.js": {
+    "file": "assets/app-BkyTbJ26.js",
+    "name": "app",
+    "src": "resources/js/app.js",
+    "isEntry": true
+  }
+}
