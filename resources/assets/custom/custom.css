@@ -1,0 +1,42 @@
+#navbar .btn-clear.btn-primary:hover, .btn-clear.btn-primary:focus, .btn-clear.btn-primary:active, .btn-clear.btn-primary.active {
+    color: white !important;
+    background-color: #941301 !important;
+    border-color: #941301 !important;
+    box-shadow: none !important;
+}
+#navbar .btn-clear.btn-primary {
+    height: 2rem;
+}
+#navbar .btn-clear.btn-primary {
+    border-color: transparent;
+    background-color: transparent;
+    color: black;
+}
+
+.table thead td, .table thead th, .table tfoot td, .table tfoot th{
+    background-color: #343a3f !important;
+    color: white !important;
+    padding: 5px 10px !important;
+}
+.table tbody tr td, .table tbody tr th {
+    padding: 5px 10px !important;
+}
+.table th:first-child {
+    border-start-start-radius: unset !important;
+}
+
+.table th:last-child {
+    border-start-end-radius: unset !important;
+}
+.reports-table-container {
+    height: calc(100vh - (var(--tw-header-height) + var(--tw-navbar-height) + 245px)) !important;
+}
+.expense-planner-columns {
+    height: calc(100vh - (var(--tw-header-height) + var(--tw-navbar-height) + 150px)) !important;
+}
+.bg-warning {
+    color: white;
+}
+.btn-link {
+    border-bottom: unset !important;
+}
