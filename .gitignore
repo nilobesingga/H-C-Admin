@@ -1,6 +1,6 @@
 /.phpunit.cache
 /node_modules
-/public/tempmedia
+/public/assets
 /public/build
 /public/hot
 /public/storage
@@ -8,6 +8,7 @@
 /storage/pail
 /vendor
 .env
+/resources/js/plugins/env.js
 .env.backup
 .env.production
 .phpactor.json

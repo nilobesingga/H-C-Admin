@@ -3,14 +3,19 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\Bitrix\UserProfile;
+use App\Traits\Searchable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, Searchable;
+
+    protected $table = "users";
 
     /**
      * The attributes that are mass assignable.
@@ -18,9 +23,19 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
+        'bitrix_user_id',
+        'bitrix_parent_id',
+        'bitrix_webhook_token',
         'email',
+        'bitrix_active',
         'password',
+        'access_token',
+        'is_admin',
+        'is_default_password',
+        'is_active',
+        'last_login',
+        'last_ip',
+        'status'
     ];
 
     /**
@@ -44,5 +59,20 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function profile(): HasOne
+    {
+        return $this->hasOne(UserProfile::class, 'user_id');
+    }
+    public function modules() {
+        return $this->belongsToMany(Module::class, 'user_module_category')
+            ->withPivot('category_id')
+            ->withTimestamps();
+    }
+    public function categories() {
+        return $this->belongsToMany(Category::class, 'user_module_category')
+            ->withPivot('module_id')
+            ->withTimestamps();
     }
 }
