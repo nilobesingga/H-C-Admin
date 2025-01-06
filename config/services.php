@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'bitrix' => [
+        'base_url' => env('BITRIX_BASE_URL'),
+        'admin_user_id' => env('BITRIX_ADMIN_USER_ID'),
+        'admin_webhook_token' => env('BITRIX_ADMIN_WEBHOOK_TOKEN'),
+    ]
+
 ];

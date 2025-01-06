@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* theme assets compiles css file*/
+@import "../assets/theme/styles.css";
+
+@import "../assets/custom/custom.css";
+
+/* Keenicons */
+@import "../assets/theme/keenicons/duotone/style.css";
+@import "../assets/theme/keenicons/filled/style.css";
+@import "../assets/theme/keenicons/outline/style.css";
+@import "../assets/theme/keenicons/solid/style.css";

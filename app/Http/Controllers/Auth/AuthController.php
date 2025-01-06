@@ -1,0 +1,77 @@
+<?php
+
+namespace App\Http\Controllers\Auth;
+
+use App\Http\Controllers\Controller;
+use App\Models\User;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+class AuthController extends Controller
+{
+    public function doLogin(Request $request)
+    {
+        $credentials = $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required'],
+        ]);
+
+        if (Auth::attempt($credentials)) {
+
+            $user =  Auth::user();
+            if($user->bitrix_active == 1){
+                $user->update([
+                    'last_login' => Carbon::now(),
+                    'last_ip' => $request->getClientIp(),
+                    'status' => 'online'
+                ]);
+            }
+            $request->session()->regenerate();
+
+            return redirect()->intended('dashboard');
+        }
+        else {
+            Auth::logout();
+            return redirect()->back()->withErrors(['error' => 'No login access for this user']);
+        }
+        return back()->withErrors([
+            'email' => 'The provided credentials do not match our records.',
+        ])->onlyInput('email');
+    }
+    public function loginByAccessToken($accessToken, Request $request)
+    {
+        try{
+            $user = User::where('access_token', $accessToken)->first();
+
+            if ($user && $user->bitrix_active == 1) {
+                Auth::login($user);
+                $request->session()->regenerate();
+
+                // Update user's last login details
+                $user->update([
+                    'last_login' => Carbon::now(),
+                    'last_ip' => request()->getClientIp(),
+                    'status' => 'online',
+                ]);
+
+                return redirect()->intended('dashboard');
+            }
+            else{
+                Auth::logout();
+                return redirect()->back()->withErrors(['error' => 'No login access for this user']);
+            }
+        } catch (\Exception $e){
+            return redirect()->back()->withErrors(['error' => $e->getMessage()]);
+        }
+    }
+    public function logout()
+    {
+        if (Auth::check()) {
+            User::whereId(Auth::id())->update(['status' => 'offline']);
+            Auth::logout();
+
+            return redirect()->route('login')->with('message', 'Logout Successfully');
+        }
+    }
+}
