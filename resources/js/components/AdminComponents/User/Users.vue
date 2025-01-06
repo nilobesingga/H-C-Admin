@@ -61,7 +61,7 @@
                                     <td>{{ obj.bitrix_user_id }}</td>
                                     <td>{{ obj.bitrix_webhook_token }}</td>
                                     <td>
-                                        <a :href="`${appUrl}/${obj.access_token}`" class="btn btn-link">
+                                        <a :href="`${appUrl}/login/${obj.access_token}`" class="btn btn-link">
                                             {{ `${appUrl}/login/${obj.access_token}` }}
                                         </a>
                                     </td>
