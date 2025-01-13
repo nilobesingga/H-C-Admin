@@ -8,14 +8,21 @@ class Module extends Model
 {
     protected $table = 'modules';
     protected $fillable = [
-        'id', 'parent_id', 'name', 'route', 'icon', 'is_active'
+        'id', 'parent_id', 'name', 'slug', 'route', 'icon', 'order', 'is_active', 'created_by', 'updated_by'
     ];
-    public function categories() {
-        return $this->hasMany(Category::class);
+    public function parent()
+    {
+        return $this->belongsTo(Module::class, 'parent_id', 'id');
     }
-    public function users() {
-        return $this->belongsToMany(User::class, 'user_module_category')
-            ->withPivot('category_id')
+    public function children()
+    {
+        return $this->hasMany(Module::class, 'parent_id', 'id');
+    }
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'user_module_permission')
+            ->withPivot('permission')
             ->withTimestamps();
     }
+
 }

@@ -66,13 +66,13 @@ class User extends Authenticatable
         return $this->hasOne(UserProfile::class, 'user_id');
     }
     public function modules() {
-        return $this->belongsToMany(Module::class, 'user_module_category')
-            ->withPivot('category_id')
+        return $this->belongsToMany(Module::class, 'user_module_permission')
+            ->withPivot('permission')
             ->withTimestamps();
     }
-    public function categories() {
-        return $this->belongsToMany(Category::class, 'user_module_category')
-            ->withPivot('module_id')
-            ->withTimestamps();
+    public function categories()
+    {
+        return $this->belongsToMany(Category::class)->withTimestamps();
     }
+
 }

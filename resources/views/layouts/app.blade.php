@@ -35,7 +35,7 @@
         }
     </script>
 
-    <div id="app" class="flex grow">
+    <div id="app" class="flex grow app">
         @include('includes.header')
         <div class="flex flex-col lg:flex-row grow pt-[--tw-header-height]">
             @include('includes.sidebar')
