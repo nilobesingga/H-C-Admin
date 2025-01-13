@@ -30,7 +30,32 @@ class AdminSettingsController extends Controller
     }
     public function categories()
     {
-        $data = Category::select('id', 'parent_id', 'name')->get();
+        $data = Category::select('id', 'name')
+            ->with(['sageCompanies' => function ($q) {
+                $q->selectRaw('MIN(id) as id, category_id, sage_company_code, bitrix_sage_company_name')
+                    ->whereNotNull('sage_company_code')
+                    ->groupBy('category_id', 'sage_company_code', 'bitrix_sage_company_name');
+            }])
+            ->get();
+
+        $page = (Object) [
+            'title' => 'Categories',
+            'identifier' => 'admin_settings_categories',
+            'data' => $data,
+        ];
+
+        return view('admin.settings.categories', compact('page'));
+    }
+    public function modules()
+    {
+        $data = Category::select('id', 'name')
+            ->with(['sageCompanies' => function ($q) {
+                $q->selectRaw('MIN(id) as id, category_id, sage_company_code, bitrix_sage_company_name')
+                    ->whereNotNull('sage_company_code')
+                    ->groupBy('category_id', 'sage_company_code', 'bitrix_sage_company_name');
+            }])
+            ->get();
+
         $page = (Object) [
             'title' => 'Categories',
             'identifier' => 'admin_settings_categories',

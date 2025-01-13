@@ -29,7 +29,7 @@ export default {
                 throw error;
             }
         },
-        async getExchangeRatesByCurrencies(sourceCurrencies){
+        async getExchangeRatesByCurrencies(sourceCurrencies, baseCurrency = null){
             try {
                 const today = new Date().toLocaleDateString('en-GB'); // Format as DD/MM/YYYY
                 const url = `https://10.0.1.17/CrescoSage/api/V1/FOBank/SAMAED/ExchangeRate`;
@@ -38,12 +38,12 @@ export default {
                         try {
                             const response = await axios.get(`${url}`, {
                                 params: {
-                                    baseCurrency: this.currency,
+                                    baseCurrency: baseCurrency ? baseCurrency : this.currency,
                                     sourceCurrency: sourceCurrency,
                                     rateDate: today,
                                 },
                             });
-                            return { sourceCurrency, rate: response.data.Rate }; // Assuming the rate is in response.data.rate
+                            return { sourceCurrency, rate: response.data.Rate, baseCurrency };
                         } catch (error) {
                             console.error(`Error fetching exchange rate for ${sourceCurrency}:`, error);
                             return { sourceCurrency, rate: null }; // Return null for failed rates
@@ -111,6 +111,20 @@ export default {
             }
 
         },
+        formatDateTime24Hours(value)  {
+            if (value) {
+                return DateTime.fromSQL(value).toFormat('dd LLL yyyy HH:mm')
+            } else {
+                return "";
+            }
+        },
+        formatDateTime12Hours(value)  {
+            if (value) {
+                return DateTime.fromSQL(value).toFormat('dd LLL yyyy hh:mm a')
+            } else {
+                return "";
+            }
+        },
         formatBitrixDate(value)  {
             if (value) {
                 // Check if value contains a dot
@@ -153,6 +167,9 @@ export default {
                 return !chargeExtra || chargeExtra === "1991" ? "No" : "Yes"
             }
 
+        },
+        getBitrixUrlByBlockIdAndId(blockId, id) {
+            return `https://crm.cresco.ae/bizproc/processes/${blockId}/element/0/${id}/?list_section_id=`;
         },
     },
     computed: {

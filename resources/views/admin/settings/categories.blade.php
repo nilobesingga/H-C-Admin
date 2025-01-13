@@ -2,6 +2,6 @@
 @section('pageTitle', $page->title)
 @section('content')
     <categories
-            :prop-data='@json($page->data)'
+        :page_data='@json($page)'
     />
 @endsection

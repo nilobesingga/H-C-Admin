@@ -21,5 +21,5 @@ registerAppComponents(app);
 registerGlobalComponents(app);
 
 app.mixin(helperMixin);
-// app.mixin(bitrixHelperMixin);
+app.mixin(bitrixHelperMixin);
 app.mount('#app');

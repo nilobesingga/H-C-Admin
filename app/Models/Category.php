@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Bitrix\BitrixListsSageCompanyMapping;
 use Illuminate\Database\Eloquent\Model;
 
 class Category extends Model
@@ -18,12 +19,12 @@ class Category extends Model
     {
         return $this->hasMany(Category::class, 'parent_id', 'id');
     }
-    public function module() {
-        return $this->belongsTo(Module::class);
+    public function sageCompanies()
+    {
+        return $this->hasMany(BitrixListsSageCompanyMapping::class, 'category_id');
     }
-    public function users() {
-        return $this->belongsToMany(User::class, 'user_module_category')
-            ->withPivot('module_id')
-            ->withTimestamps();
+    public function users()
+    {
+        return $this->belongsToMany(User::class)->withTimestamps();
     }
 }
