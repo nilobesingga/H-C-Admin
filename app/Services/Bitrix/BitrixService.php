@@ -25,20 +25,20 @@ class BitrixService
                 $user = User::updateOrCreate(
                     ['bitrix_user_id' => $bitrixUser['ID']],
                     [
-                        'email' => $bitrixUser['EMAIL'],
-                        'password' => bcrypt('123456789'),
-                        'access_token' => md5($bitrixUser['ID'] . $bitrixUser['EMAIL']),
-                        'is_default_password' => true,
+//                        'email' => $bitrixUser['EMAIL'],
+//                        'password' => bcrypt('123456789'),
+//                        'access_token' => md5($bitrixUser['ID'] . $bitrixUser['EMAIL']),
+//                        'is_default_password' => true,
                         'bitrix_active' => $bitrixUser['ACTIVE'],
-                        'created_by' => 0,
+//                        'created_by' => 0,
                         'updated_by' => 0,
                     ]
                 );
                 UserProfile::updateOrCreate(
                     ['bitrix_user_id' => $bitrixUser['ID']],
                     [
-                        'user_id' => $user->id,
-                        'bitrix_user_id' => $bitrixUser['ID'],
+//                        'user_id' => $user->id,
+//                        'bitrix_user_id' => $bitrixUser['ID'],
                         'bitrix_name' => $bitrixUser['NAME'] ?? null,
                         'bitrix_last_name' => $bitrixUser['LAST_NAME'] ?? null,
                         'bitrix_second_name' => $bitrixUser['SECOND_NAME'] ?? null,

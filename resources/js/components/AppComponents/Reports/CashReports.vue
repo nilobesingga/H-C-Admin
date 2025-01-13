@@ -92,14 +92,14 @@
                 </div>
             </div>
             <!-- table -->
-            <div class="flex-grow overflow-auto reports-table-container">
-                <table class="relative w-full table table-border align-middle text-xs">
+            <div class="relative flex-grow overflow-auto reports-table-container">
+                <table class="w-full table table-border align-middle text-xs">
                     <thead>
                         <tr class="bg-black text-gray-900 font-medium text-center">
                             <th class="sticky top-0 w-10">#</th>
                             <th class="sticky top-0 w-[70px]">Id</th>
                             <th class="sticky top-0 w-[70px]">Payment Mode</th>
-                            <th class="sticky top-0 w-[100px] text-right">Amount</th>
+                            <th class="sticky top-0 w-[130px] text-right">Amount</th>
                             <th class="sticky top-0 w-[100px]">Payment Date</th>
                             <th class="sticky top-0 w-[100px]">Payment Schedule</th>
                             <th class="sticky top-0 w-[150px] text-left">Project</th>
@@ -206,16 +206,16 @@
                             <td class="text-center text-red-400">No data available</td>
                         </tr>
                     </tbody>
-                    <div v-if="loading" class="absolute inset-0 bg-gray-300 bg-opacity-50 flex items-center justify-center z-50 pointer-events-none">
-                        <div class="flex items-center gap-2 px-4 py-2 font-medium leading-none text-sm border border-gray-200 shadow-default rounded-md text-gray-500 bg-white">
-                            <svg class="animate-spin -ml-1 h-5 w-5 text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            Loading...
-                        </div>
-                    </div>
                 </table>
+                <div v-if="loading" class="absolute inset-0 bg-gray-300 bg-opacity-100 flex items-center justify-center z-50 pointer-events-none">
+                    <div class="flex items-center gap-2 px-4 py-2 font-medium leading-none text-sm border border-gray-200 shadow-default rounded-md text-gray-500 bg-white">
+                        <svg class="animate-spin -ml-1 h-5 w-5 text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Loading...
+                    </div>
+                </div>
             </div>
             <!-- footer -->
             <div class="flex items-center justify-between">
@@ -239,10 +239,9 @@
 <script>
 import {DateTime} from "luxon";
 import _ from "lodash";
-import bitrixHelperMixin from "../../../mixins/bitrixHelperMixin.js";
+
 export default {
     name: "cash-reports",
-    mixins: [bitrixHelperMixin],
     props: ['page_data'],
     data(){
         return {

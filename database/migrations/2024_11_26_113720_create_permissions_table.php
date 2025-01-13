@@ -12,23 +12,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('bitrix_lists', function (Blueprint $table) {
+        Schema::create('permissions', function (Blueprint $table) {
             $table->id();
+            $table->string('key');
             $table->string('name');
-            $table->string('bitrix_iblock_type')->nullable();
-            $table->string('bitrix_iblock_id')->nullable();
-            $table->boolean('is_active')->default(1);
             $table->unsignedBigInteger('created_by')->default(0);
             $table->unsignedBigInteger('updated_by')->nullable();
             $table->timestamps();
         });
 
-        DB::table('bitrix_lists')->insert([
-            ['name' => 'Purchase Invoice'],
-            ['name' => 'Cash Requisition'],
-            ['name' => 'Sales Invoices'],
-            ['name' => 'Bank Transfers'],
-            ['name' => 'Proforma Invoices'],
+        DB::table('permissions')->insert([
+            ['key' => 'view_only', 'name' => 'View Only'],
+            ['key' => 'full_access', 'name' => 'Full Access'],
         ]);
     }
 
@@ -37,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('bitrix_lists');
+        Schema::dropIfExists('permissions');
     }
 };

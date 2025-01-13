@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Admin\Settings;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Module;
+use App\Models\Permission;
 use App\Models\User;
+use App\Models\UserModulePermission;
 use App\Services\Bitrix\BitrixService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -37,19 +39,9 @@ class AdminUserController extends Controller
 
             $query = User::with('profile');
 
-            $userFields = [
-                'bitrix_user_id' => 'string',
-                'email' => 'string',
-            ];
-            $profileFields = [
-                'bitrix_name' => 'string',
-                'bitrix_last_name' => 'string',
-            ];
-
             // Apply search filter
             if (!empty($filters['search'])) {
                 $query->where('email', 'LIKE', '%'. $filters['search'] . "%");
-//                $query->search($filters['search'], $userFields, ['profile' => $profileFields]);
             }
 
             if ($filters['bitrix_active'] != null){
@@ -65,12 +57,24 @@ class AdminUserController extends Controller
     }
     public function edit($id)
     {
+        $user = User::with(['profile', 'categories'])->findOrFail($id);
+        // Extract pivot data (module_id and permission)
+        $modules = $user->modules->map(function ($module) {
+            return [
+                'module_id' => $module->pivot->module_id,
+                'permission' => $module->pivot->permission,
+            ];
+        });
+        // Extract category IDs
+        $categories = $user->categories->pluck('id');
+
         try {
             $data = (Object)[
-                'obj' => User::with('profile')->whereId($id)->first(),
-                'user_category_ids' => DB::table('user_module_category')->where('user_id', $id)->pluck('category_id'),
-                'modules' => Module::all(),
-                'categories' => Category::all(),
+                'obj' => $user,
+                'modules' => Module::with('children')->select('id', 'parent_id', 'name', 'slug', 'route')->where('parent_id', 0)->get(),
+                'categories' => Category::select('id', 'name')->get(),
+                'selected_modules' => $modules,
+                'selected_category_ids' => $categories
             ];
 
             return $data;

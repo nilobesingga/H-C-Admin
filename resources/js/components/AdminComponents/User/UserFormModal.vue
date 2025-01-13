@@ -8,51 +8,119 @@
                 </button>
             </div>
             <div class="modal-body">
-                <div class="flex flex-col items-center gap-2 lg:gap-3.5 py-4 lg:pt-5 lg:pb-10">
+                <div class="flex flex-col items-center mb-5">
                     <img class="rounded-full border-2 max-h-[70px] max-w-full" data-modal-toggle="#modal_profile" :src="obj ? obj.profile.bitrix_profile_photo : null">
                     <div class="flex items-center gap-1.5">
                         <div class="text-lg leading-5 font-semibold text-gray-900">
-                            {{ obj ? obj.profile.bitrix_name : null }}
+                            {{ obj ? obj.profile.bitrix_name : null }} {{ obj ? obj.profile.bitrix_last_name : null }}
                         </div>
                     </div>
-<!--                    <div class="flex flex-wrap justify-center gap-1 lg:gap-4.5 text-sm">-->
-<!--                        <div class="flex gap-1.25 items-center">-->
-<!--                            <i class="ki-filled ki-sms text-gray-500 text-sm"></i>-->
-<!--                            <a class="text-gray-600 font-medium hover:text-primary" :href="obj ? obj.email : null">-->
-<!--                                {{ obj ? obj.email : null }}-->
-<!--                            </a>-->
-<!--                        </div>-->
-<!--                    </div>-->
+                    <div class="flex flex-wrap justify-center gap-1 lg:gap-4.5 text-sm">
+                        <div class="flex gap-1.25 items-center">
+                            <i class="ki-filled ki-sms text-gray-500 text-sm"></i>
+                            <a class="text-gray-600 font-medium hover:text-primary" :href="obj ? obj.email : null">{{ obj ? obj.email : null }}</a>
+                        </div>
+                    </div>
                 </div>
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-7.5">
-                    <!-- Modules -->
-                    <div class="col-span-2 lg:col-span-1 flex">
-                        <div class="card grow">
-                            <div class="card-header">
-                                <h3 class="card-title">Modules</h3>
-                            </div>
-                            <div class="card-body pt-4 pb-3">
-                                <div class="flex flex-col items-start gap-4">
-                                    <label class="form-label flex items-center gap-2.5">
-<!--                                        <input class="checkbox checkbox-sm" name="check" type="checkbox" :value="{module}" v-model="form.module" />-->
-                                        <span>Company Dashboard</span>
-                                    </label>
+                <div class="grid grid-cols-1 xl:grid-cols-3 gap-5 lg:gap-7.5">
+                    <!-- Modules and Permissions Table -->
+                    <div class="col-span-2">
+                        <div class="flex flex-col gap-5 lg:gap-7.5">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">Modules and Permissions</h3>
+                                </div>
+                                <div class="card-table scrollable-x-auto">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th class="text-left text-gray-300 font-normal min-w-[300px]">Module</th>
+                                                <th class="min-w-24 text-gray-700 font-normal text-center">View Only</th>
+                                                <th class="min-w-24 text-gray-700 font-normal text-center">Full Access</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="text-gray-900 font-medium">
+                                            <template v-for="module in form_data.modules" :key="module.id">
+                                                <!-- Parent Modules  -->
+                                                <tr>
+                                                    <td>
+                                                        <div class="flex flex-col gap-2.5">
+                                                            <label class="checkbox-group">
+                                                                <input
+                                                                    class="checkbox checkbox-sm"
+                                                                    type="checkbox"
+                                                                    :value="module.id"
+                                                                    :checked="isParentChecked(module)"
+                                                                    @change="toggleParentModule(module, $event)"
+                                                                >
+                                                                <span class="checkbox-label text-black font-bold">{{ module.name }}</span>
+                                                            </label>
+                                                        </div>
+                                                    </td>
+                                                    <td colspan="2"></td>
+                                                </tr>
+                                                <!-- Child Modules -->
+                                                <tr v-for="child in module.children" :key="child.id">
+                                                    <td>
+                                                        <div class="pl-5">
+                                                            <label class="checkbox-group">
+                                                                <input
+                                                                    class="checkbox checkbox-sm"
+                                                                    type="checkbox"
+                                                                    :value="child.id"
+                                                                    :checked="isModuleChecked(child.id)"
+                                                                    @change="toggleChildModule(child, module, $event)"
+                                                                >
+                                                                <span class="checkbox-label">{{ child.name }}</span>
+                                                            </label>
+                                                        </div>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <input
+                                                            type="checkbox"
+                                                            class="checkbox checkbox-sm"
+                                                            :disabled="!isModuleChecked(child.id)"
+                                                            :checked="hasPermission(child.id, 'view_only')"
+                                                            @change="setPermission(child.id, 'view_only', $event)"
+                                                        >
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <input
+                                                            type="checkbox"
+                                                            class="checkbox checkbox-sm"
+                                                            :disabled="!isModuleChecked(child.id)"
+                                                            :checked="hasPermission(child.id, 'full_access')"
+                                                            @change="setPermission(child.id, 'full_access', $event)"
+                                                        >
+                                                    </td>
+                                                </tr>
+                                            </template>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <!-- Categories -->
-                    <div class="col-span-2 lg:col-span-1 flex">
-                        <div class="card grow">
-                            <div class="card-header">
-                                <h3 class="card-title">Categories</h3>
-                            </div>
-                            <div class="card-body pt-4 pb-3">
-                                <div class="flex flex-col items-start gap-4">
-                                    <label class="form-label flex items-center gap-2.5" v-for="category in form_data.categories" :key="category.id">
-                                        <input class="checkbox checkbox-sm" name="check" type="checkbox" :value="category.id" v-model="form.category_ids" />
-                                        <span>{{ category.name }}</span>
-                                    </label>
+                    <div class="col-span-1">
+                        <div class="flex flex-col gap-5 lg:gap-7.5">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">Categories</h3>
+                                </div>
+                                <div class="card-body flex flex-col gap-2.5">
+                                    <div class="flex flex-col gap-2.5" v-for="category in form_data.categories" :key="category.id">
+                                        <label class="checkbox-group">
+                                            <input
+                                                class="checkbox checkbox-sm"
+                                                type="checkbox"
+                                                :name="category.name"
+                                                :value="category.id"
+                                                v-model="form.selected_category_ids"
+                                            >
+                                            <span class="checkbox-label">{{ category.name }}</span>
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -67,7 +135,7 @@
                     <button
                         class="btn btn-primary"
                         @click="save"
-                        :disabled="form.category_ids.length === 0 || crud_loading"
+                        :disabled="(form.selected_category_ids.length === 0 || form.selected_modules.length === 0) || crud_loading"
                     >
                         Submit
                     </button>
@@ -85,13 +153,14 @@ export default {
         return {
             obj: null,
             form: {
-                category_ids: []
+                selected_category_ids: [],
+                selected_modules: [],
             },
             form_data: {
                 modules: [],
                 categories: [],
             },
-            crud_loading: false
+            crud_loading: false,
         }
     },
     methods: {
@@ -118,12 +187,66 @@ export default {
                 this.obj = response.data.obj;
                 this.form_data.modules = response.data.modules;
                 this.form_data.categories = response.data.categories;
-                this.form.category_ids = response.data.user_category_ids
+                this.form.selected_category_ids = response.data.selected_category_ids;
+                this.form.selected_modules = response.data.selected_modules;
+
             }).catch(error => {
                 console.log(error)
             }).finally(() => {
                 this.loading = false;
             })
+        },
+        toggleParentModule(module, event) {
+            const isChecked = event.target.checked;
+            if (isChecked) {
+                module.children.forEach((child) => {
+                    if (!this.isModuleChecked(child.id)) {
+                        this.form.selected_modules.push({ module_id: child.id, permission: 'view_only' });
+                    }
+                });
+            } else {
+                module.children.forEach((child) => {
+                    this.form.selected_modules = this.form.selected_modules.filter((item) => item.module_id !== child.id);
+                });
+            }
+        },
+        toggleChildModule(child, parent, event) {
+            const isChecked = event.target.checked;
+            if (isChecked) {
+                if (!this.isModuleChecked(child.id)) {
+                    this.form.selected_modules.push({ module_id: child.id, permission: 'view_only' });
+                }
+            } else {
+                this.form.selected_modules = this.form.selected_modules.filter((item) => item.module_id !== child.id);
+            }
+        },
+        setPermission(moduleId, permission, event) {
+            if (event.target.checked) {
+                // Remove any existing permissions for this module
+                this.form.selected_modules = this.form.selected_modules.filter((item) => item.module_id !== moduleId);
+                this.form.selected_modules.push({ module_id: moduleId, permission });
+            } else {
+                // If no permissions are selected, remove the module from the list
+                this.form.selected_modules = this.form.selected_modules.filter((item) => item.module_id !== moduleId);
+            }
+
+            // Automatically uncheck the module if no permissions remain
+            this.cleanUpModules();
+        },
+        hasPermission(moduleId, permission) {
+            return this.form.selected_modules.some(
+                (item) => item.module_id === moduleId && item.permission === permission
+            );
+        },
+        isModuleChecked(moduleId) {
+            return this.form.selected_modules.some((item) => item.module_id === moduleId);
+        },
+        isParentChecked(module) {
+            return module.children.every((child) => this.isModuleChecked(child.id));
+        },
+        cleanUpModules() {
+            // Remove modules from selected_modules if they have no permissions
+            this.form.selected_modules = this.form.selected_modules.filter((item) => item.permission);
         },
     },
     mounted() {
@@ -135,5 +258,4 @@ export default {
 </script>
 
 <style scoped>
-
 </style>

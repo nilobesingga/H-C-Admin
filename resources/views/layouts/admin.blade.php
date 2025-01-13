@@ -34,7 +34,7 @@
         document.documentElement.classList.add(themeMode);
     }
 </script>
-<div id="app" class="flex grow">
+<div id="app" class="flex grow admin">
     @include('admin.includes.admin_header')
     <div class="flex flex-col lg:flex-row grow pt-[--tw-header-height]">
         @include('admin.includes.admin_sidebar')
