@@ -17,12 +17,18 @@ class ReportsController extends Controller
     {
         $this->userService = $userService;
     }
+    public function index()
+    {
+        $user = User::with(['modules', 'categories'])->whereId(Auth::id())->first();
+        dd($user);
+    }
     public function getPurchaseInvoices()
     {
         $user = User::with(['modules', 'categories'])->whereId(Auth::id())->first();
         $userCategoryIds = $user->categories->pluck('id');
         $bitrixListSageCompanies = BitrixListsSageCompanyMapping::select('category_id', 'bitrix_list_id', 'sage_company_code', 'bitrix_sage_company_id', 'bitrix_sage_company_name')
                         ->where('bitrix_list_id', 1)
+                        ->whereNotNull('sage_company_code')
                         ->whereIn('category_id', $userCategoryIds)
                         ->distinct()
                         ->get();
@@ -57,6 +63,7 @@ class ReportsController extends Controller
         $userCategoryIds = $user->categories->pluck('id');
         $bitrixListSageCompanies = BitrixListsSageCompanyMapping::select('category_id', 'bitrix_list_id', 'sage_company_code', 'bitrix_sage_company_id', 'bitrix_sage_company_name')
             ->where('bitrix_list_id', 2)
+            ->whereNotNull('sage_company_code')
             ->whereIn('category_id', $userCategoryIds)
             ->distinct()
             ->get();
@@ -107,6 +114,7 @@ class ReportsController extends Controller
         $userCategoryIds = $user->categories->pluck('id');
         $bitrixListSageCompanies = BitrixListsSageCompanyMapping::select('category_id', 'bitrix_list_id', 'sage_company_code', 'bitrix_sage_company_id', 'bitrix_sage_company_name')
             ->where('bitrix_list_id', 3)
+            ->whereNotNull('sage_company_code')
             ->whereIn('category_id', $userCategoryIds)
             ->distinct()
             ->get();
@@ -132,6 +140,7 @@ class ReportsController extends Controller
         $userCategoryIds = $user->categories->pluck('id');
         $bitrixListSageCompanies = BitrixListsSageCompanyMapping::select('category_id', 'bitrix_list_id', 'sage_company_code', 'bitrix_sage_company_id', 'bitrix_sage_company_name')
             ->where('bitrix_list_id', 5)
+            ->whereNotNull('sage_company_code')
             ->whereIn('category_id', $userCategoryIds)
             ->distinct()
             ->get();
@@ -155,7 +164,7 @@ class ReportsController extends Controller
     {
         $user = User::with(['modules', 'categories'])->whereId(Auth::id())->first();
         $userCategoryIds = $user->categories->pluck('id');
-        $sageCompanyCode = BitrixListsSageCompanyMapping::select('category_id', 'sage_company_code')
+        $sageCompanyCode = BitrixListsSageCompanyMapping::select('category_id', 'sage_company_code', 'bitrix_sage_company_name')
             ->whereIn('category_id', $userCategoryIds)
             ->whereNotNull('sage_company_code')
             ->distinct()

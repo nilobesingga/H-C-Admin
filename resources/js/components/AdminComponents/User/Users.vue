@@ -42,10 +42,12 @@
                 <thead>
                     <tr class="bg-black text-gray-900 font-medium text-center">
                         <th class="sticky top-0 w-10">#</th>
-                        <th class="sticky top-0 w-[350px] text-left">Name</th>
-                        <th class="sticky top-0 w-[200px]">Bitrix User Id</th>
-                        <th class="sticky top-0 w-[200px]">Bitrix Webhook Token</th>
-                        <th class="sticky top-0 w-[300px]">Access URL</th>
+                        <th class="sticky top-0 w-[300px] text-left">Name</th>
+                        <th class="sticky top-0 w-[100px]">Bitrix User Id</th>
+                        <th class="sticky top-0 w-[150px]">Bitrix Webhook Token</th>
+                        <th class="sticky top-0 w-[100px]">Access URL</th>
+                        <th class="sticky top-0 w-[300px] text-left">Modules</th>
+                        <th class="sticky top-0 w-[200px] text-left">Categories</th>
 <!--                        <th class="sticky top-0 w-[150px]">Status</th>-->
                         <th class="sticky top-0 w-10"></th>
                     </tr>
@@ -74,6 +76,12 @@
 <!--                            <div><span class="badge badge-primary badge-sm">{{ obj.status }}</span></div>-->
 <!--                            <div>{{ formatDateTime12Hours(obj.last_login) }}</div>-->
 <!--                        </td>-->
+                        <td class="text-left">
+                            <span class="badge badge-sm badge-primary ml-1 mb-1" v-for="(category, index) in obj.modules" :key="index">{{ category.name }}</span>
+                        </td>
+                        <td class="text-left">
+                            <span class="badge badge-sm badge-success ml-1 mb-1" v-for="(category, index) in obj.categories" :key="index">{{ category.name }}</span>
+                        </td>
                         <td class="text-end">
                             <div class="menu inline-flex" data-menu="true">
                                 <div class="menu-item menu-item-dropdown" data-menu-item-offset="0, 10px" data-menu-item-placement="bottom-end" data-menu-item-placement-rtl="bottom-start" data-menu-item-toggle="dropdown" data-menu-item-trigger="click|lg:click">
@@ -173,6 +181,13 @@ export default {
             this.modal_type = null;
             this.obj_id = null
             this.removeModalBackdrop();
+            this.getData();
+        }
+    },
+    watch: {
+        'filters.search': {
+            handler: 'debouncedSearch',
+            immediate: false
         }
     },
     mounted() {

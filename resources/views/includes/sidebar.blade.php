@@ -12,15 +12,17 @@
                 <span class="tooltip">Dashboard</span>
             </a>
             {{--      Reports      --}}
-            <a class="btn btn-icon btn-icon-lg rounded-full size-10 border border-transparent text-gray-600 hover:bg-light hover:text-primary hover:border-gray-300 [.active&amp;]:bg-light [.active&amp;]:text-primary [.active&amp;]:border-gray-300
+            @if(!$page->user->modules->isEmpty())
+                <a class="btn btn-icon btn-icon-lg rounded-full size-10 border border-transparent text-gray-600 hover:bg-light hover:text-primary hover:border-gray-300 [.active&amp;]:bg-light [.active&amp;]:text-primary [.active&amp;]:border-gray-300
                         {{ request()->is('reports*') ? 'active' : '' }}"
-               data-tooltip=""
-               data-tooltip-placement="right"
-               href="{{ route('reports.purchase-invoices') }}"
-            >
-                <span class="menu-icon"><i class="ki-filled ki-tab-tablet"></i></span>
-                <span class="tooltip">Reports</span>
-            </a>
+                   data-tooltip=""
+                   data-tooltip-placement="right"
+                   href="{{ route('reports.' . $page->user->modules->first()->slug) }}"
+                >
+                    <span class="menu-icon"><i class="ki-filled ki-tab-tablet"></i></span>
+                    <span class="tooltip">Reports</span>
+                </a>
+            @endif
         </div>
     </div>
 </div>

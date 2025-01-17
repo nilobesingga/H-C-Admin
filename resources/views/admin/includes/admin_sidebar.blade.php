@@ -21,16 +21,6 @@
                 <span class="menu-icon"><i class="ki-filled ki-setting-2"></i></span>
                 <span class="tooltip">Settings</span>
             </a>
-            {{--      ACL      --}}
-            <a class="btn btn-icon btn-icon-lg rounded-full size-10 border border-transparent text-gray-600 hover:bg-light hover:text-primary hover:border-gray-300 [.active&amp;]:bg-light [.active&amp;]:text-primary [.active&amp;]:border-gray-300
-                    {{ request()->is('admin/acl*') ? 'active' : '' }}"
-                   data-tooltip=""
-                   data-tooltip-placement="right"
-                   href="{{ route('admin.acl.main') }}"
-            >
-                <span class="menu-icon"><i class="ki-filled ki-cheque"></i></span>
-                <span class="tooltip hidden" style="z-index: 100;">ACL</span>
-            </a>
         </div>
     </div>
 </div>

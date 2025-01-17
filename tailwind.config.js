@@ -287,7 +287,9 @@ export default {
                     600: '#0B0C10',
                     black: '#000000',
                     clarity: 'rgba(24, 25, 31, 0.50)',
-                }
+                },
+                cresco_red: '#941301',
+                cresco_blue: '#15437a',
             },
             boxShadow: {
                 card: 'var(--tw-card-box-shadow)',
