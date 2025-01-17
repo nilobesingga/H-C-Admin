@@ -12,23 +12,23 @@
         <!-- Content -->
         <div class="relative flex-grow overflow-auto table-container">
             <!-- Table -->
-            <table class="w-full table table-border align-middle text-xs table-fixed">
+            <table class="w-full table table-main table-border align-middle text-xs table-fixed">
                 <thead>
                     <tr class="bg-black text-gray-900 font-medium text-center">
                         <th class="sticky top-0 w-10">#</th>
                         <th class="sticky top-0 w-[150px]">Name</th>
-                        <th class="sticky top-0 w-[50px]">Sage Companies Count</th>
+                        <th class="sticky top-0 w-[50px] text-left">Sage Companies Count</th>
                         <th class="sticky top-0 w-[200px]">Sage Companies</th>
                     </tr>
                 </thead>
                 <tbody class="text-center text-xs text-gray-700">
                     <tr v-for="(obj, index) in page_data.data" :key="index" class="odd:bg-white even:bg-slate-100 hover:bg-gray-300">
                         <td>{{ ++index }}</td>
-                        <td>{{ obj.name }}</td>
+                        <td class="text-black">{{ obj.name }}</td>
                         <td><span class="badge badge-outline badge-primary badge-sm">{{ obj.sage_companies.length }}</span></td>
-                        <td>
+                        <td class="text-left">
                             <div v-for="(item, index) in obj.sage_companies" :key="index" class="mb-2" >
-                                <div class="badge badge-outline badge-primary badge-sm ml-3">
+                                <div class="badge badge badge-primary badge-sm ml-3">
                                     <span>{{ item.bitrix_sage_company_name }}</span>
                                 </div>
                             </div>

@@ -46,6 +46,121 @@ export default {
                 });
             });
         },
+        successToast(text) {
+            this.$swal.fire({
+                toast: true,
+                position: "top-right",
+                icon: "success",
+                text: text,
+                showConfirmButton: false,
+                timer: 2000
+            });
+        },
+        infoToast(text) {
+            this.$swal.fire({
+                toast: true,
+                position: "top-right",
+                icon: "info",
+                text: text,
+                showConfirmButton: false,
+                customClass: {
+                    container: "sweet-toast-custom-success"
+                },
+                timer: 3000
+            });
+            $("body").removeClass("swal2-height-auto");
+        },
+        errorToast(text) {
+            this.$swal.fire({
+                toast: true,
+                position: "top-right",
+                icon: "error",
+                text: text,
+                showConfirmButton: false,
+                customClass: {
+                    container: "sweet-toast-custom-error"
+                },
+                timer: 3000
+            });
+        },
+        successAlert(text) {
+            this.$swal.fire({
+                icon: "success",
+                text: text,
+                showConfirmButton: false,
+                timer: 3000
+            });
+            $("body").removeClass("swal2-height-auto");
+        },
+        errorAlert(text) {
+            this.$swal.fire({
+                icon: "error",
+                text: text,
+                showConfirmButton: false,
+                timer: 3000
+            });
+            $("body").removeClass("swal2-height-auto");
+        },
+        successAlertWithoutText() {
+            this.$swal.fire({
+                position: "top",
+                icon: "success",
+                showConfirmButton: false,
+                timer: 3000
+            });
+        },
+        errorAlertWithoutText() {
+            this.$swal.fire({
+                position: "top",
+                icon: "error",
+                showConfirmButton: false,
+                timer: 3000
+            });
+            $("body").removeClass("swal2-height-auto");
+        },
+        deleteConfirmationAlert(url, callback) {
+            this.$swal
+                .fire({
+                    title: "Are you sure?",
+                    text: "You won't be able to revert this!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "Yes, delete it!",
+                    showLoaderOnConfirm: true,
+                    preConfirm: () => {
+                        return axios({
+                            url: url,
+                            method: "DELETE"
+                        })
+                            .then(response => {
+                                if (response.status === 200) {
+                                    return response.data.message;
+                                } else {
+                                    return new Error(response.statusText);
+                                }
+                            })
+                            .catch(error => {
+                                Swal.showValidationMessage(
+                                    `Request failed: ${error}`
+                                );
+                            });
+                    }
+                })
+                .then(result => {
+                    if (result.isConfirmed) {
+                        this.$swal.fire({
+                            icon: "success",
+                            title: "Deleted!",
+                            text: result.value
+                        });
+                        if (callback && typeof callback === 'function') {
+                            callback(); // Execute the callback function
+                        }
+                    }
+                });
+        },
     },
     mounted() {
         this.setTableNoDataColspan();

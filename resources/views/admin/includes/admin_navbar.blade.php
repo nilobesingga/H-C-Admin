@@ -19,7 +19,7 @@
             </div>
         @endif
         {{--   Settings     --}}
-        @if( request()->is('admin/settings*') || request()->is('admin/acl*') )
+        @if( request()->is('admin/settings*'))
             <div class="container-fluid flex justify-between items-stretch gap-5">
                 <div class="grid items-stretch">
                     <div class="scrollable-x-auto flex items-stretch">
@@ -58,13 +58,6 @@
                                         </a>
                                     </div>
                                 </div>
-                            </div>
-                        <div class="menu-item border-b-2 border-b-transparent menu-item-active:border-b-gray-900 menu-item-here:border-b-gray-900 {{ request()->is('admin/acl*') ? 'active' : '' }}">
-                                <a class="menu-link gap-2.5" href="{{ route('admin.acl.main') }}" tabindex="0">
-                                    <span class="menu-title text-nowrap text-sm text-gray-800 menu-item-active:text-gray-900 menu-item-active:font-medium menu-item-here:text-gray-900 menu-item-here:font-medium menu-item-show:text-gray-900 menu-link-hover:text-gray-900">
-                                     ACL
-                                    </span>
-                                </a>
                             </div>
                         </div>
                     </div>

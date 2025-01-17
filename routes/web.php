@@ -26,6 +26,7 @@ Route::middleware(['auth'])->group(function(){
     Route::group(['middleware' => ['checkModuleAccess']], function (){
         // Reports
         Route::group(['prefix' => 'reports', 'as' => 'reports.'], function(){
+            Route::get('/', [ReportsController::class, 'index'])->name('index');
             Route::get('/purchase-invoices', [ReportsController::class, 'getPurchaseInvoices'])->name('purchase-invoices');
             Route::get('/cash-requests', [ReportsController::class, 'getCashRequests'])->name('cash-requests');
             Route::get('/bank-transfers', [ReportsController::class, 'getBankTransfers'])->name('bank-transfers');
@@ -52,12 +53,8 @@ Route::middleware(['auth'])->group(function(){
                 Route::get('/users', 'index')->name('users');
                 Route::post('/users/get-data', 'getData');
                 Route::get('/user/{id}', 'edit');
+                Route::post('/user/save/{userId}', 'save');
             });
-        });
-        // ACL
-        Route::prefix('acl')->name('acl.')->group(function (){
-            Route::get('/', [ACLController::class, 'index'])->name('main');
-            Route::post('/save/{userId}', [ACLController::class, 'save']);
         });
     });
 });

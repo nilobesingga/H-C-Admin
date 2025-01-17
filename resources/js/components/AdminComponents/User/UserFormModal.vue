@@ -33,8 +33,8 @@
                                 <div class="card-table scrollable-x-auto">
                                     <table class="table">
                                         <thead>
-                                            <tr>
-                                                <th class="text-left text-gray-300 font-normal min-w-[300px]">Module</th>
+                                            <tr >
+                                                <th class="text-left bg-cresco_blue text-white font-normal min-w-[300px]">Module</th>
                                                 <th class="min-w-24 text-gray-700 font-normal text-center">View Only</th>
                                                 <th class="min-w-24 text-gray-700 font-normal text-center">Full Access</th>
                                             </tr>
@@ -42,7 +42,7 @@
                                         <tbody class="text-gray-900 font-medium">
                                             <template v-for="module in form_data.modules" :key="module.id">
                                                 <!-- Parent Modules  -->
-                                                <tr>
+                                                <tr class="bg-gray-200">
                                                     <td>
                                                         <div class="flex flex-col gap-2.5">
                                                             <label class="checkbox-group">
@@ -57,7 +57,29 @@
                                                             </label>
                                                         </div>
                                                     </td>
-                                                    <td colspan="2"></td>
+                                                    <td class="">
+                                                        <label class="checkbox-group justify-center">
+                                                            <input
+                                                                type="checkbox"
+                                                                class="checkbox checkbox-sm"
+                                                                :checked="hasParentPermission(module, 'view_only')"
+                                                                @change="setParentPermission(module, 'view_only', $event)"
+                                                            >
+                                                            <span class="checkbox-label">All</span>
+                                                        </label>
+
+                                                    </td>
+                                                    <td>
+                                                        <label class="checkbox-group justify-center">
+                                                            <input
+                                                                type="checkbox"
+                                                                class="checkbox checkbox-sm"
+                                                                :checked="hasParentPermission(module, 'full_access')"
+                                                                @change="setParentPermission(module, 'full_access', $event)"
+                                                            >
+                                                            <span class="checkbox-label">All</span>
+                                                        </label>
+                                                    </td>
                                                 </tr>
                                                 <!-- Child Modules -->
                                                 <tr v-for="child in module.children" :key="child.id">
@@ -109,7 +131,16 @@
                                     <h3 class="card-title">Categories</h3>
                                 </div>
                                 <div class="card-body flex flex-col gap-2.5">
-                                    <div class="flex flex-col gap-2.5" v-for="category in form_data.categories" :key="category.id">
+                                    <label class="checkbox-group">
+                                        <input
+                                            class="checkbox checkbox-sm"
+                                            type="checkbox"
+                                            :checked="areAllCategoriesSelected"
+                                            @change="toggleSelectAllCategories($event)"
+                                        >
+                                        <span class="checkbox-label">All</span>
+                                    </label>
+                                    <div class="flex flex-col gap-2.5 ml-5" v-for="category in form_data.categories" :key="category.id">
                                         <label class="checkbox-group">
                                             <input
                                                 class="checkbox checkbox-sm"
@@ -135,7 +166,7 @@
                     <button
                         class="btn btn-primary"
                         @click="save"
-                        :disabled="(form.selected_category_ids.length === 0 || form.selected_modules.length === 0) || crud_loading"
+                        :disabled="crud_loading"
                     >
                         Submit
                     </button>
@@ -167,13 +198,16 @@ export default {
         save(){
             this.crud_loading = true
             axios({
-                url: `/admin/acl/save/${this.obj_id}`,
+                url: `/admin/settings/user/save/${this.obj_id}`,
                 method: 'POST',
                 data: this.form
             }).then(response => {
-                this.$emit('closeModal')
+                this.successToast(response.data.message);
+                this.$emit('closeModal');
             }).catch(error => {
-                console.log(error)
+                if (error.status === 500){
+                    this.errorToast(error.response.data.message)
+                }
             }).finally(() => {
                 this.crud_loading = false;
             })
@@ -189,7 +223,6 @@ export default {
                 this.form_data.categories = response.data.categories;
                 this.form.selected_category_ids = response.data.selected_category_ids;
                 this.form.selected_modules = response.data.selected_modules;
-
             }).catch(error => {
                 console.log(error)
             }).finally(() => {
@@ -206,9 +239,14 @@ export default {
                 });
             } else {
                 module.children.forEach((child) => {
-                    this.form.selected_modules = this.form.selected_modules.filter((item) => item.module_id !== child.id);
+                    this.form.selected_modules = this.form.selected_modules.filter(
+                        (item) => item.module_id !== child.id
+                    );
                 });
             }
+
+            // Clean up any redundant modules
+            this.cleanUpModules();
         },
         toggleChildModule(child, parent, event) {
             const isChecked = event.target.checked;
@@ -247,6 +285,55 @@ export default {
         cleanUpModules() {
             // Remove modules from selected_modules if they have no permissions
             this.form.selected_modules = this.form.selected_modules.filter((item) => item.permission);
+        },
+        setParentPermission(module, permission, event) {
+            const isChecked = event.target.checked;
+            if (isChecked) {
+                module.children.forEach((child) => {
+                    // Remove any existing permissions for this child
+                    this.form.selected_modules = this.form.selected_modules.filter(
+                        (item) => item.module_id !== child.id
+                    );
+
+                    // Add the selected permission
+                    this.form.selected_modules.push({ module_id: child.id, permission });
+                });
+            } else {
+                // Remove the selected permission from all children
+                module.children.forEach((child) => {
+                    this.form.selected_modules = this.form.selected_modules.filter(
+                        (item) => item.module_id !== child.id || item.permission !== permission
+                    );
+                });
+            }
+
+            // Clean up modules if no permissions remain
+            this.cleanUpModules();
+        },
+        hasParentPermission(module, permission) {
+            return module.children.every((child) =>
+                this.form.selected_modules.some(
+                    (item) => item.module_id === child.id && item.permission === permission
+                )
+            );
+        },
+        toggleSelectAllCategories(event) {
+            const isChecked = event.target.checked;
+            if (isChecked) {
+                // Add all category IDs to the selected list
+                this.form.selected_category_ids = this.form_data.categories.map((category) => category.id);
+            } else {
+                // Clear the selected categories
+                this.form.selected_category_ids = [];
+            }
+        },
+    },
+    computed: {
+        areAllCategoriesSelected() {
+            return (
+                this.form.selected_category_ids.length === this.form_data.categories.length &&
+                this.form_data.categories.length > 0
+            );
         },
     },
     mounted() {

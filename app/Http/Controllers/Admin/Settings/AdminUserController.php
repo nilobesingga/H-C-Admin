@@ -9,11 +9,15 @@ use App\Models\Permission;
 use App\Models\User;
 use App\Models\UserModulePermission;
 use App\Services\Bitrix\BitrixService;
+use App\Traits\ApiResponser;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class AdminUserController extends Controller
 {
+    use ApiResponser;
     protected $bitrixService;
     public function __construct(BitrixService $bitrixService)
     {
@@ -37,7 +41,7 @@ class AdminUserController extends Controller
 
             $filters = request('filters');
 
-            $query = User::with('profile');
+            $query = User::with('profile', 'categories', 'modules');
 
             // Apply search filter
             if (!empty($filters['search'])) {
@@ -54,6 +58,51 @@ class AdminUserController extends Controller
             return response()->json(['message' => $e->getMessage()], 500);
         }
 
+    }
+    public function save(Request $request, $userId)
+    {
+        try {
+            DB::beginTransaction();
+
+            DB::table('category_user')
+                ->where('user_id', $userId)
+                ->delete();
+
+            if (!empty($request['selected_category_ids'])) {
+                foreach ($request['selected_category_ids'] as $categoryId) {
+                    DB::table('category_user')->insert([
+                        'user_id' => $userId,
+                        'category_id' => $categoryId,
+                        'created_by' => Auth::id(),
+                        'created_at' => now(),
+                    ]);
+                }
+            }
+
+            // Handle module permissions
+            DB::table('user_module_permission')
+                ->where('user_id', $userId)
+                ->delete();
+
+            if (!empty($request['selected_modules'])) {
+                foreach ($request['selected_modules'] as $module) {
+                    DB::table('user_module_permission')->insert([
+                        'user_id' => $userId,
+                        'module_id' => $module['module_id'],
+                        'permission' => $module['permission'],
+                        'created_by' => Auth::id(),
+                        'created_at' => now(),
+                    ]);
+                }
+            }
+
+            DB::commit();
+            return $this->successResponse('User updated successfully');
+
+        } catch (\Exception $e){
+            DB::rollBack();
+            return $this->errorResponse('Oops! An error occurred. Please refresh the page or contact support', config('app.debug') === true ? $e->getMessage() : null, 500 );
+        }
     }
     public function edit($id)
     {

@@ -19,11 +19,7 @@
             </div>
         @endif
         {{--   Reports     --}}
-        @if($page->user->modules->isEmpty())
-            <div class="alert alert-danger">
-                This user has no assigned modules.
-            </div>
-        @else
+        @if(!$page->user->modules->isEmpty())
             @if(request()->is('reports*'))
                 <div class="container-fluid flex justify-between items-stretch gap-5">
                     <div class="grid items-stretch">
@@ -44,7 +40,7 @@
                     </div>
                 </div>
             @endif
-        @endif
+       @endif
 {{--        @if(request()->is('reports*'))--}}
 {{--            <div class="container-fluid flex justify-between items-stretch gap-5">--}}
 {{--                <div class="grid items-stretch">--}}

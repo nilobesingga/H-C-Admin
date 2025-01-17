@@ -18,10 +18,6 @@
                 <i class="ki-filled ki-to-right"></i>
             </button>
         </div>
-        <!-- Sage Not Accessible -->
-        <div class="flex flex-col justify-start pb-6" v-if="sharedState.sageNotAccessible">
-            <sage-network-error />
-        </div>
 
         <div class="grid gap-5 lg:gap-7.5">
             <!-- filters -->
@@ -85,7 +81,7 @@
             <!-- content area -->
             <div class="relative flex-grow overflow-auto">
                 <!-- Loading Indicator -->
-                <div v-if="loading" class="absolute inset-0 bg-gray-300 bg-opacity-100 flex items-center justify-center z-50 pointer-events-none">
+                <div v-if="loading" class="data-loading absolute inset-0 bg-gray-300 bg-opacity-100 flex items-center justify-center z-50 pointer-events-none">
                     <div class="flex items-center gap-2 px-4 py-2 font-medium leading-none text-sm border border-gray-200 shadow-default rounded-md text-gray-500 bg-white">
                         <svg class="animate-spin -ml-1 h-5 w-5 text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"></circle>
@@ -250,7 +246,6 @@ export default {
                 }
             } catch (error) {
                 this.loading = false;
-                this.handleNetworkError(error);
             } finally {
                 this.loading = false;
             }
@@ -293,7 +288,6 @@ export default {
                         week_date: item.funds_available_date != null ? item.funds_available_date : item.payment_date,
                     }));
             } catch (error) {
-                this.handleNetworkError(error);
                 return [];
             }
         },
@@ -335,7 +329,6 @@ export default {
                         week_date: item.payment_schedule_date
                     }));
             } catch (error) {
-                this.handleNetworkError(error);
                 return [];
             }
         },
