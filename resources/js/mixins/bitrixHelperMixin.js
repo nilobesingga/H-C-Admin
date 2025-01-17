@@ -171,6 +171,11 @@ export default {
         getBitrixUrlByBlockIdAndId(blockId, id) {
             return `https://crm.cresco.ae/bizproc/processes/${blockId}/element/0/${id}/?list_section_id=`;
         },
+        handleNetworkError(error){
+            if (error.response.data){
+                console.log('error from bitrixHelperMixin.js', error.response)
+            }
+        }
     },
     computed: {
         currency: {

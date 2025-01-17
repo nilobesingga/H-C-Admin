@@ -21,7 +21,7 @@
     background-color: #343a3f !important;
     color: white !important;
     padding: 5px 10px !important;
-    /*z-index: 100 !important;*/
+    z-index: 100 !important;
 }
 .app .table tbody tr td,
 .app .table tbody tr th {
@@ -45,6 +45,9 @@
 .app .btn-link {
     border-bottom: unset !important;
 }
+.app .data-loading {
+    z-index: 100 !important;
+}
 
 /* *********************************************** Admin ************************************************************** */
 .admin  .table-container {
@@ -58,7 +61,7 @@
     background-color: #15437a !important;
     color: white !important;
     /*padding: 5px 10px !important;*/
-    /*z-index: 50 !important;*/
+    z-index: 1 !important;
 }
 .admin  .table.table-main tbody tr td,
 .admin  .table.table-main tbody tr th {
@@ -69,4 +72,9 @@
 }
 .admin  .table.table-main th:last-child {
     border-start-end-radius: unset !important;
+}
+
+/* *********************************************** Global ************************************************************** */
+.swal2-container .swal2-html-container {
+    margin: 1em 0.6em .3em !important;
 }
