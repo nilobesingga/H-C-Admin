@@ -220,7 +220,11 @@ export default {
                         (item.subject && item.subject.includes(this.filters.search) ||
                         (item.lead && item.lead.includes(this.filters.search)) ||
                         (item.company && item.company.includes(this.filters.search)) ||
-                        (item.payment_term && item.payment_term.includes(this.filters.search))
+                        (item.payment_term && item.payment_term.includes(this.filters.search)) ||
+                        (item.contact && item.contact.includes(this.filters.search)) ||
+                        (item.client_email && item.client_email.includes(this.filters.search)) ||
+                        (item.client_title && item.client_title.includes(this.filters.search)) ||
+                        (item.subject && item.subject.includes(this.filters.search))
                         );
 
                 // Filter by status

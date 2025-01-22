@@ -347,8 +347,8 @@ export default {
                 ]
             },
             lineHeight: {
-                '0': '0', 					// 0px
-                '5.5': '1.375rem', 	// 22px
+                'custom-extra-tight': '1.1',
+                'custom-normal': '1.3',
             },
             zIndex: {
                 1: '1',

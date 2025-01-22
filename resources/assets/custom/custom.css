@@ -48,6 +48,14 @@
 .app .data-loading {
     z-index: 100 !important;
 }
+.app .btn-link {
+    color: #183852;
+    line-height: 1.3;
+}
+.app .btn-link:hover {
+    text-decoration: underline;
+    color: #1d68a7;
+}
 
 /* *********************************************** Admin ************************************************************** */
 .admin  .table-container {

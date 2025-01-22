@@ -49,35 +49,35 @@
                             <th class="sticky top-0 w-[100px]">Reference No</th>
                             <th class="sticky top-0 w-[100px]">Created Date</th>
                             <th class="sticky top-0 w-[110px]">Purchase Invoice Reference</th>
-                            <th class="sticky top-0 w-[60px]">Transfer Status</th>
+                            <th class="sticky top-0 w-[80px]">Transfer Status</th>
                             <th class="sticky top-0 w-[60px]">Transfer Date</th>
                             <th class="sticky top-0 w-[120px]">Transfer Documents</th>
                         </tr>
                     </thead>
-                    <tbody class="text-center text-xs text-gray-700">
+                    <tbody class="text-center text-xs text-gray-700 leading-custom-normal">
                         <tr v-for="(obj, index) in filteredData" :key="index" class="odd:bg-white even:bg-slate-100">
                             <td>{{ index + 1 }}</td>
                             <td><a target="_blank" class="btn btn-link" :href="'https://crm.cresco.ae/services/lists/99/element/0/' + obj.id  + '/?list_section_id='">{{ obj.id }}</a></td>
                             <td class="text-right">{{ formatAmount(obj.amount) }} <strong class="font-bold text-black">{{ obj.currency }}</strong></td>
-                            <td class="text-left">
+                            <td class="text-left break-words">
                                 <div><span>Account Name:</span> <strong class="font-bold text-black">{{ obj.from_account_name }}</strong></div>
                                 <div><span>Account Number: </span><span class="text-black">{{ obj.from_account_number }}</span></div>
                                 <div><span>Bank Name: </span><span class="text-black">{{ obj.from_bank_name }}</span></div>
                                 <div><span>IBAN: </span><span class="text-black">{{ obj.from_iban }}</span></div>
                                 <br>
                                 <div v-if="obj.from_company_name">
-                                    <span>Company:</span>
+                                    <span class="text-black">Company:</span>
                                     <span><a :href="`https://crm.cresco.ae/crm/company/details/${obj.from_company_id}/`" target="_blank" class="btn btn-link">{{ obj.from_company_name }}</a></span>
                                 </div>
                             </td>
-                            <td class="text-left">
+                            <td class="text-left break-words">
                                 <div><span>Account Name:</span> <strong class="font-bold text-black">{{ obj.to_account_name }}</strong></div>
                                 <div><span>Account Number: </span> <span class="text-black">{{ obj.to_account_number }}</span></div>
                                 <div><span>Bank Name:</span> <span class="text-black">{{ obj.to_bank_name }}</span></div>
                                 <div><span>IBAN:</span> <span class="text-black">{{ obj.to_iban }}</span> </div>
                                 <br>
                                 <div v-if="obj.to_company_name">
-                                    <span>Company:</span>
+                                    <span class="text-black">Company:</span>
                                     <span><a :href="`https://crm.cresco.ae/crm/company/details/${obj.to_company_id}/`" target="_blank" class="btn btn-link">{{ obj.to_company_name }}</a></span>
                                 </div>
                             </td>
@@ -97,7 +97,9 @@
                                     <span>Invoice Details</span>
                                 </button>
                             </td>
-                            <td :class="isWarning(obj) ? 'bg-warning' : ''">{{ obj.status_text }}</td>
+                            <td>
+                                <div :class="isWarning(obj) ? 'badge badge-warning' : ''">{{ obj.status_text }}</div>
+                            </td>
                             <td>{{ formatDate(obj.transfer_date) }}</td>
                             <td>
                                 <a v-for="(documentId, index) in obj.invoice_docoment_list"
@@ -255,10 +257,23 @@ export default {
             return this.data.filter(item => {
                 // Filter by search input (case insensitive)
                 const matchesSearch =
-                    (item.searchString && item.searchString.toLowerCase().includes(this.filters.search.toLowerCase())) ||
-                    (item.id && item.id.includes(this.filters.search)) ||
-                    (item.payment_reference_id && item.payment_reference_id.includes(this.filters.search));
-
+                        (item.id && item.id.includes(this.filters.search)) ||
+                        (item.name && item.name.includes(this.filters.search) ||
+                        (item.detail_text && item.detail_text.includes(this.filters.search)) ||
+                        (item.transfer_amount && item.transfer_amount.includes(this.filters.search)) ||
+                        (item.from_bank_name && item.from_bank_name.includes(this.filters.search)) ||
+                        (item.from_account_number && item.from_account_number.includes(this.filters.search)) ||
+                        (item.from_company_name && item.from_company_name.includes(this.filters.search)) ||
+                        (item.from_iban && item.from_iban.includes(this.filters.search)) ||
+                        (item.project_id && item.project_id.includes(this.filters.search)) ||
+                        (item.project_name && item.project_name.includes(this.filters.search)) ||
+                        (item.status_text && item.status_text.includes(this.filters.search)) ||
+                        (item.to_account_name && item.to_account_name.includes(this.filters.search)) ||
+                        (item.to_account_number && item.to_account_number.includes(this.filters.search)) ||
+                        (item.to_bank_name && item.to_bank_name.includes(this.filters.search)) ||
+                        (item.to_company_name && item.to_company_name.includes(this.filters.search)) ||
+                        (item.to_iban && item.to_iban.includes(this.filters.search))
+                    );
                 // Filter by status
                 const matchesStatus = this.filters.transfer_status ? item.transfer_status_id === this.filters.transfer_status : true;
 

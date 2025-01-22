@@ -15,7 +15,7 @@
                     </select>
                 </div>
                 <div class="flex">
-                    <select class="select select-sm min-w-[10rem] max-w-full text-black bg-inherit" v-model="filters.sage_company_id" @change="getData">
+                    <select class="select select-sm min-w-[20rem] max-w-full text-black bg-inherit" v-model="filters.sage_company_id" @change="getData">
                         <option value="" selected>Filter by Sage Company</option>
                         <option v-for="obj in page_data.bitrix_list_sage_companies" :key="obj.id" :value="obj.bitrix_sage_company_id">
                             {{ obj.bitrix_sage_company_name }}
@@ -41,7 +41,7 @@
                     </select>
                 </div>
                 <div class="flex">
-                    <select class="select select-sm min-w-[20rem] max-w-full text-black bg-inherit" v-model="filters.payment_mode">
+                    <select class="select select-sm min-w-[12rem] max-w-full text-black bg-inherit" v-model="filters.payment_mode">
                         <option value="" selected>Filter by Payment Mode</option>
                         <option value="1867">Cash</option>
                         <option value="1868">Card</option>
@@ -50,7 +50,7 @@
                     </select>
                 </div>
                 <div class="flex">
-                    <select class="select select-sm min-w-[20rem] max-w-full text-black bg-inherit" v-model="filters.charge_to_account">
+                    <select class="select select-sm min-w-[13rem] max-w-full text-black bg-inherit" v-model="filters.charge_to_account">
                         <option value="" selected>Filter by Charge to Account</option>
                             <option value="2243" selected="">No</option>
                             <option value="2246">Alex E</option>
@@ -123,9 +123,11 @@
                                 Requested By: <span class="font-bold text-black">{{ obj.requested_by_name }}</span><br><br>
                                 <span>{{ obj.detail_text }}</span>
                             </td>
-                            <td :class="isWarning(obj) ? 'bg-warning' : ''">
-                                <span>{{ obj.status_text }}</span>
-                                <span v-if="obj.sage_payment_date">on {{ formatBitrixDate(obj.sage_payment_date ) }}</span>
+                            <td>
+                                <div :class="isWarning(obj) ? 'badge badge-warning' : ''">
+                                    <span>{{ obj.status_text }}</span>
+                                    <span v-if="obj.sage_payment_date">on {{ formatBitrixDate(obj.sage_payment_date ) }}</span>
+                                </div>
                             </td>
                             <td>
                                 <a v-for="(documentId, index) in obj.document_lists"
@@ -350,9 +352,18 @@ export default {
             return this.data.filter(item => {
                 // Filter by search input (case insensitive)
                 const matchesSearch =
-                    (item.searchString && item.searchString.toLowerCase().includes(this.filters.search.toLowerCase())) ||
-                    (item.id && item.id.includes(this.filters.search)) ||
-                    (item.payment_reference_id && item.payment_reference_id.includes(this.filters.search));
+                        (item.id && item.id.includes(this.filters.search)) ||
+                        (item.amount && item.amount.includes(this.filters.search) ||
+                        (item.name && item.name.includes(this.filters.search)) ||
+                        (item.detail_text && item.detail_text.includes(this.filters.search)) ||
+                        (item.project_id && item.project_id.includes(this.filters.search)) ||
+                        (item.sage_payment_reference_id && item.sage_payment_reference_id.includes(this.filters.search)) ||
+                        (item.company_name && item.company_name.includes(this.filters.search)) ||
+                        (item.status_text && item.status_text.includes(this.filters.search)) ||
+                        (item.requested_by_name && item.requested_by_name.includes(this.filters.search)) ||
+                        (item.cash_release_location && item.cash_release_location.includes(this.filters.search)) ||
+                        (item.project_name && item.project_name.includes(this.filters.search))
+                    );
                 // Filter by status
                 const matchesStatus = this.filters.status ? item.status_id === this.filters.status : true;
                 // Filter by warning
@@ -397,6 +408,12 @@ export default {
             this.calculateTotalAsPerReportingCurrency();
         },
     },
+    created() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if(urlParams.get("search")){
+            this.filters.search = urlParams.get("search");
+        }
+    }
 }
 </script>
 <style scoped>

@@ -93,7 +93,7 @@
                             <td class="text-left"><a target="_blank" class="btn btn-link" :href="`https://crm.cresco.ae/crm/company/details/${obj.company_id}/`">{{ obj.company }}</a></td>
                             <td class="text-left"><a target="_blank" class="btn btn-link" :href="`https://crm.cresco.ae/crm/contact/details/${obj.contact_id}/`">{{ obj.contact }}</a></td>
                             <td class="text-right"><span>{{ formatAmount(obj.price) }}</span> <strong class="text-black font-bold">{{ obj.currency }}</strong></td>
-                            <td :class="isWarning(obj) ? 'bg-warning' : ''"><span>{{ obj.status }}</span></td>
+                            <td><div :class="isWarning(obj) ? 'badge badge-warning' : ''">{{ obj.status }}</div></td>
                             <td class="text-left">
                                 <div>
                                     <span class="text-black font-bold">Deal: </span>
@@ -221,11 +221,25 @@ export default {
         filteredData() {
             let today = DateTime.now();
             return this.data.filter(item => {
-                // Filter by search input (case insensitive)
+                const searchValue = this.filters.search.toLowerCase();
                 const matchesSearch =
-                    (item.searchString && item.searchString.toLowerCase().includes(this.filters.search.toLowerCase())) ||
-                    (item.id && item.id.includes(this.filters.search)) ||
-                    (item.payment_reference_id && item.payment_reference_id.includes(this.filters.search));
+                        (item.id && item.id.includes(this.filters.search)) ||
+                        (item.name && item.name.includes(this.filters.search) ||
+                        (item.account_number && item.account_number.includes(this.filters.search)) ||
+                        (item.bank_code && item.bank_code.includes(this.filters.search)) ||
+                        (item.contact && item.contact.includes(this.filters.search)) ||
+                        (item.deal && item.deal.includes(this.filters.search)) ||
+                        (item.order_number && item.order_number.includes(this.filters.search)) ||
+                        (item.order_topic && item.order_topic.includes(this.filters.search)) ||
+                        (item.pay_voucher_num && item.pay_voucher_num.includes(this.filters.search)) ||
+                        (item.quote && item.quote.includes(this.filters.search)) ||
+                        (item.sage_invoice_number && item.sage_invoice_number.includes(this.filters.search)) ||
+                        (item.to_account_name && item.to_account_name.includes(this.filters.search)) ||
+                        (item.to_account_number && item.to_account_number.includes(this.filters.search)) ||
+                        (item.to_bank_name && item.to_bank_name.includes(this.filters.search)) ||
+                        (item.to_company_name && item.to_company_name.includes(this.filters.search)) ||
+                        (item.to_iban && item.to_iban.includes(this.filters.search))
+                    );
 
                 // Filter by status
                 const matchesStatus = this.filters.status ? item.status_id === this.filters.status : true;
@@ -261,6 +275,12 @@ export default {
             this.calculateTotalAsPerReportingCurrency();
         },
     },
+    created() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if(urlParams.get("search")){
+            this.filters.search = urlParams.get("search");
+        }
+    }
 }
 </script>
 <style scoped>
