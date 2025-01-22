@@ -19,28 +19,35 @@
             <div class="relative overflow-auto reports-table-container w-full">
                 <table v-if="filteredCompanies.length > 0 && filteredBanks.length > 0" class="w-full table-auto border-collapse table-border border text-center whitespace-nowrap">
                     <thead class="text-sm">
+                        <!-- Country Row -->
                         <tr>
-                            <th class="sticky top-0 left-0 z-50 p-1 bg-cresco_blue text-white w-[22rem]">Country</th>
+                            <th class="sticky top-0 left-0 z-50 p-1 bg-primary text-white w-[22rem]">Country</th>
                             <template v-for="(bankCounty, index) in groupedByCountryBanks">
                                 <th class="sticky top-0 text-white z-40" :colspan="bankCounty.length" :style="{'background-color': bankCounty[0].countryColor}">{{ index }}</th>
                             </template>
                             <th class="sticky top-0 right-0 bg-gradient-to-r from-green-600 to-green-800 text-white z-50 p-1 w-[22rem]" rowspan="2">Totals ({{ currency }})</th>
                         </tr>
+                        <!-- Company Row -->
                         <tr>
-                            <th class="sticky top-[28px] left-0 z-50 bg-cresco_blue text-white p-1 w-[22rem]">Company</th>
+                            <th class="sticky top-[28px] left-0 z-50 text-white p-1 w-[22rem] company-head-bg">Company</th>
                             <template v-for="(bankCounty, index) in groupedByCountryBanks">
                                 <template v-for="bank in bankCounty">
-                                    <th class="sticky top-[28px] text-white text-center z-40 p-2 min-w-[130px]" style="background-color: #343a3f">{{ bank.bankName }}</th>
+                                    <th class="sticky top-[28px] text-white text-center z-40 p-2 min-w-[130px] company-head-bg">{{ bank.bankName }}</th>
                                 </template>
                             </template>
                         </tr>
                     </thead>
                     <tbody class="text-sm">
+                        <!-- Main Grid, Amounts -->
                         <tr v-for="company in filteredCompanies" :key="company.companyId" class="odd:bg-white even:bg-slate-100">
                             <td class="sticky left-0 text-left z-40 bg-white text-black p-2 border-2 w-[22rem]">{{ company.companyName }}</td>
                             <template v-for="(bankCountry, index) in groupedByCountryBanks">
                                 <template v-for="bank in bankCountry">
-                                    <td class="text-right text-black p-2 border-2">
+                                    <td
+                                        :class="['text-right text-black p-2 border-2 cursor-pointer', getBankClass(company.banks, bank.bankId, 'C')]"
+                                        @click="showBankTransactions(company.banks, bank.bankId, 'C')"
+                                        data-modal-toggle="#show_bank_transactions_modal"
+                                    >
                                         {{ formatAmount(getBankAmount(company.banks, bank.bankId)) }}
                                     </td>
                                 </template>
@@ -49,43 +56,43 @@
                         </tr>
                         <!-- Totals Rows -->
                         <tr>
-                            <td class="sticky left-0 bg-gradient-to-r from-purple-100 to-purple-200 z-40 p-2 text-black font-bold border-2 w-[250px]">TOTAL CASH</td>
+                            <td class="text-left sticky left-0 bg-[#B9C4F6] z-40 p-2 text-black font-bold border-2 w-[250px]">TOTAL CASH</td>
                             <template v-for="(bankCountry, index) in groupedByCountryBanks">
                                 <template v-for="bank in bankCountry">
-                                    <td class="bg-gradient-to-r from-purple-100 to-purple-200 text-black font-bold p-2 text-right border-2">{{ formatAmount(bank.allCash) }}</td>
+                                    <td class="bg-[#B9C4F6] text-black font-bold p-2 text-right border-2">{{ formatAmount(bank.allCash) }}</td>
                                 </template>
                             </template>
-                            <td class="sticky right-0 bg-gradient-to-r from-purple-100 to-purple-200 text-black font-bold p-2 text-right z-40 border-2 w-[250px]">{{ formatAmount(overAllTotalCash) }}</td>
+                            <td class="sticky right-0 bg-[#B9C4F6] text-black font-bold p-2 text-right z-40 border-2 w-[250px]">{{ formatAmount(overAllTotalCash) }}</td>
                         </tr>
                         <!-- Reserved Rows -->
                         <tr>
-                            <td class="sticky left-0 z-40 bg-white p-2 text-black border-2 w-[250px]">RESERVED</td>
+                            <td class="text-left text-black font-bold sticky left-0 z-40 bg-white p-2 border-2 w-[250px]">RESERVED</td>
                             <template v-for="(bankCountry, index) in groupedByCountryBanks">
                                 <template v-for="bank in bankCountry">
-                                    <td class="text-black p-2 text-right border-2">{{ formatAmount(getReservedAmountsByBank(bank)) }}</td>
+                                    <td class="text-black font-bold p-2 text-right border-2">{{ formatAmount(getReservedAmountsByBank(bank)) }}</td>
                                 </template>
                             </template>
-                            <td class="sticky right-0 text-black bg-white p-2 text-right z-40 border-2 w-[250px]">{{ formatAmount(overAllMinimumBalance) }}</td>
+                            <td class="sticky right-0 text-black font-bold bg-white p-2 text-right z-40 border-2 w-[250px]">{{ formatAmount(overAllMinimumBalance) }}</td>
                         </tr>
                         <!-- Blocked Rows -->
                         <tr>
-                            <td class="sticky left-0 z-40 bg-white p-2 text-black border-2 w-[250px]">BLOCKED</td>
+                            <td class="text-left text-black font-bold sticky left-0 z-40 bg-white p-2 border-2 w-[250px]">BLOCKED</td>
                             <template v-for="(bankCountry, index) in groupedByCountryBanks">
                                 <template v-for="bank in bankCountry">
-                                    <td class="text-black p-2 text-right border-2">{{ formatAmount(bank.allBlocked) }}</td>
+                                    <td class="text-black font-bold p-2 text-right border-2">{{ formatAmount(bank.allBlocked) }}</td>
                                 </template>
                             </template>
-                            <td class="sticky right-0 text-black bg-white p-2 text-right z-40 border-2 w-[250px]">{{ formatAmount(overallTotalBlockedCash) }}</td>
+                            <td class="sticky right-0 text-black font-bold bg-white p-2 text-right z-40 border-2 w-[250px]">{{ formatAmount(overallTotalBlockedCash) }}</td>
                         </tr>
                         <!-- Blocked Rows -->
                         <tr>
-                            <td class="sticky left-0 z-40 bg-white p-2 text-black border-2 w-[250px]">AVAILABLE CASH</td>
+                            <td class="text-left text-black font-bold sticky left-0 z-40 bg-white p-2 border-2 w-[250px]">AVAILABLE CASH</td>
                             <template v-for="(bankCountry, index) in groupedByCountryBanks">
                                 <template v-for="bank in bankCountry">
-                                    <td class="text-black p-2 text-right border-2">{{ formatAmount(bank.availableCash) }}</td>
+                                    <td class="text-black font-bold p-2 text-right border-2">{{ formatAmount(bank.availableCash) }}</td>
                                 </template>
                             </template>
-                            <td class="sticky right-0 text-black bg-white p-2 text-right z-40 border-2 w-[250px]">{{ formatAmount(overAllAvailableCash) }}</td>
+                            <td class="sticky right-0 text-black font-bold bg-white p-2 text-right z-40 border-2 w-[250px]">{{ formatAmount(overAllAvailableCash) }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -104,7 +111,12 @@
             </div>
         </div>
     </div>
-
+    <show-bank-transactions-modal
+        v-if="is_show_bank_transactions_modal"
+        :bitrix_sage_company_mapping="page_data.bitrix_sage_company_mapping"
+        ref="showBankTransactionsModal"
+        @closeModal="closeModal"
+    />
 </template>
 <script>
 import {DateTime} from "luxon";
@@ -126,6 +138,7 @@ export default {
             overallTotalBlockedCash: 0,
             overAllAvailableCash: 0,
             overAllMinimumBalance: 0,
+            is_show_bank_transactions_modal: false,
         }
     },
     methods: {
@@ -241,6 +254,38 @@ export default {
             const randomValue = () => Math.floor(Math.random() * 256);
             return `rgb(${randomValue()}, ${randomValue()}, ${randomValue()})`;
         },
+        getBankClass(banks, bankId, type) {
+            //check if there is a bank that is blocked
+            let bank = banks.find(function (bank) {
+                return bank.isBlock && bank.type === type && bank.bankId === bankId;
+            });
+
+            let bankAmount = this.getBankAmount(banks,bankId);
+
+            if (bank) {
+                return "blocked";
+            } else if (bankAmount < 0){
+                return "bg-orange";
+            } else if (bankAmount === 0) {
+                return "not-applicable-gray";
+            } else {
+                return "cash-item";
+            }
+        },
+        showBankTransactions(companyBanks, bankId, type){
+            //filter company banks by bankId and type
+            var banks = companyBanks.filter(function (bank) {
+                return bank.bankId === bankId && bank.type === 'C' || bank.bankId === bankId && bank.type === 'R';
+            });
+            this.is_show_bank_transactions_modal = true
+            this.$nextTick(() => {
+                this.$refs.showBankTransactionsModal.showTransactions(banks);
+            })
+        },
+        closeModal(){
+            this.is_show_bank_transactions_modal = false;
+            this.removeModalBackdrop();
+        }
     },
     computed: {
         filteredCompanies() {
@@ -297,4 +342,13 @@ export default {
 }
 </script>
 <style scoped>
+.company-head-bg{
+    background-color: #343a3f;
+}
+.blocked {
+    background-color: #ff000052
+}
+.not-applicable-gray{
+    color: #6c757d78;
+}
 </style>
