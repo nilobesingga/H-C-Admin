@@ -79,7 +79,7 @@
                             <th class="sticky top-0 w-[100px]">Invoice Date</th>
                             <th class="sticky top-0 w-[100px]">Due Date</th>
                             <th class="sticky top-0 w-[100px]">Payment Schedule</th>
-                            <th class="sticky top-0 w-[80px]">SAGE Status</th>
+                            <th class="sticky top-0 w-[100px]">SAGE Status</th>
                             <th class="sticky top-0 w-[125px]">Status</th>
                             <th class="sticky top-0 w-[125px] text-right">Invoice Amount</th>
                             <th class="sticky top-0 w-[150px] text-left">Invoice Number</th>
@@ -97,12 +97,14 @@
                             <td>{{ formatDate(obj.invoice_date) }}</td>
                             <td>{{ formatDate(obj.due_date) }}</td>
                             <td><span v-if="obj.payment_schedule_date" class="font-bold text-black">{{ formatDate(obj.payment_schedule_date)}}</span></td>
-                            <td :class="[isSageStatusWarning(obj) ? 'bg-warning' : '']">
-                                <div v-if="obj.sage_status_text">{{ obj.sage_status_text }}</div>
-                                <div v-if="obj.sage_batch_id" class="text-gray-600">({{ obj.sage_batch_id }})</div>
+                            <td>
+                                <div :class="[isSageStatusWarning(obj) ? 'badge badge-warning' : '']">
+                                    <div v-if="obj.sage_status_text">{{ obj.sage_status_text }}</div>
+                                    <div v-if="obj.sage_batch_id" class="text-gray-600">({{ obj.sage_batch_id }})</div>
+                                </div>
                             </td>
-                            <td :class="[isBitrixStatusWarning(obj) ? 'bg-warning' : '']">
-                                <div>
+                            <td>
+                                <div :class="[isBitrixStatusWarning(obj) ? 'badge badge-warning' : '']">
                                     <span> {{ obj.status_text }} </span>&nbsp
                                     <span v-if="obj.sage_payment_date"> {{ formatBitrixDate(obj.sage_payment_date) }} </span>
                                     <div v-if="obj.payment_reference_id"> {{ obj.payment_reference_id }} </div>
@@ -166,7 +168,7 @@
             <!-- create transfer form modal -->
             <create-bank-transfer-form-modal
                 :obj="selected_obj"
-                :bitrix_bank_transfer_company_ids="page_data.bitrixBankTransferCompanyIds"
+                :bitrix_bank_transfer_company_ids="page_data.bitrix_bank_transfer_company_ids"
                 v-if="is_crate_bank_transfer_form_modal"
                 type="purchaseInvoice"
                 @closeModal="closeModal"
@@ -301,8 +303,10 @@ export default {
         }
     },
     created() {
-        this.sharedState.bitrixUserId = this.page_data.user.bitrix_user_id;
-        this.sharedState.bitrixWebhookToekn = this.page_data.user.bitrix_webhook_token;
+        const urlParams = new URLSearchParams(window.location.search);
+        if(urlParams.get("search")){
+            this.filters.search = urlParams.get("search");
+        }
     }
 }
 </script>

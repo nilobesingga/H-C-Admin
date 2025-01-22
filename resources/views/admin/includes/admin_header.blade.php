@@ -1,19 +1,17 @@
 <header class="flex items-center fixed z-10 top-0 left-0 right-0 shrink-0 h-[--tw-header-height] bg-[--tw-page-bg] dark:bg-[--tw-page-bg-dark]" id="header">
     <!-- Container -->
-    <div class="container-fluid flex justify-between items-stretch px-5 lg:ps-0 lg:gap-4" id="header_container">
+    <div class="container-fluid flex justify-between pl-3" id="header_container">
         <div class="flex items-center mr-1">
-            <div class="flex items-center justify-center lg:w-[--tw-sidebar-width] gap-2 shrink-0">
+            <div class="flex items-center">
                 <button class="btn btn-icon btn-light btn-clear btn-sm -ms-2 lg:hidden" data-drawer-toggle="#sidebar">
                     <i class="ki-filled ki-menu"></i>
                 </button>
-                <a class="mx-1" href="{{ route('dashboard') }}">
-                    <img class="dark:hidden min-h-[24px]" src="{{ asset('storage/images/logos/CRESCO_icon.svg') }}"/>
-                    <img class="hidden dark:block min-h-[24px]" src="{{ asset('storage/images/logos/CRESCO_icon.svg') }}"/>
+                <a class="mx-1 w-[50%]" href="{{ route('dashboard') }}">
+                    <img class="dark:hidden min-h-[24px]" src="{{ asset('storage/images/logos/CRESCO-logo.png') }}"/>
+                    <img class="hidden dark:block min-h-[24px]" src="{{ asset('storage/images/logos/CRESCO-logo.png') }}"/>
                 </a>
             </div>
             <div class="flex items-center">
-                <h3 class="text-gray-700 text-base hidden md:block">CRESCO</h3>
-                <span class="text-sm text-gray-400 font-medium px-2.5 hidden md:inline">/</span>
                 <div class="text-md font-semibold text-gray-900">Admin</div>
             </div>
         </div>
