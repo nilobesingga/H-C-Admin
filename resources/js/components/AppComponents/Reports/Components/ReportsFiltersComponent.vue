@@ -1,5 +1,5 @@
 <template>
-    <div class="pb-6">
+    <div class="pb-6 pt-6">
         <div class="flex items-center justify-between">
             <!-- Date Range Picker Text on the Left -->
             <div class="flex flex-col justify-start w-full max-w-sm text-black font-black">

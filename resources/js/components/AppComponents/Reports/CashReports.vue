@@ -4,83 +4,64 @@
             @get-data="getData"
         />
         <div class="grid gap-5 lg:gap-7.5">
-            <!-- filters -->
-            <div class="flex items-center justify-between gap-2">
-                <div class="flex">
-                    <select class="select select-sm min-w-[12rem] max-w-full text-black bg-inherit" v-model="filters.category_id" @change="getData">
-                        <option value="" selected>Filter by Category</option>
-                        <option v-for="obj in page_data.bitrix_list_categories" :key="obj.id" :value="obj.bitrix_category_id">
-                            {{ obj.bitrix_category_name }}
-                        </option>
-                    </select>
-                </div>
-                <div class="flex">
-                    <select class="select select-sm min-w-[20rem] max-w-full text-black bg-inherit" v-model="filters.sage_company_id" @change="getData">
-                        <option value="" selected>Filter by Sage Company</option>
-                        <option v-for="obj in page_data.bitrix_list_sage_companies" :key="obj.id" :value="obj.bitrix_sage_company_id">
-                            {{ obj.bitrix_sage_company_name }}
-                        </option>
-                    </select>
-                </div>
-                <div class="flex">
-                    <select class="select select-sm min-w-[10rem] max-w-full text-black bg-inherit" v-model="filters.status">
-                        <option value="" selected>Filter by Status</option>
-                        <option value="1651">Pending</option>
-                        <option value="1652">Approved</option>
-                        <option value="1653">Declined</option>
-                        <option value="1655">Cash Released</option>
-                        <option value="1659">Cancelled</option>
-                        <option value="1687">Partial Cash Release</option>
-                    </select>
-                </div>
-                <div class="flex">
-                    <select class="select select-sm min-w-[12rem] max-w-full text-black bg-inherit" v-model="filters.charge_to_client">
-                        <option value="" selected>Filter by Charge to Client</option>
-                        <option value="1990">Yes</option>
-                        <option value="1991">No</option>
-                    </select>
-                </div>
-                <div class="flex">
-                    <select class="select select-sm min-w-[12rem] max-w-full text-black bg-inherit" v-model="filters.payment_mode">
-                        <option value="" selected>Filter by Payment Mode</option>
-                        <option value="1867">Cash</option>
-                        <option value="1868">Card</option>
-                        <option value="1869">Bank Transfer</option>
-                        <option value="1870">Cheque</option>
-                    </select>
-                </div>
-                <div class="flex">
-                    <select class="select select-sm min-w-[13rem] max-w-full text-black bg-inherit" v-model="filters.charge_to_account">
-                        <option value="" selected>Filter by Charge to Account</option>
-                            <option value="2243" selected="">No</option>
-                            <option value="2246">Alex E</option>
-                            <option value="2234">Andre</option>
-                            <option value="2265">BhaPun</option>
-                            <option value="2235">CLP Alphabet</option>
-                            <option value="2245">Dmitry</option>
-                            <option value="2236">Erhan</option>
-                            <option value="2237">Evaland</option>
-                            <option value="2238">Farhad</option>
-                            <option value="2274">Geston</option>
-                            <option value="2281">Irfan</option>
-                            <option value="2239">Jochen</option>
-                            <option value="2279">NaBro MRF096</option>
-                            <option value="2280">NaBro MRF097</option>
-                            <option value="2271">Patrick</option>
-                            <option value="2324">Raed</option>
-                            <option value="2240">Sergei</option>
-                            <option value="2261">Sid H</option>
-                            <option value="2241">SS</option>
+            <!-- Filters Section -->
+            <div class="flex flex-wrap items-center gap-2">
+                <div class="flex flex-grow gap-2">
+                    <!-- Category Filter -->
+                    <div class="flex flex-shrink-0">
+                        <select
+                            class="select select-sm px-3 pr-8 min-w-fit max-w-full text-black bg-inherit"
+                            v-model="filters.category_id"
+                            @change="getData"
+                        >
+                            <option value="" selected>Filter by Category</option>
+                            <option v-for="obj in page_data.bitrix_list_categories" :key="obj.id" :value="obj.bitrix_category_id">
+                                {{ obj.bitrix_category_name }}
+                            </option>
                         </select>
-                </div>
-                <div class="flex">
-                    <div class="relative">
-                        <i class="ki-filled ki-magnifier leading-none text-md text-gray-500 absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
-                        <input class="input input-sm ps-8 text-black bg-inherit" placeholder="Search" type="text" v-model="filters.search">
+                    </div>
+                    <!-- Sage Company Filter -->
+                    <div class="flex flex-shrink-0">
+                        <select
+                            class="select select-sm px-3 pr-8 min-w-fit max-w-full text-black bg-inherit"
+                            v-model="filters.sage_company_id"
+                            @change="getData"
+                        >
+                            <option value="" selected>Filter by Sage Company</option>
+                            <option v-for="obj in page_data.bitrix_list_sage_companies" :key="obj.id" :value="obj.bitrix_sage_company_id">
+                                {{ obj.bitrix_sage_company_name }}
+                            </option>
+                        </select>
+                    </div>
+                    <!-- Dynamic Filters -->
+                    <div v-for="filter in page_filters" :key="filter.key" class="flex flex-shrink-0">
+                        <select
+                            class="select select-sm px-3 pr-8 min-w-fit max-w-full text-black bg-inherit"
+                            v-model="filters[filter.key]"
+                        >
+                            <option value="" selected>Filter by {{ filter.name }}</option>
+                            <option v-for="(value, key) in filter.values" :value="key" :key="key">{{ value }}</option>
+                        </select>
                     </div>
                 </div>
-                <div class="flex">
-                    <button :class="['btn btn-icon btn-sm relative', filters.is_warning ? 'btn-warning text-white' : 'btn-light']" @click="filters.is_warning = !filters.is_warning">
+                <!-- Search Input -->
+                <div class="flex flex-grow">
+                    <div class="relative w-full">
+                        <i class="ki-filled ki-magnifier leading-none text-md text-gray-500 absolute top-1/2 left-3 transform -translate-y-1/2"></i>
+                        <input
+                            class="input input-sm ps-8 w-full text-black bg-inherit"
+                            placeholder="Search"
+                            type="text"
+                            v-model="filters.search"
+                        />
+                    </div>
+                </div>
+                <!-- Warning Filter -->
+                <div class="flex flex-shrink-0">
+                    <button
+                        :class="['btn btn-icon btn-sm relative px-3', filters.is_warning ? 'btn-warning text-white' : 'btn-light']"
+                        @click="filters.is_warning = !filters.is_warning"
+                    >
                         <i class="ki-filled ki-information-1"></i>
                         <span class="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">{{ warningCount }}</span>
                     </button>
@@ -110,7 +91,7 @@
                         <tr v-for="(obj, index) in filteredData" :key="index" class="odd:bg-white even:bg-slate-100">
                             <td>{{ ++index }}</td>
                             <td><a class="btn btn-link" target="_blank" :href="'https://crm.cresco.ae/bizproc/processes/105/element/0/' + obj.id  + '/?list_section_id='">{{obj.id }}</a></td>
-                            <td class="text-center">{{ getPaymentMode(obj.payment_mode_id) }}</td>
+                            <td class="text-center">{{ obj.payment_mode }}</td>
                             <td class="text-right">{{ formatAmount(obj.amount) }} <strong class="font-bold text-black">{{ obj.currency }}</strong></td>
                             <td>{{ formatDate(obj.payment_date)  }}</td>
                             <td>{{ formatDate(obj.funds_available_date) }}</td>
@@ -118,7 +99,7 @@
                                 <span class="font-bold text-black" v-if="obj.project_type">{{ obj.project_type }}:</span>
                                 <a class="btn btn-link" target="_blank" v-if="obj.project_type" :href="getBitrixProjectLink(obj)">{{ obj.project_name }}</a>
                             </td>
-                            <td class="text-center">{{ getChargeExtraToClientValue(obj.charge_extra_to_client, page_data.identifier) }}</td>
+                            <td class="text-center">{{ obj.charge_extra_to_client }}</td>
                             <td class="text-left" style="max-width: 200px; word-wrap: break-word;">
                                 Requested By: <span class="font-bold text-black">{{ obj.requested_by_name }}</span><br><br>
                                 <span>{{ obj.detail_text }}</span>
@@ -249,13 +230,40 @@ export default {
                 category_id: "",
                 sage_company_id: "",
                 status: "",
+                payment_mode: "",
                 charge_to_client: "",
                 charge_to_account: "",
                 search: "",
-                payment_mode: "",
                 is_warning: false,
             },
+            page_filters: [
+                {
+                    key: "status",
+                    name: "Status",
+                    field_id: "PROPERTY_943",
+                    values: {}
+                },
+                {
+                    key: "payment_mode",
+                    name: "Payment Mode",
+                    field_id: "PROPERTY_1088",
+                    values: {}
+                },
+                {
+                    key: "charge_to_client",
+                    name: "Charge to Client",
+                    field_id: "PROPERTY_1215",
+                    values: {}
+                },
+                {
+                    key: "charge_to_account",
+                    name: "Charge to Account",
+                    field_id: "PROPERTY_1243",
+                    values: {}
+                },
+            ],
             totalAsPerReportingCurrency: 0,
+            status_filter_ids : [1651, 1652, 1653, 1655, 1659, 1687],
             bitrixCashRequestStatus: {
                 pending: 1651,
                 approved: 1652,
@@ -268,9 +276,47 @@ export default {
         }
     },
     methods: {
-        async getData(){
-            let dateRange = JSON.parse(localStorage.getItem('dateRange'));
+        async getData() {
             this.loading = true;
+            try {
+                await this.fetchFiltersValuesFromBitrix();
+                await this.getPageData();
+            } finally {
+                this.loading = false;
+            }
+        },
+        async fetchFiltersValuesFromBitrix() {
+            const bitrixUserId = this.page_data.user.bitrix_user_id;
+            const bitrixWebhookToken = this.page_data.user.bitrix_webhook_token;
+            const endpoint = 'lists.field.get';
+            for (const filter of this.page_filters) {
+                try {
+                    const requestData = {
+                        IBLOCK_TYPE_ID: this.page_data.bitrix_list.bitrix_iblock_type,
+                        IBLOCK_ID: this.page_data.bitrix_list.bitrix_iblock_id,
+                        FIELD_ID: filter.field_id
+                    };
+                    const response = await this.callBitrixAPI(endpoint, bitrixUserId, bitrixWebhookToken, requestData);
+                    if (filter.key === "status"){
+                        // Filter values based on allowed IDs
+                        filter.values = Object.entries(response.result.L.DISPLAY_VALUES_FORM)
+                            .filter(([key]) => this.status_filter_ids.includes(parseInt(key))) // Keep only allowed IDs
+                            .reduce((obj, [key, value]) => {
+                                obj[key] = value;
+                                return obj;
+                            }, {});
+                    }
+                    else {
+                        filter.values = response.result.L.DISPLAY_VALUES_FORM;
+                    }
+
+                } catch (error) {
+                    console.error(`Error fetching filter data for ${filter.key}:`, error);
+                }
+            }
+        },
+        async getPageData(){
+            let dateRange = JSON.parse(localStorage.getItem('dateRange'));
             this.data = [];
             const bitrixUserId = this.page_data.user.bitrix_user_id ? this.page_data.user.bitrix_user_id : null;
             const bitrixWebhookToken = this.page_data.user.bitrix_webhook_token ? this.page_data.user.bitrix_webhook_token : null;
@@ -284,7 +330,6 @@ export default {
             }
             try {
                 const response = await this.callBitrixAPI(endpoint, bitrixUserId, bitrixWebhookToken, requestData);
-                this.loading = false
                 this.data = response.result;
                 this.data.forEach((item) => {
                     item.document_lists = []
@@ -294,7 +339,9 @@ export default {
                 })
                 await this.calculateTotalAsPerReportingCurrency();
             } catch (error) {
-                this.loading = false
+                if (error.status === 500){
+                    this.errorToast('Something went wrong! Please refresh the page or contact support if this keeps happening.')
+                }
             }
         },
         async calculateTotalAsPerReportingCurrency(){
@@ -328,20 +375,6 @@ export default {
         isWarning(item) {
             return (item.status_text === "Approved" && this.isOverTwoWorkingDays(item.funds_available_date));
         },
-        getPaymentMode(paymentModeId) {
-            switch (paymentModeId) {
-                case "1867":
-                    return "Cash";
-                case "1868":
-                    return "Card";
-                case "1869":
-                    return "Bank Transfer";
-                case "1870":
-                    return "Cheque";
-                default:
-                    return "Cash";
-            }
-        },
         showBankTransferDetails(){},
         showCreateNewBankTransferModal(){},
         createOffer(){},
@@ -349,41 +382,28 @@ export default {
     computed:{
         filteredData() {
             let today = DateTime.now();
+            const searchTerm = this.filters.search?.toLowerCase() || '';
             return this.data.filter(item => {
                 // Filter by search input (case insensitive)
-                const matchesSearch =
-                        (item.id && item.id.includes(this.filters.search)) ||
-                        (item.amount && item.amount.includes(this.filters.search) ||
-                        (item.name && item.name.includes(this.filters.search)) ||
-                        (item.detail_text && item.detail_text.includes(this.filters.search)) ||
-                        (item.project_id && item.project_id.includes(this.filters.search)) ||
-                        (item.sage_payment_reference_id && item.sage_payment_reference_id.includes(this.filters.search)) ||
-                        (item.company_name && item.company_name.includes(this.filters.search)) ||
-                        (item.status_text && item.status_text.includes(this.filters.search)) ||
-                        (item.requested_by_name && item.requested_by_name.includes(this.filters.search)) ||
-                        (item.cash_release_location && item.cash_release_location.includes(this.filters.search)) ||
-                        (item.project_name && item.project_name.includes(this.filters.search))
-                    );
+                const matchesSearch = [
+                    item.id, item.amount, item.name, item.detail_text,
+                    item.project_id, item.sage_payment_reference_id, item.company_name,
+                    item.status_text, item.requested_by_name, item.cash_release_location,
+                    item.project_name,
+                ].some(field => field?.toLowerCase().includes(searchTerm));
                 // Filter by status
                 const matchesStatus = this.filters.status ? item.status_id === this.filters.status : true;
                 // Filter by warning
                 const matchesWarning = this.filters.is_warning ? this.isWarning(item, today) : true;
                 // Filter by payment mode
-                const matchesPaymentMode = this.filters.payment_mode
-                    ? (this.filters.payment_mode === "1867"
-                        ? item.payment_mode_id === this.filters.payment_mode || item.payment_mode_id === null
-                        : item.payment_mode_id === this.filters.payment_mode)
-                    : true;
+                const matchesPaymentMode = this.filters.payment_mode ? item.payment_mode_id === this.filters.payment_mode : true
                 // Filter by charge to client
-                const matchesChargeToClient = this.filters.charge_to_client
-                    ? (this.filters.charge_to_client === "1991"
-                        ? item.payment_mode_id === this.filters.payment_mode || item.payment_mode_id === null
-                        : item.payment_mode_id === this.filters.payment_mode)
-                    : true;
+                const matchesChargeToClient = this.filters.charge_to_client ? item.charge_extra_to_client_id === this.filters.charge_to_client : true
                 // Filter by chargeToAccount
                 const matchesChargeToAccount = this.filters.charge_to_account ? item.charge_to_running_account_id === this.filters.charge_to_account : true;
+
                 // Return true only if all filters match
-                return matchesSearch && matchesStatus && matchesChargeToClient && matchesWarning && matchesPaymentMode && matchesChargeToAccount;
+                return matchesSearch && matchesStatus && matchesWarning && matchesPaymentMode && matchesChargeToClient  && matchesChargeToAccount;
             });
         },
         groupedByCurrency() {

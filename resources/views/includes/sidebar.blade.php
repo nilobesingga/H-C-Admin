@@ -17,7 +17,7 @@
                         {{ request()->is('reports*') ? 'active' : '' }}"
                    data-tooltip=""
                    data-tooltip-placement="right"
-                   href="{{ route('reports.' . $page->user->modules->first()->slug) }}"
+                   href="{{ route('reports.' . $page->user->modules->sortBy('order')->first()->slug) }}"
                 >
                     <span class="menu-icon"><i class="ki-filled ki-tab-tablet"></i></span>
                     <span class="tooltip">Reports</span>

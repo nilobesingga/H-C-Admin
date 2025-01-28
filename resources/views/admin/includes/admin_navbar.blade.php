@@ -57,6 +57,11 @@
                                             <span class="menu-title">Users</span>
                                         </a>
                                     </div>
+                                    <div class="menu-item {{ request()->routeIs('admin.settings.modules') ? 'active' : '' }}">
+                                        <a class="menu-link" href="{{ route('admin.settings.modules') }}" tabindex="0">
+                                            <span class="menu-title">Modules</span>
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
