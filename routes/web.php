@@ -48,6 +48,8 @@ Route::middleware(['auth'])->group(function(){
             Route::get('/countries', [AdminSettingsController::class, 'countries'])->name('countries');
             Route::get('/categories', [AdminSettingsController::class, 'categories'])->name('categories');
             Route::get('/modules', [AdminSettingsController::class, 'modules'])->name('modules');
+            Route::post('/modules/get-data', [AdminSettingsController::class, 'moduleGetData']);
+            Route::post('/modules/update', [AdminSettingsController::class, 'modulesOrderUpdate']);
             //  Users
             Route::controller(AdminUserController::class)->group(function(){
                 Route::get('/users', 'index')->name('users');

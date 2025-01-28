@@ -5,6 +5,17 @@
     border-color: #941301 !important;
     box-shadow: none !important;
 }
+.app .sub-module .btn-clear.btn-primary:hover, .btn-clear.btn-primary:focus, .btn-clear.btn-primary:active, .btn-clear.btn-primary.active {
+    color: white !important;
+    background-color: #941301 !important;
+    border-color: #941301 !important;
+    box-shadow: none !important;
+}
+.app .sub-module .btn-clear.btn-primary {
+    border-color: transparent;
+    background-color: transparent;
+    color: black;
+}
 .app .navbar .btn-clear.btn-primary {
     height: 2rem;
 }
@@ -38,6 +49,9 @@
 }
 .app .expense-planner-columns {
     height: calc(100vh - (var(--tw-header-height) + var(--tw-navbar-height) + 150px)) !important;
+}
+.app .cheque-register .reports-table-container {
+    height: calc(100vh - (var(--tw-header-height) + var(--tw-navbar-height) + 285px)) !important;
 }
 .app .bg-warning {
     color: white;

@@ -4,32 +4,51 @@
             @get-data="getData"
         />
         <div class="grid gap-5 lg:gap-7.5">
-            <!-- filters -->
-            <div class="flex items-center justify-between gap-2">
-                <div class="flex">
-                    <select class="select select-sm min-w-[30rem] max-w-full text-black bg-inherit" v-model="filters.category_id" @change="getData">
-                        <option value="" selected>Filter by Category</option>
-                        <option v-for="obj in page_data.bitrix_list_categories" :key="obj.id" :value="obj.bitrix_category_id">
-                            {{ obj.bitrix_category_name }}
-                        </option>
-                    </select>
-                </div>
-                <div class="flex">
-                    <select class="select select-sm min-w-[30rem] max-w-full text-black bg-inherit" v-model="filters.transfer_status">
-                        <option value="" selected>Filter by Transfer Status</option>
-                        <option value="1532">With Bank</option>
-                        <option value="1536">Completed</option>
-                        <option value="1537">Cancelled</option>
-                    </select>
-                </div>
-                <div class="flex">
-                    <div class="relative">
-                        <i class="ki-filled ki-magnifier leading-none text-md text-gray-500 absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
-                        <input class="input input-sm ps-8 text-black bg-inherit min-w-[30rem]" placeholder="Search" type="text" v-model="filters.search">
+            <!-- Filters Section -->
+            <div class="flex flex-wrap items-center gap-2">
+                <div class="flex flex-grow gap-2">
+                    <!-- Category Filter -->
+                    <div class="flex flex-shrink-0">
+                        <select
+                            class="select select-sm px-3 pr-8 min-w-fit max-w-full text-black bg-inherit"
+                            v-model="filters.category_id"
+                            @change="getData"
+                        >
+                            <option value="" selected>Filter by Category</option>
+                            <option v-for="obj in page_data.bitrix_list_categories" :key="obj.id" :value="obj.bitrix_category_id">
+                                {{ obj.bitrix_category_name }}
+                            </option>
+                        </select>
+                    </div>
+                    <!-- Dynamic Filters -->
+                    <div v-for="filter in page_filters" :key="filter.key" class="flex flex-shrink-0">
+                        <select
+                            class="select select-sm px-3 pr-8 min-w-fit max-w-full text-black bg-inherit"
+                            v-model="filters[filter.key]"
+                        >
+                            <option value="" selected>Filter by {{ filter.name }}</option>
+                            <option v-for="(value, key) in filter.values" :value="key" :key="key">{{ value }}</option>
+                        </select>
                     </div>
                 </div>
-                <div class="flex">
-                    <button :class="['btn btn-icon btn-sm relative', filters.is_warning ? 'btn-warning text-white' : 'btn-light']" @click="filters.is_warning = !filters.is_warning">
+                <!-- Search Input -->
+                <div class="flex flex-grow">
+                    <div class="relative w-full">
+                        <i class="ki-filled ki-magnifier leading-none text-md text-gray-500 absolute top-1/2 left-3 transform -translate-y-1/2"></i>
+                        <input
+                            class="input input-sm ps-8 w-full text-black bg-inherit"
+                            placeholder="Search"
+                            type="text"
+                            v-model="filters.search"
+                        />
+                    </div>
+                </div>
+                <!-- Warning Filter -->
+                <div class="flex flex-shrink-0">
+                    <button
+                        :class="['btn btn-icon btn-sm relative px-3', filters.is_warning ? 'btn-warning text-white' : 'btn-light']"
+                        @click="filters.is_warning = !filters.is_warning"
+                    >
                         <i class="ki-filled ki-information-1"></i>
                         <span class="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">{{ warningCount }}</span>
                     </button>
@@ -178,11 +197,47 @@ export default {
                 search: "",
                 is_warning: false,
             },
+            page_filters: [
+                {
+                    key: "transfer_status",
+                    name: "Transfer Status",
+                    field_id: "PROPERTY_887",
+                    values: {}
+                }
+            ],
             totalAsPerReportingCurrency: 0,
         }
     },
     methods: {
-        async getData(){
+        async getData() {
+            this.loading = true;
+            try {
+                await this.fetchFiltersValuesFromBitrix();
+                await this.getPageData();
+            } finally {
+                this.loading = false;
+            }
+        },
+        async fetchFiltersValuesFromBitrix() {
+            const bitrixUserId = this.page_data.user.bitrix_user_id;
+            const bitrixWebhookToken = this.page_data.user.bitrix_webhook_token;
+            const endpoint = 'lists.field.get';
+            for (const filter of this.page_filters) {
+                try {
+                    const requestData = {
+                        IBLOCK_TYPE_ID: this.page_data.bitrix_list.bitrix_iblock_type,
+                        IBLOCK_ID: this.page_data.bitrix_list.bitrix_iblock_id,
+                        FIELD_ID: filter.field_id
+                    };
+                    const response = await this.callBitrixAPI(endpoint, bitrixUserId, bitrixWebhookToken, requestData);
+                    filter.values = response.result.L.DISPLAY_VALUES_FORM;
+
+                } catch (error) {
+                    console.error(`Error fetching filter data for ${filter.key}:`, error);
+                }
+            }
+        },
+        async getPageData(){
             let dateRange = JSON.parse(localStorage.getItem('dateRange'));
             this.loading = true;
             this.data = [];
@@ -253,33 +308,20 @@ export default {
     },
     computed:{
         filteredData() {
-            let today = DateTime.now();
+            const searchTerm = this.filters.search?.toLowerCase() || '';
             return this.data.filter(item => {
                 // Filter by search input (case insensitive)
-                const matchesSearch =
-                        (item.id && item.id.includes(this.filters.search)) ||
-                        (item.name && item.name.includes(this.filters.search) ||
-                        (item.detail_text && item.detail_text.includes(this.filters.search)) ||
-                        (item.transfer_amount && item.transfer_amount.includes(this.filters.search)) ||
-                        (item.from_bank_name && item.from_bank_name.includes(this.filters.search)) ||
-                        (item.from_account_number && item.from_account_number.includes(this.filters.search)) ||
-                        (item.from_company_name && item.from_company_name.includes(this.filters.search)) ||
-                        (item.from_iban && item.from_iban.includes(this.filters.search)) ||
-                        (item.project_id && item.project_id.includes(this.filters.search)) ||
-                        (item.project_name && item.project_name.includes(this.filters.search)) ||
-                        (item.status_text && item.status_text.includes(this.filters.search)) ||
-                        (item.to_account_name && item.to_account_name.includes(this.filters.search)) ||
-                        (item.to_account_number && item.to_account_number.includes(this.filters.search)) ||
-                        (item.to_bank_name && item.to_bank_name.includes(this.filters.search)) ||
-                        (item.to_company_name && item.to_company_name.includes(this.filters.search)) ||
-                        (item.to_iban && item.to_iban.includes(this.filters.search))
-                    );
+                const matchesSearch = [
+                    item.id, item.name, item.detail_text, item.to_iban,
+                    item.transfer_amount, item.from_bank_name, item.from_account_number,
+                    item.from_company_name, item.from_iban, item.project_id,
+                    item.project_name, item.status_text, item.to_account_name,
+                    item.to_account_number, item.to_bank_name, item.to_company_name,
+                ].some(field => field?.toLowerCase().includes(searchTerm));
                 // Filter by status
                 const matchesStatus = this.filters.transfer_status ? item.transfer_status_id === this.filters.transfer_status : true;
-
                 // Filter by warning
                 const matchesWarning = this.filters.is_warning ? this.isWarning(item) : true;
-
                 // Return true only if all filters match
                 return matchesSearch && matchesStatus && matchesWarning;
             });
@@ -293,7 +335,7 @@ export default {
             return summedByCurrency;
         },
         warningCount() {
-            return this.data.filter(item => this.isWarning(item)).length;
+            return this.filteredData.filter(item => this.isWarning(item)).length;
         },
     },
     watch: {

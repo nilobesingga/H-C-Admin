@@ -4,66 +4,64 @@
             @get-data="getData"
         />
         <div class="grid gap-5 lg:gap-7.5">
-            <!-- filters -->
-            <div class="flex items-center justify-between gap-2">
-                <div class="flex">
-                    <select class="select select-sm min-w-[20rem] max-w-full text-black bg-inherit" v-model="filters.category_id" @change="getData">
-                        <option value="" selected>Filter by Category</option>
-                        <option v-for="obj in page_data.bitrix_list_categories" :key="obj.id" :value="obj.bitrix_category_id">
-                            {{ obj.bitrix_category_name }}
-                        </option>
-                    </select>
-                </div>
-                <div class="flex">
-                    <select class="select select-sm min-w-[20rem] max-w-full text-black bg-inherit" v-model="filters.sage_company_id" @change="getData">
-                        <option value="" selected>Filter by Sage Company</option>
-                        <option v-for="obj in page_data.bitrix_list_sage_companies" :key="obj.id" :value="obj.bitrix_sage_company_id">
-                            {{ obj.bitrix_sage_company_name }}
-                        </option>
-                    </select>
-                </div>
-                <div class="flex">
-                    <select class="select select-sm min-w-[20rem] max-w-full text-black bg-inherit" v-model="filters.status">
-                        <option value="" selected>Filter by Status</option>
-                        <option value="1618">Approved</option>
-                        <option value="1619">Rejected</option>
-                        <option value="1620">Pending for Approval</option>
-                        <option value="1678">Paid</option>
-                        <option value="1864">Partially Paid</option>
-                        <option value="1871">Cancelled</option>
-                    </select>
-                </div>
-                <div class="flex">
-                    <select class="select select-sm min-w-[20rem] max-w-full text-black bg-inherit" v-model="filters.charge_to_account">
-                        <option value="" selected>Filter by Charge to Account</option>
-                        <option value="2242">No</option>
-                        <option value="2247">Alex E</option>
-                        <option value="2226">Andre</option>
-                        <option value="2263">BhaPun</option>
-                        <option value="2227">CLP Alphabet</option>
-                        <option value="2248">Dmitry</option>
-                        <option value="2228">Erhan</option>
-                        <option value="2229">Evaland</option>
-                        <option value="2230">Farhad</option>
-                        <option value="2273">Geston</option>
-                        <option value="2278">Irfan</option>
-                        <option value="2231">Jochen</option>
-                        <option value="2276">NaBro MRF096</option>
-                        <option value="2277">NaBro MRF097</option>
-                        <option value="2270">Patrick</option>
-                        <option value="2232">Sergei</option>
-                        <option value="2260">Sid H</option>
-                        <option value="2233">SS</option>
-                    </select>
-                </div>
-                <div class="flex">
-                    <div class="relative">
-                        <i class="ki-filled ki-magnifier leading-none text-md text-gray-500 absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
-                        <input class="input input-sm ps-8 text-black bg-inherit" placeholder="Search" type="text" v-model="filters.search">
+            <!-- Filters Section -->
+            <div class="flex flex-wrap items-center gap-2">
+                <div class="flex flex-grow gap-2">
+                    <!-- Category Filter -->
+                    <div class="flex flex-shrink-0">
+                        <select
+                            class="select select-sm px-3 pr-8 min-w-fit max-w-full text-black bg-inherit"
+                            v-model="filters.category_id"
+                            @change="getData"
+                        >
+                            <option value="" selected>Filter by Category</option>
+                            <option v-for="obj in page_data.bitrix_list_categories" :key="obj.id" :value="obj.bitrix_category_id">
+                                {{ obj.bitrix_category_name }}
+                            </option>
+                        </select>
+                    </div>
+                    <!-- Sage Company Filter -->
+                    <div class="flex flex-shrink-0">
+                        <select
+                            class="select select-sm px-3 pr-8 min-w-fit max-w-full text-black bg-inherit"
+                            v-model="filters.sage_company_id"
+                            @change="getData"
+                        >
+                            <option value="" selected>Filter by Sage Company</option>
+                            <option v-for="obj in page_data.bitrix_list_sage_companies" :key="obj.id" :value="obj.bitrix_sage_company_id">
+                                {{ obj.bitrix_sage_company_name }}
+                            </option>
+                        </select>
+                    </div>
+                    <!-- Dynamic Filters -->
+                    <div v-for="filter in page_filters" :key="filter.key" class="flex flex-shrink-0">
+                        <select
+                            class="select select-sm px-3 pr-8 min-w-fit max-w-full text-black bg-inherit"
+                            v-model="filters[filter.key]"
+                        >
+                            <option value="" selected>Filter by {{ filter.name }}</option>
+                            <option v-for="(value, key) in filter.values" :value="key" :key="key">{{ value }}</option>
+                        </select>
                     </div>
                 </div>
-                <div class="flex">
-                    <button :class="['btn btn-icon btn-sm relative', filters.is_warning ? 'btn-warning text-white' : 'btn-light']" @click="filters.is_warning = !filters.is_warning">
+                <!-- Search Input -->
+                <div class="flex flex-grow">
+                    <div class="relative w-full">
+                        <i class="ki-filled ki-magnifier leading-none text-md text-gray-500 absolute top-1/2 left-3 transform -translate-y-1/2"></i>
+                        <input
+                            class="input input-sm ps-8 w-full text-black bg-inherit"
+                            placeholder="Search"
+                            type="text"
+                            v-model="filters.search"
+                        />
+                    </div>
+                </div>
+                <!-- Warning Filter -->
+                <div class="flex flex-shrink-0">
+                    <button
+                        :class="['btn btn-icon btn-sm relative px-3', filters.is_warning ? 'btn-warning text-white' : 'btn-light']"
+                        @click="filters.is_warning = !filters.is_warning"
+                    >
                         <i class="ki-filled ki-information-1"></i>
                         <span class="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">{{ warningCount }}</span>
                     </button>
@@ -187,7 +185,7 @@ export default {
         return {
             data: [],
             loading: true,
-            filters:{
+            filters: {
                 date: null,
                 category_id: "",
                 sage_company_id: "",
@@ -196,15 +194,55 @@ export default {
                 search: "",
                 is_warning: false,
             },
+            page_filters: [
+                {
+                    key: "status",
+                    name: "Status",
+                    field_id: "PROPERTY_932",
+                    values: {}
+                },
+                {
+                    key: "charge_to_account",
+                    name: "Charge to Account",
+                    field_id: "PROPERTY_1242",
+                    values: {}
+                },
+            ],
             selected_obj: null,
             is_crate_bank_transfer_form_modal: false,
             totalAsPerReportingCurrency: 0,
         }
     },
     methods: {
-        async getData(){
-            let dateRange = JSON.parse(localStorage.getItem('dateRange'));
+        async getData() {
             this.loading = true;
+            try {
+                await this.fetchFiltersValuesFromBitrix();
+                await this.getPageData();
+            } finally {
+                this.loading = false;
+            }
+        },
+        async fetchFiltersValuesFromBitrix() {
+            const bitrixUserId = this.page_data.user.bitrix_user_id;
+            const bitrixWebhookToken = this.page_data.user.bitrix_webhook_token;
+            const endpoint = 'lists.field.get';
+            for (const filter of this.page_filters) {
+                try {
+                    const requestData = {
+                        IBLOCK_TYPE_ID: this.page_data.bitrix_list.bitrix_iblock_type,
+                        IBLOCK_ID: this.page_data.bitrix_list.bitrix_iblock_id,
+                        FIELD_ID: filter.field_id
+                    };
+                    const response = await this.callBitrixAPI(endpoint, bitrixUserId, bitrixWebhookToken, requestData);
+                    filter.values = response.result.L.DISPLAY_VALUES_FORM;
+                } catch (error) {
+                    console.error(`Error fetching filter data for ${filter.key}:`, error);
+                }
+            }
+        },
+        async getPageData(){
+            let dateRange = JSON.parse(localStorage.getItem('dateRange'));
             this.data = [];
             const bitrixUserId = this.page_data.user.bitrix_user_id ? this.page_data.user.bitrix_user_id : null;
             const bitrixWebhookToken = this.page_data.user.bitrix_webhook_token ? this.page_data.user.bitrix_webhook_token : null;
@@ -218,11 +256,12 @@ export default {
             }
             try {
                 const response = await this.callBitrixAPI(endpoint, bitrixUserId, bitrixWebhookToken, requestData);
-                this.loading = false
                 this.data = response.result;
                 await this.calculateTotalAsPerReportingCurrency();
             } catch (error) {
-                this.loading = false
+                if (error.status === 500){
+                    this.errorToast('Something went wrong! Please refresh the page or contact support if this keeps happening.')
+                }
             }
         },
         async calculateTotalAsPerReportingCurrency(){
@@ -254,20 +293,15 @@ export default {
     computed:{
         filteredData() {
             let today = DateTime.now();
+            const searchTerm = this.filters.search?.toLowerCase() || '';
+
             return this.data.filter(item => {
                 // Filter by search input (case insensitive)
-                const matchesSearch =
-                        (item.id && item.id.includes(this.filters.search)) ||
-                        (item.sage_status_text && item.sage_status_text.includes(this.filters.search) ||
-                        (item.sage_batch_id && item.sage_batch_id.includes(this.filters.search)) ||
-                        (item.status_text && item.status_text.includes(this.filters.search)) ||
-                        (item.payment_reference_id && item.payment_reference_id.includes(this.filters.search)) ||
-                        (item.invoice_number && item.invoice_number.includes(this.filters.search)) ||
-                        (item.project_name && item.project_name.includes(this.filters.search)) ||
-                        (item.supplier_name && item.supplier_name.includes(this.filters.search)) ||
-                        (item.detail_text && item.detail_text.includes(this.filters.search))
-                        );
-
+                const matchesSearch = [
+                    item.id, item.sage_status_text, item.sage_batch_id, item.status_text,
+                    item.payment_reference_id, item.invoice_number, item.project_name,
+                    item.supplier_name, item.detail_text,
+                ].some(field => field?.toLowerCase().includes(searchTerm));
                 // Filter by status
                 const matchesStatus = this.filters.status ? item.status_id === this.filters.status : true;
 
@@ -291,7 +325,7 @@ export default {
         },
         warningCount() {
             let today = DateTime.now();
-            return this.data.filter(item => this.isWarning(item, today)).length;
+            return this.filteredData.filter(item => this.isWarning(item, today)).length;
         },
     },
     watch: {

@@ -16,7 +16,7 @@ class Module extends Model
     }
     public function children()
     {
-        return $this->hasMany(Module::class, 'parent_id', 'id');
+        return $this->hasMany(Module::class, 'parent_id', 'id')->with('children');
     }
     public function users()
     {

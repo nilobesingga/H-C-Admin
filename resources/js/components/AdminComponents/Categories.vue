@@ -25,10 +25,10 @@
                     <tr v-for="(obj, index) in page_data.data" :key="index" class="odd:bg-white even:bg-slate-100 hover:bg-gray-300">
                         <td>{{ ++index }}</td>
                         <td class="text-black">{{ obj.name }}</td>
-                        <td><span class="badge badge-outline badge-primary badge-sm">{{ obj.sage_companies.length }}</span></td>
+                        <td><span class="badge badge-light badge-sm">{{ obj.sage_companies.length }}</span></td>
                         <td class="text-left">
                             <div v-for="(item, index) in obj.sage_companies" :key="index" class="mb-2" >
-                                <div class="badge badge badge-primary badge-sm ml-3">
+                                <div class="badge badge badge-info badge-sm ml-3">
                                     <span>{{ item.bitrix_sage_company_name }}</span>
                                 </div>
                             </div>

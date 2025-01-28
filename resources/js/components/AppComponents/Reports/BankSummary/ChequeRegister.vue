@@ -3,7 +3,7 @@
         <reports-filters-component
             @get-data="getData"
         />
-        <div class="grid gap-5 lg:gap-7.5">
+        <div class="grid gap-5 lg:gap-7.5 cheque-register">
             <!-- Filters Section -->
             <div class="flex flex-wrap items-center gap-2">
                 <div class="flex flex-grow gap-2">
@@ -17,19 +17,6 @@
                             <option value="" selected>Filter by Category</option>
                             <option v-for="obj in page_data.bitrix_list_categories" :key="obj.id" :value="obj.bitrix_category_id">
                                 {{ obj.bitrix_category_name }}
-                            </option>
-                        </select>
-                    </div>
-                    <!-- Sage Company Filter -->
-                    <div class="flex flex-shrink-0">
-                        <select
-                            class="select select-sm px-3 pr-8 min-w-fit max-w-full text-black bg-inherit"
-                            v-model="filters.sage_company_id"
-                            @change="getData"
-                        >
-                            <option value="" selected>Filter by Sage Company</option>
-                            <option v-for="obj in page_data.bitrix_list_sage_companies" :key="obj.id" :value="obj.bitrix_sage_company_id">
-                                {{ obj.bitrix_sage_company_name }}
                             </option>
                         </select>
                     </div>
@@ -69,52 +56,46 @@
             </div>
             <!-- table -->
             <div class="relative flex-grow overflow-auto reports-table-container">
-                <table class="w-full table table-border align-middle text-xs table-fixed">
+                <table class="w-full table table-border align-middle text-xs">
                     <thead>
                         <tr class="bg-black text-gray-900 font-medium text-center">
                             <th class="sticky top-0 w-10">#</th>
-                            <th class="sticky top-0 w-[70px]">Id</th>
+                            <th class="sticky top-0 w-[50px]">Id</th>
+                            <th class="sticky top-0 w-[100px]">Category</th>
                             <th class="sticky top-0 w-[100px]">Status</th>
-                            <th class="sticky top-0 w-[100px]">Expiration Date</th>
-                            <th class="sticky top-0 w-[125px] text-right">Amount</th>
-                            <th class="sticky top-0 w-[200px] text-left">Subject</th>
-                            <th class="sticky top-0 w-[250px] text-left">CRM</th>
-                            <th class="sticky top-0 w-[150px]">Payment Terms</th>
-                            <th class="sticky top-0 w-[150px]">Responsible Person</th>
-                            <th class="sticky top-0 w-[150px]">Charge to Account</th>
-                            <th class="sticky top-0 w-[150px]">Created On</th>
+                            <th class="sticky top-0 w-[100px]">Cheque Number</th>
+                            <th class="sticky top-0 w-[100px]">Cheque Date</th>
+                            <th class="sticky top-0 w-[150px]">Issued To</th>
+                            <th class="sticky top-0 w-[100px] text-right">Amount</th>
+                            <th class="sticky top-0 w-[130px]">Bank</th>
+                            <th class="sticky top-0 w-[150px] text-left">Description</th>
+                            <th class="sticky top-0 w-[50px]">Files</th>
                         </tr>
                     </thead>
-                    <tbody class="text-center text-xs text-gray-700">
+                    <tbody class="text-center text-xs text-gray-700 leading-custom-normal">
                         <tr v-for="(obj, index) in filteredData" :key="index" class="odd:bg-white even:bg-slate-100">
-                            <td>{{ ++index }}</td>
-                            <td><a class="btn btn-link" target="_blank" :href="`https://crm.cresco.ae/crm/quote/show/${obj.id}/`">{{ obj.id }}</a></td>
-                            <td>{{ getStatusValue(obj.status) }}</td>
-                            <td><div :class="isWarning(obj) ? 'badge badge-warning' : ''" v-if="obj.expiration_date">{{ formatDate(obj.expiration_date) }}</div></td>
-                            <td class="text-right">{{ formatAmount(obj.amount) }} <strong class="font-bold text-black">{{ obj.currency }}</strong></td>
-                            <td class="text-left">{{ obj.subject }}</td>
-                            <td class="text-left">
-                                <div v-if="obj.deal">
-                                    <span class="text-black font-bold">Deal: </span>
-                                    <a target="_blank" class="btn btn-link" :href="`https://crm.cresco.ae/crm/deal/details/${obj.deal_id}/`">{{ obj.deal }}</a>
-                                </div>
-                                <div>
-                                    <span class="text-black font-bold">Lead: </span>
-                                    <a class="btn btn-link" target="_blank" :href="`https://crm.cresco.ae/crm/lead/details/${obj.lead_id}/`">{{ obj.lead }}</a>
-                                </div>
-                                <div>
-                                    <span class="text-black font-bold">Company: </span>
-                                    <a class="btn btn-link" target="_blank" :href="`https://crm.cresco.ae/crm/company/details/${obj.company_id}/`">{{ obj.company }}</a>
-                                </div>
+                            <td>{{ index + 1 }}</td>
+                            <td><a target="_blank" class="btn btn-link" :href="'https://crm.cresco.ae/services/lists/106/element/0/' + obj.id  + '/?list_section_id='">{{ obj.id }}</a></td>
+                            <td>{{ obj.category }}</td>
+                            <td>{{ obj.status }}</td>
+                            <td>{{ obj.cheque_number }}</td>
+                            <td>
+                                <div :class="calculateChequeDateCondition(obj.cheque_date)">{{ formatDate(obj.cheque_date) }}</div>
                             </td>
-                            <td>{{ obj.payment_term }}</td>
-                            <td>{{ obj.responsible_person }}</td>
-                            <td>{{ obj.charge_to_running_account }}</td>
-                            <td>{{ formatDate(obj.created_on) }}</td>
+                            <td>{{ obj.issue_to }}</td>
+                            <td class="text-right">
+                                <span>{{ formatAmount(obj.amount) }}</span>&nbsp;
+                                <span class="font-bold text-black">{{ obj.currency }}</span>
+                            </td>
+                            <td><a target="_blank" class="btn btn-link" :href="'https://crm.cresco.ae/services/lists/39/element/0/' + obj.bank_id  + '/?list_section_id='">{{ obj.bank_name }}</a> </td>
+                            <td class="text-left">{{ obj.description }}</td>
+                            <td>
+                                <a class="btn btn-sm btn-outline btn-primary" :href="`https://crm.cresco.ae/bitrix/tools/disk/uf.php?attachedId=${obj.cheque_upload}&action=download&ncc=1`">Download</a>
+                            </td>
                         </tr>
                         <tr v-show="filteredData.length > 0">
-                            <td colspan="3" class="text-black font-bold text-center">Totals per currency</td>
-                            <td colspan="2" class="text-right">
+                            <td colspan="7" class="text-black font-bold">Totals per currency</td>
+                            <td colspan="1" class="text-right">
                                 <div v-for="(amount, currency) in groupedByCurrency">{{ formatAmount(amount) }} <span class="font-bold text-black">{{ currency }} </span></div>
                             </td>
                         </tr>
@@ -139,6 +120,7 @@
                 <div class="text-xs">
                     <span>Showing {{ filteredData.length }} records</span>
                 </div>
+
                 <!-- Right Section: Total as per Reporting Currency -->
                 <div class="flex items-center justify-center text-right text-dark">
                     <span class="mr-2">Total as per reporting currency ({{ currency }}):</span>
@@ -149,13 +131,14 @@
             </div>
         </div>
     </div>
+
 </template>
 <script>
 import {DateTime} from "luxon";
 import _ from "lodash";
 
 export default {
-    name: "proforma-invoices",
+    name: "cheque-register",
     props: ['page_data'],
     data(){
         return {
@@ -164,9 +147,7 @@ export default {
             filters:{
                 date: null,
                 category_id: "",
-                sage_company_id: "",
                 status: "",
-                charge_to_account: "",
                 search: "",
                 is_warning: false,
             },
@@ -174,13 +155,7 @@ export default {
                 {
                     key: "status",
                     name: "Status",
-                    field_id: "QUOTE_STATUS",
-                    values: {}
-                },
-                {
-                    key: "charge_to_account",
-                    name: "Charge to Account",
-                    field_id: "UF_CRM_1726041883",
+                    field_id: "PROPERTY_970",
                     values: {}
                 },
             ],
@@ -200,33 +175,17 @@ export default {
         async fetchFiltersValuesFromBitrix() {
             const bitrixUserId = this.page_data.user.bitrix_user_id;
             const bitrixWebhookToken = this.page_data.user.bitrix_webhook_token;
+            const endpoint = 'lists.field.get';
             for (const filter of this.page_filters) {
                 try {
-                    if(filter.key === 'status'){
-                        const endpoint = 'crm.status.list';
-                        const requestData = {};
-                        Object.entries({ ENTITY_ID: filter.field_id }).forEach(([key, value]) => {
-                            requestData[`filter[${key}]`] = value;
-                        });
-                        const response = await this.callBitrixAPI(endpoint, bitrixUserId, bitrixWebhookToken, requestData);
-                        filter.values = response.result.reduce((acc, item) => {
-                            acc[item.STATUS_ID] = item.NAME;
-                            return acc
-                        }, {})
-                    }
-                    else {
-                        const endpoint = 'crm.quote.userfield.list';
-                        // Pre-format the filter to match Bitrix24 API's expected payload
-                        const requestData = {};
-                        Object.entries({ FIELD_NAME: filter.field_id }).forEach(([key, value]) => {
-                            requestData[`filter[${key}]`] = value;
-                        });
-                        const response = await this.callBitrixAPI(endpoint, bitrixUserId, bitrixWebhookToken, requestData);
-                        filter.values = response.result[0].LIST.reduce((acc, item) => {
-                            acc[item.ID] = item.VALUE;
-                            return acc;
-                        }, {});
-                    }
+                    const requestData = {
+                        IBLOCK_TYPE_ID: this.page_data.bitrix_list.bitrix_iblock_type,
+                        IBLOCK_ID: this.page_data.bitrix_list.bitrix_iblock_id,
+                        FIELD_ID: filter.field_id
+                    };
+                    const response = await this.callBitrixAPI(endpoint, bitrixUserId, bitrixWebhookToken, requestData);
+                    filter.values = response.result.L.DISPLAY_VALUES_FORM;
+
                 } catch (error) {
                     console.error(`Error fetching filter data for ${filter.key}:`, error);
                 }
@@ -234,6 +193,7 @@ export default {
         },
         async getPageData(){
             let dateRange = JSON.parse(localStorage.getItem('dateRange'));
+            this.loading = true;
             this.data = [];
             const bitrixUserId = this.page_data.user.bitrix_user_id ? this.page_data.user.bitrix_user_id : null;
             const bitrixWebhookToken = this.page_data.user.bitrix_webhook_token ? this.page_data.user.bitrix_webhook_token : null;
@@ -241,12 +201,12 @@ export default {
             const requestData = {
                 startDate: dateRange[0],
                 endDate: dateRange[1],
-                action: "getProformaInvoices",
+                action: "getChequeRegister",
                 categories: JSON.stringify(this.filters.category_id === "" ? this.page_data.bitrix_list_categories.map((obj) => obj.bitrix_category_id) : [this.filters.category_id]),
-                sage_companies: JSON.stringify(this.filters.sage_company_id === "" ? this.page_data.bitrix_list_sage_companies.map((obj) => obj.bitrix_sage_company_id) : [this.filters.sage_company_id])
             }
             try {
                 const response = await this.callBitrixAPI(endpoint, bitrixUserId, bitrixWebhookToken, requestData);
+                this.loading = false
                 this.data = response.result;
                 await this.calculateTotalAsPerReportingCurrency();
             } catch (error) {
@@ -256,46 +216,69 @@ export default {
         async calculateTotalAsPerReportingCurrency(){
             this.totalAsPerReportingCurrency = await this.calculateTotalInBaseCurrency(this.groupedByCurrency)
         },
-        getStatusValue(status){
-            switch (status){
-                case "DRAFT":
-                    return "New";
-                case "SENT":
-                    return "Sent to client";
-                case "APPROVED":
-                    return "Accepted";
-                case "DECLAINED":
-                    return "Declined"
-                default:
-                    return ""
+        isWarning(item) {
+            if(item){
+                return this.calculateChequeDateCondition(item.cheque_date);
             }
         },
-        isWarning(item){
-            const today = new Date();
-            const expirationDate = new Date(item.expiration_date);
-            return expirationDate < today
+        calculateChequeDateCondition(chequeDate) {
+            const now = DateTime.now();
+            const chequeDateTime = DateTime.fromSQL(chequeDate);
+
+            const workingDaysDifference = this.calculateWorkingDays(now, chequeDateTime);
+            console.log(workingDaysDifference, chequeDate)
+
+            if (workingDaysDifference === 2) {
+                return 'badge badge-warning';
+            } else if (workingDaysDifference > 2 && workingDaysDifference <= 5) {
+                return 'badge badge-dark';
+            } else if (workingDaysDifference < 2) {
+                return 'badge badge-danger';
+            }
+            return null;
+        },
+        calculateWorkingDays(startDate, endDate) {
+            let count = 0;
+            let currentDate = startDate;
+
+            // Loop over the dates and count only Monday to Friday (working days)
+            while (currentDate <= endDate) {
+                const dayOfWeek = currentDate.weekday;
+                // Only count weekdays (Monday: 1, Friday: 5)
+                if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+                    count++;
+                }
+                // Move to the next day
+                currentDate = currentDate.plus({ days: 1 });
+            }
+            return count;
         },
     },
     computed:{
         filteredData() {
-            let today = DateTime.now();
+            const urlParams = Object.fromEntries(new URLSearchParams(window.location.search).entries());
+            const section = urlParams.section || 'cheque-register-outgoing';
             const searchTerm = this.filters.search?.toLowerCase() || '';
+
             return this.data.filter(item => {
+                // Exclude items where the status is 'cancelled' or 'completed'
+                if (['cancelled', 'completed'].includes(item.status?.toLowerCase())) {
+                    return false;
+                }
                 // Filter by search input (case insensitive)
                 const matchesSearch = [
-                    item.id, item.subject, item.lead, item.company,
-                    item.payment_term, item.contact, item.client_email,
-                    item.client_title, item.deal, item.responsible_person
-
+                    item.id, item.account_name, item.account_number, item.amount,
+                    item.bank_name, item.category, item.cheque_number,
+                    item.description, item.issue_to, item.status, item.type
                 ].some(field => field?.toLowerCase().includes(searchTerm));
+                // Filter by type
+                const matchesType = section === 'cheque-register-outgoing' ? item.type === 'Outgoing' : item.type === 'Incoming'
                 // Filter by status
-                const matchesStatus = this.filters.status ? item.status === this.filters.status : true;
-                // Filter by chargeToAccount
-                const matchesChargeToClient = this.filters.charge_to_account ? item.charge_to_running_account_id === this.filters.charge_to_account : true;
+                const matchesStatus = this.filters.status ? item.status_id === this.filters.status : true;
                 // Filter by warning
-                const matchesWarning = this.filters.is_warning ? this.isWarning(item, today) : true;
+                const matchesWarning = this.filters.is_warning ? this.isWarning(item) : true;
                 // Return true only if all filters match
-                return matchesSearch && matchesStatus && matchesChargeToClient && matchesWarning;
+                return matchesSearch && matchesType && matchesStatus && matchesWarning;
             });
         },
         groupedByCurrency() {
@@ -307,24 +290,18 @@ export default {
             return summedByCurrency;
         },
         warningCount() {
-            let today = DateTime.now();
-            return this.filteredData.filter(item => this.isWarning(item, today)).length;
+            return this.filteredData.filter(item => this.isWarning(item)).length;
         },
     },
     watch: {
+        groupedByCurrency(){
+            this.calculateTotalAsPerReportingCurrency();
+        },
         currency() {
             this.calculateTotalAsPerReportingCurrency();
         },
-        filteredData(){
-            this.calculateTotalAsPerReportingCurrency();
-        }
     },
-    created() {
-        this.sharedState.bitrixUserId = this.page_data.user.bitrix_user_id;
-        this.sharedState.bitrixWebhookToekn = this.page_data.user.bitrix_webhook_token;
-    }
 }
 </script>
 <style scoped>
-
 </style>
