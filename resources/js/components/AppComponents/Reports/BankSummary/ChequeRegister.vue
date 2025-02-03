@@ -3,7 +3,7 @@
         <reports-filters-component
             @get-data="getData"
         />
-        <div class="grid gap-5 lg:gap-7.5">
+        <div class="grid gap-5 lg:gap-7.5 cheque-register">
             <!-- Filters Section -->
             <div class="flex flex-wrap items-center gap-2">
                 <div class="flex flex-grow gap-2">
@@ -56,90 +56,45 @@
             </div>
             <!-- table -->
             <div class="relative flex-grow overflow-auto reports-table-container">
-                <table class="w-full table table-border align-middle text-xs table-fixed">
+                <table class="w-full table table-border align-middle text-xs">
                     <thead>
                         <tr class="bg-black text-gray-900 font-medium text-center">
                             <th class="sticky top-0 w-10">#</th>
                             <th class="sticky top-0 w-[50px]">Id</th>
-                            <th class="sticky top-0 w-[120px] text-right">Transfer Amount</th>
-                            <th class="sticky top-0 w-[150px] text-left">Transfer From</th>
-                            <th class="sticky top-0 w-[150px] text-left">Transfer To</th>
-                            <th class="sticky top-0 w-[150px] text-left">Purpose of Transfer</th>
-                            <th class="sticky top-0 w-[100px]">Reference No</th>
-                            <th class="sticky top-0 w-[100px]">Created Date</th>
-                            <th class="sticky top-0 w-[110px]">Purchase Invoice Reference</th>
-                            <th class="sticky top-0 w-[80px]">Transfer Status</th>
-                            <th class="sticky top-0 w-[60px]">Transfer Date</th>
-                            <th class="sticky top-0 w-[120px]">Transfer Documents</th>
+                            <th class="sticky top-0 w-[100px]">Category</th>
+                            <th class="sticky top-0 w-[100px]">Status</th>
+                            <th class="sticky top-0 w-[100px]">Cheque Number</th>
+                            <th class="sticky top-0 w-[100px]">Cheque Date</th>
+                            <th class="sticky top-0 w-[150px]">Issued To</th>
+                            <th class="sticky top-0 w-[100px] text-right">Amount</th>
+                            <th class="sticky top-0 w-[130px]">Bank</th>
+                            <th class="sticky top-0 w-[150px] text-left">Description</th>
+                            <th class="sticky top-0 w-[50px]">Files</th>
                         </tr>
                     </thead>
                     <tbody class="text-center text-xs text-gray-700 leading-custom-normal">
                         <tr v-for="(obj, index) in filteredData" :key="index" class="odd:bg-white even:bg-slate-100">
                             <td>{{ index + 1 }}</td>
-                            <td><a target="_blank" class="btn btn-link" :href="'https://crm.cresco.ae/services/lists/99/element/0/' + obj.id  + '/?list_section_id='">{{ obj.id }}</a></td>
-                            <td class="text-right">{{ formatAmount(obj.amount) }} <strong class="font-bold text-black">{{ obj.currency }}</strong></td>
-                            <td class="text-left break-words">
-                                <div><span>Account Name:</span> <strong class="font-bold text-black">{{ obj.from_account_name }}</strong></div>
-                                <div><span>Account Number: </span><span class="text-black">{{ obj.from_account_number }}</span></div>
-                                <div><span>Bank Name: </span><span class="text-black">{{ obj.from_bank_name }}</span></div>
-                                <div><span>IBAN: </span><span class="text-black">{{ obj.from_iban }}</span></div>
-                                <br>
-                                <div v-if="obj.from_company_name">
-                                    <span class="text-black">Company:</span>
-                                    <span><a :href="`https://crm.cresco.ae/crm/company/details/${obj.from_company_id}/`" target="_blank" class="btn btn-link">{{ obj.from_company_name }}</a></span>
-                                </div>
-                            </td>
-                            <td class="text-left break-words">
-                                <div><span>Account Name:</span> <strong class="font-bold text-black">{{ obj.to_account_name }}</strong></div>
-                                <div><span>Account Number: </span> <span class="text-black">{{ obj.to_account_number }}</span></div>
-                                <div><span>Bank Name:</span> <span class="text-black">{{ obj.to_bank_name }}</span></div>
-                                <div><span>IBAN:</span> <span class="text-black">{{ obj.to_iban }}</span> </div>
-                                <br>
-                                <div v-if="obj.to_company_name">
-                                    <span class="text-black">Company:</span>
-                                    <span><a :href="`https://crm.cresco.ae/crm/company/details/${obj.to_company_id}/`" target="_blank" class="btn btn-link">{{ obj.to_company_name }}</a></span>
-                                </div>
-                            </td>
-                            <td class="text-left break-words">
-                                <div class="text-wrap">{{ obj.detail_text }}</div>
-                                <br>
-                                <div v-if="obj.project_id">
-                                    <span>Project:</span>
-                                    <span><a :href="getBitrixProjectLink(obj)" target="_blank" class="btn btn-link">{{ obj.project_name }}</a></span>
-                                </div>
-                            </td>
-                            <td>{{ obj.reference_number }}</td>
-                            <td>{{ formatDate(obj.date_create) }}</td>
+                            <td><a target="_blank" class="btn btn-link" :href="'https://crm.cresco.ae/services/lists/106/element/0/' + obj.id  + '/?list_section_id='">{{ obj.id }}</a></td>
+                            <td>{{ obj.category }}</td>
+                            <td>{{ obj.status }}</td>
+                            <td>{{ obj.cheque_number }}</td>
                             <td>
-                                <button class="btn btn-sm btn-outline btn-primary mb-1" v-for="pid in obj.purchase_invoice_ids">
-                                    <i class="ki-filled ki-eye"></i>
-                                    <span>Invoice</span>
-                                </button>
+                                <div :class="calculateChequeDateCondition(obj.cheque_date)">{{ formatDate(obj.cheque_date) }}</div>
                             </td>
-                            <td>
-                                <div :class="isWarning(obj) ? 'badge badge-warning' : ''">{{ obj.status_text }}</div>
+                            <td>{{ obj.issue_to }}</td>
+                            <td class="text-right">
+                                <span>{{ formatAmount(obj.amount) }}</span>&nbsp;
+                                <span class="font-bold text-black">{{ obj.currency }}</span>
                             </td>
-                            <td>{{ formatDate(obj.transfer_date) }}</td>
+                            <td><a target="_blank" class="btn btn-link" :href="'https://crm.cresco.ae/services/lists/39/element/0/' + obj.bank_id  + '/?list_section_id='">{{ obj.bank_name }}</a> </td>
+                            <td class="text-left">{{ obj.description }}</td>
                             <td>
-                                <a v-for="(documentId, index) in obj.invoice_docoment_list"
-                                   class="btn btn-sm btn-outline btn-primary mb-1" target="_blank"
-                                   :href="`https://crm.cresco.ae/bitrix/tools/disk/uf.php?attachedId=${documentId}&action=download&ncc=1' + documentId + '&action=download&ncc=1`"
-                                >
-                                    <i class="ki-filled ki-file-down"></i>
-                                    <span>Transfer Doc {{ ++index }}</span>
-                                </a>
-                                <br>
-                                <a v-for="(documentId, index) in obj.invoice_supporting_docoment_list"
-                                   class="btn btn-sm btn-outline btn-primary mb-1" target="_blank"
-                                   :href="`https://crm.cresco.ae/bitrix/tools/disk/uf.php?attachedId=${documentId}&action=download&ncc=1' + documentId + '&action=download&ncc=1`"
-                                >
-                                    <i class="ki-filled ki-file-down"></i>
-                                    <span>Doc for Bank {{ ++index }}</span>
-                                </a>
+                                <a class="btn btn-sm btn-outline btn-primary" :href="`https://crm.cresco.ae/bitrix/tools/disk/uf.php?attachedId=${obj.cheque_upload}&action=download&ncc=1`">Download</a>
                             </td>
                         </tr>
                         <tr v-show="filteredData.length > 0">
-                            <td colspan="2" class="text-black font-bold">Totals per currency</td>
+                            <td colspan="7" class="text-black font-bold">Totals per currency</td>
                             <td colspan="1" class="text-right">
                                 <div v-for="(amount, currency) in groupedByCurrency">{{ formatAmount(amount) }} <span class="font-bold text-black">{{ currency }} </span></div>
                             </td>
@@ -183,7 +138,7 @@ import {DateTime} from "luxon";
 import _ from "lodash";
 
 export default {
-    name: "bank-transfers",
+    name: "cheque-register",
     props: ['page_data'],
     data(){
         return {
@@ -192,17 +147,17 @@ export default {
             filters:{
                 date: null,
                 category_id: "",
-                transfer_status: "",
+                status: "",
                 search: "",
                 is_warning: false,
             },
             page_filters: [
                 {
-                    key: "transfer_status",
-                    name: "Transfer Status",
-                    field_id: "PROPERTY_887",
+                    key: "status",
+                    name: "Status",
+                    field_id: "PROPERTY_970",
                     values: {}
-                }
+                },
             ],
             totalAsPerReportingCurrency: 0,
         }
@@ -236,7 +191,7 @@ export default {
                 }
             }
         },
-        async getPageData(startDate = null, endDate = null){
+        async getPageData(){
             let dateRange = JSON.parse(localStorage.getItem('dateRange'));
             this.loading = true;
             this.data = [];
@@ -244,28 +199,15 @@ export default {
             const bitrixWebhookToken = this.page_data.user.bitrix_webhook_token ? this.page_data.user.bitrix_webhook_token : null;
             const endpoint = 'crm.company.reports_v2';
             const requestData = {
-                startDate: startDate ? startDate : dateRange[0],
-                endDate: endDate ? endDate : dateRange[1],
-                action: "getBankTransfers",
+                startDate: dateRange[0],
+                endDate: dateRange[1],
+                action: "getChequeRegister",
                 categories: JSON.stringify(this.filters.category_id === "" ? this.page_data.bitrix_list_categories.map((obj) => obj.bitrix_category_id) : [this.filters.category_id]),
             }
             try {
                 const response = await this.callBitrixAPI(endpoint, bitrixUserId, bitrixWebhookToken, requestData);
                 this.loading = false
                 this.data = response.result;
-                this.data.forEach((item) => {
-                    item.invoice_docoment_list = [];
-                    item.invoice_supporting_docoment_list = [];
-                    if (item.transfer_documents_id){
-                        item.invoice_docoment_list = item.transfer_documents_id.split(",");
-                    }
-                    if (item.supporting_documents) {
-                        item.invoice_supporting_docoment_list = item.supporting_documents.split(",");
-                    }
-                    if(item.purchase_invoice_id){
-                        item.purchase_invoice_ids = item.purchase_invoice_id.split(",");
-                    }
-                });
                 await this.calculateTotalAsPerReportingCurrency();
             } catch (error) {
                 this.loading = false
@@ -276,16 +218,24 @@ export default {
         },
         isWarning(item) {
             if(item){
-                return this.isOverThreeWorkingDays(item.date_create) && item.transfer_status_id === '1532';
+                return this.calculateChequeDateCondition(item.cheque_date);
             }
         },
-        isOverThreeWorkingDays(createdDate) {
+        calculateChequeDateCondition(chequeDate) {
             const now = DateTime.now();
-            const dateCreated = DateTime.fromSQL(createdDate);
+            const chequeDateTime = DateTime.fromSQL(chequeDate);
 
-            const workingDays = this.calculateWorkingDays(dateCreated, now);
+            const workingDaysDifference = this.calculateWorkingDays(now, chequeDateTime);
+            console.log(workingDaysDifference, chequeDate)
 
-            return workingDays > 3;
+            if (workingDaysDifference === 2) {
+                return 'badge badge-warning';
+            } else if (workingDaysDifference > 2 && workingDaysDifference <= 5) {
+                return 'badge badge-dark';
+            } else if (workingDaysDifference < 2) {
+                return 'badge badge-danger';
+            }
+            return null;
         },
         calculateWorkingDays(startDate, endDate) {
             let count = 0;
@@ -306,22 +256,29 @@ export default {
     },
     computed:{
         filteredData() {
+            const urlParams = Object.fromEntries(new URLSearchParams(window.location.search).entries());
+            const section = urlParams.section || 'cheque-register-outgoing';
             const searchTerm = this.filters.search?.toLowerCase() || '';
+
             return this.data.filter(item => {
+                // Exclude items where the status is 'cancelled' or 'completed'
+                if (['cancelled', 'completed'].includes(item.status?.toLowerCase())) {
+                    return false;
+                }
                 // Filter by search input (case insensitive)
                 const matchesSearch = [
-                    item.id, item.name, item.detail_text, item.to_iban,
-                    item.transfer_amount, item.from_bank_name, item.from_account_number,
-                    item.from_company_name, item.from_iban, item.project_id,
-                    item.project_name, item.status_text, item.to_account_name,
-                    item.to_account_number, item.to_bank_name, item.to_company_name,
+                    item.id, item.account_name, item.account_number, item.amount,
+                    item.bank_name, item.category, item.cheque_number,
+                    item.description, item.issue_to, item.status, item.type
                 ].some(field => field?.toLowerCase().includes(searchTerm));
+                // Filter by type
+                const matchesType = section === 'cheque-register-outgoing' ? item.type === 'Outgoing' : item.type === 'Incoming'
                 // Filter by status
-                const matchesStatus = this.filters.transfer_status ? item.transfer_status_id === this.filters.transfer_status : true;
+                const matchesStatus = this.filters.status ? item.status_id === this.filters.status : true;
                 // Filter by warning
                 const matchesWarning = this.filters.is_warning ? this.isWarning(item) : true;
                 // Return true only if all filters match
-                return matchesSearch && matchesStatus && matchesWarning;
+                return matchesSearch && matchesType && matchesStatus && matchesWarning;
             });
         },
         groupedByCurrency() {
@@ -344,28 +301,7 @@ export default {
             this.calculateTotalAsPerReportingCurrency();
         },
     },
-    mounted() {
-        const urlParams = new URLSearchParams(window.location.search);
-        let startDate = null;
-        let endDate = null;
-        if(urlParams.get("id")){
-            this.filters.search = urlParams.get("id");
-        }
-        if (urlParams.get('date')) {
-            const parsedDate = DateTime.fromFormat(urlParams.get('date'), 'dd.MM.yyyy');
-            if (parsedDate.isValid) {
-                startDate = parsedDate.toFormat('yyyy-MM-dd');
-                endDate = parsedDate.toFormat('yyyy-MM-dd');
-
-                console.log(startDate, endDate);
-
-                // Call getPageData with formatted date
-                this.getPageData(startDate, endDate);
-            }
-        }
-    }
 }
 </script>
 <style scoped>
-
 </style>

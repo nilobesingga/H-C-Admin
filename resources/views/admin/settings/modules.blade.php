@@ -1,7 +1,7 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 @section('pageTitle', $page->title)
 @section('content')
-    <cash-requests
+    <modules
         :page_data='@json($page)'
     />
 @endsection

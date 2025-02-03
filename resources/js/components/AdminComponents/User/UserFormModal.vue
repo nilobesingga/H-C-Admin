@@ -82,40 +82,77 @@
                                                     </td>
                                                 </tr>
                                                 <!-- Child Modules -->
-                                                <tr v-for="child in module.children" :key="child.id">
-                                                    <td>
-                                                        <div class="pl-5">
-                                                            <label class="checkbox-group">
-                                                                <input
-                                                                    class="checkbox checkbox-sm"
-                                                                    type="checkbox"
-                                                                    :value="child.id"
-                                                                    :checked="isModuleChecked(child.id)"
-                                                                    @change="toggleChildModule(child, module, $event)"
-                                                                >
-                                                                <span class="checkbox-label">{{ child.name }}</span>
-                                                            </label>
-                                                        </div>
-                                                    </td>
-                                                    <td class="text-center">
-                                                        <input
-                                                            type="checkbox"
-                                                            class="checkbox checkbox-sm"
-                                                            :disabled="!isModuleChecked(child.id)"
-                                                            :checked="hasPermission(child.id, 'view_only')"
-                                                            @change="setPermission(child.id, 'view_only', $event)"
-                                                        >
-                                                    </td>
-                                                    <td class="text-center">
-                                                        <input
-                                                            type="checkbox"
-                                                            class="checkbox checkbox-sm"
-                                                            :disabled="!isModuleChecked(child.id)"
-                                                            :checked="hasPermission(child.id, 'full_access')"
-                                                            @change="setPermission(child.id, 'full_access', $event)"
-                                                        >
-                                                    </td>
-                                                </tr>
+                                                <template v-for="child in module.children" :key="child.id">
+                                                    <tr>
+                                                        <td>
+                                                            <div class="pl-5">
+                                                                <label class="checkbox-group">
+                                                                    <input
+                                                                        class="checkbox checkbox-sm"
+                                                                        type="checkbox"
+                                                                        :value="child.id"
+                                                                        :checked="isModuleChecked(child.id)"
+                                                                        @change="toggleChildModule(child, module, $event)"
+                                                                    >
+                                                                    <span class="checkbox-label">{{ child.name }}</span>
+                                                                </label>
+                                                            </div>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <input
+                                                                type="checkbox"
+                                                                class="checkbox checkbox-sm"
+                                                                :disabled="!isModuleChecked(child.id)"
+                                                                :checked="hasPermission(child.id, 'view_only')"
+                                                                @change="setPermission(child.id, 'view_only', $event)"
+                                                            >
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <input
+                                                                type="checkbox"
+                                                                class="checkbox checkbox-sm"
+                                                                :disabled="!isModuleChecked(child.id)"
+                                                                :checked="hasPermission(child.id, 'full_access')"
+                                                                @change="setPermission(child.id, 'full_access', $event)"
+                                                            >
+                                                        </td>
+                                                    </tr>
+                                                    <!-- Grand Child Modules -->
+                                                    <tr v-for="grandChild in child.children" :key="grandChild.id">
+                                                        <td>
+                                                            <div class="pl-10">
+                                                                <label class="checkbox-group">
+                                                                    <input
+                                                                        class="checkbox checkbox-sm"
+                                                                        type="checkbox"
+                                                                        :value="grandChild.id"
+                                                                        :checked="isModuleChecked(grandChild.id)"
+                                                                        @change="toggleChildModule(grandChild, child, $event)"
+                                                                    >
+                                                                    <span class="checkbox-label">{{ grandChild.name }}</span>
+                                                                </label>
+                                                            </div>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <input
+                                                                type="checkbox"
+                                                                class="checkbox checkbox-sm"
+                                                                :disabled="!isModuleChecked(grandChild.id)"
+                                                                :checked="hasPermission(grandChild.id, 'view_only')"
+                                                                @change="setPermission(grandChild.id, 'view_only', $event)"
+                                                            >
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <input
+                                                                type="checkbox"
+                                                                class="checkbox checkbox-sm"
+                                                                :disabled="!isModuleChecked(grandChild.id)"
+                                                                :checked="hasPermission(grandChild.id, 'full_access')"
+                                                                @change="setPermission(grandChild.id, 'full_access', $event)"
+                                                            >
+                                                        </td>
+                                                    </tr>
+                                                </template>
                                             </template>
                                         </tbody>
                                     </table>

@@ -1,14 +1,14 @@
 @extends('layouts.app')
 @section('pageTitle', 'Dashboard')
 @section('content')
-    <div class="container-fluid">
+    <div class="container-fluid pt-6">
         @if($page->user->modules->isEmpty())
             <div class="alert alert-danger text-center p-4 bg-red-100 text-red-700 rounded-md">
                 No modules assigned to this user.
             </div>
         @else
             <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5 lg:gap-7.5">
-                <a href="{{ route('reports.' . $page->user->modules->first()->slug) }}"
+                <a href="{{ route('reports.' . $page->user->modules->sortBy('order')->first()->slug) }}"
                    class="card p-5 lg:p-7.5 lg:pt-7 flex flex-col gap-4 hover:bg-gray-100 hover:border-[--tw-primary] transition-colors">
                     <div class="flex items-center justify-between gap-2">
                         <i class="ki-filled ki-badge text-2xl link"></i>
@@ -16,7 +16,6 @@
                     </div>
                     <div class="flex flex-col gap-3">
                         <div class="text-base font-medium leading-none text-gray-900 hover:text-primary-active">Reports</div>
-                        <span class="text-2sm text-gray-700 leading-5">We're open to partnerships, guest posts, promo banners, and more.</span>
                     </div>
                 </a>
             </div>

@@ -19,7 +19,7 @@
             </button>
         </div>
 
-        <div class="grid gap-5 lg:gap-7.5">
+        <div class="grid gap-5 lg:gap-7.5 pt-6">
             <!-- filters -->
             <div class="flex items-center justify-between gap-2">
                 <div class="flex">

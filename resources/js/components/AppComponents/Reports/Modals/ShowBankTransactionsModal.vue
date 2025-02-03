@@ -4,7 +4,7 @@
             <div class="modal-header bg-cresco_red">
                 <h3 class="modal-title capitalize text-white">{{ bankDetails.companyName }} - {{ bankDetails.bankName }} Transactions</h3>
                 <button class="btn btn-xs btn-icon btn-light" data-modal-dismiss="true" @click="$emit('closeModal')">
-                    <i class="ki-outline ki-cross" ></i>
+                    <i class="ki-outline ki-cross"></i>
                 </button>
             </div>
             <div class="modal-body">

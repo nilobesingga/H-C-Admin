@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Reports;
 
 use App\Http\Controllers\Controller;
+use App\Models\Bitrix\BitrixList;
 use App\Models\Bitrix\BitrixListsSageCompanyMapping;
 use App\Models\User;
 use App\Models\UserModulePermission;
@@ -52,9 +53,13 @@ class ReportsController extends Controller
             'module_id' => $this->userService->getModuleBySlug('purchase-invoices')->id
         ])->value('permission');
 
+        $bitrixList = BitrixList::select('id', 'name', 'bitrix_iblock_type', 'bitrix_iblock_id')
+                ->whereId(1)->first();
+
         $page = (Object) [
             'title' => 'Purchase Invoices',
             'identifier' => 'reports_purchase_invoices',
+            'bitrix_list' => $bitrixList,
             'permission' => $modulePermission,
             'user' => $this->user,
             'bitrix_list_sage_companies' => $bitrixListSageCompanies,
@@ -79,18 +84,32 @@ class ReportsController extends Controller
             ->distinct()
             ->get();
 
+        $bitrixBankTransferCompanyIds = DB::table('bitrix_lists_sage_companies_mapping')
+            ->select([
+                DB::raw('MAX(CASE WHEN bitrix_list_id = 2 THEN bitrix_category_id END) as cash_request_company_id'),
+                DB::raw('MAX(CASE WHEN bitrix_list_id = 4 THEN bitrix_category_id END) as bank_transfer_company_id'),
+                'bitrix_category_name',
+            ])
+            ->groupBy('bitrix_category_name')
+            ->get();
+
         $modulePermission = UserModulePermission::where([
             'user_id' => Auth::id(),
             'module_id' => $this->userService->getModuleBySlug('cash-requests')->id
         ])->value('permission');
 
+        $bitrixList = BitrixList::select('id', 'name', 'bitrix_iblock_type', 'bitrix_iblock_id')
+            ->whereId(2)->first();
+
         $page = (object)[
             'title' => 'Cash Requests',
             'identifier' => 'reports_cash_reports',
+            'bitrix_list' => $bitrixList,
             'permission' => $modulePermission,
             'user' => $this->user,
             'bitrix_list_sage_companies' => $bitrixListSageCompanies,
-            'bitrix_list_categories' => $bitrixListCategories
+            'bitrix_list_categories' => $bitrixListCategories,
+            'bitrix_bank_transfer_company_ids' => $bitrixBankTransferCompanyIds
         ];
         return view('reports.cash_requests', compact('page'));
     }
@@ -114,9 +133,13 @@ class ReportsController extends Controller
             'module_id' => $this->userService->getModuleBySlug('bank-transfers')->id
         ])->value('permission');
 
+        $bitrixList = BitrixList::select('id', 'name', 'bitrix_iblock_type', 'bitrix_iblock_id')
+            ->whereId(4)->first();
+
         $page = (object)[
             'title' => 'Bank Transfers',
             'identifier' => 'reports_bank_transfers',
+            'bitrix_list' => $bitrixList,
             'permission' => $modulePermission,
             'user' => $this->user,
             'bitrix_list_sage_companies' => $bitrixListSageCompanies,
@@ -168,6 +191,7 @@ class ReportsController extends Controller
         $bitrixListSageCompanies = BitrixListsSageCompanyMapping::select('category_id', 'bitrix_list_id', 'sage_company_code', 'bitrix_sage_company_id', 'bitrix_sage_company_name')
             ->where('bitrix_list_id', 5)
             ->whereNotNull('sage_company_code')
+            ->whereNotNull('bitrix_sage_company_id')
             ->whereIn('category_id', $this->userCategoryIds)
             ->distinct()
             ->get();
@@ -190,10 +214,18 @@ class ReportsController extends Controller
     }
     public function getBankSummary()
     {
+        $bitrixListCategories = BitrixListsSageCompanyMapping::select('category_id', 'bitrix_list_id', 'bitrix_category_id', 'bitrix_category_name')
+            ->where('bitrix_list_id', 7)
+            ->whereNotNull('bitrix_category_id')
+            ->whereIn('category_id', $this->userCategoryIds)
+            ->distinct()
+            ->get();
+
         $sageCompanyCode = BitrixListsSageCompanyMapping::select('category_id', 'sage_company_code', 'bitrix_sage_company_name')
             ->whereIn('category_id', $this->userCategoryIds)
             ->whereNotNull('sage_company_code')
             ->distinct()
+            ->orderBy('bitrix_sage_company_name')
             ->get();
 
         $bitrixSageCompanyMapping = BitrixListsSageCompanyMapping::whereIn('bitrix_list_id', ['1', '2', '3'])->get();
@@ -203,15 +235,52 @@ class ReportsController extends Controller
             'module_id' => $this->userService->getModuleBySlug('bank-summary')->id
         ])->value('permission');
 
+        $bitrixList = BitrixList::select('id', 'name', 'bitrix_iblock_type', 'bitrix_iblock_id')
+            ->whereId(7)->first();
+
         $page = (object)[
-            'title' => 'Bank Summary',
-            'identifier' => 'reports_bank_summary',
             'permission' => $modulePermission,
             'user' => $this->user,
-            'sage_companies_code' => $sageCompanyCode,
-            'bitrix_sage_company_mapping' => $bitrixSageCompanyMapping,
         ];
+
+
+        $section = request()->get('section');
+
+        // Overview
+        if ($section === 'overview'){
+            $page->title = "Bank Summary | Overview";
+            $page->identifier = "reports_bank_summary_overview";
+            $page->sage_companies_code = $sageCompanyCode;
+            $page->bitrix_sage_company_mapping = $bitrixSageCompanyMapping;
+        // Cheque Register Outgoing
+        }
+        else if($section === 'cheque-register-outgoing'){
+            $page->title = "Bank Summary | Cheque Register Outgoing";
+            $page->identifier = "reports_bank_summary_cheque_register_outgoing";
+            $page->bitrix_list = $bitrixList;
+            $page->bitrix_list_categories = $bitrixListCategories;
+        }
+        // Cheque Register Incoming
+        else if($section === 'cheque-register-incoming'){
+            $page->title = "Bank Summary | Cheque Register Incoming";
+            $page->identifier = "reports_bank_summary_cheque_register_incoming";
+            $page->bitrix_list = $bitrixList;
+            $page->bitrix_list_categories = $bitrixListCategories;
+        }
+        // Cash by Currency
+        else if($section === 'cash-by-currency'){
+            $page->title = "Bank Summary | Cash By Currency";
+            $page->identifier = "reports_bank_summary_cash-by-currency";
+            $page->sage_companies_code = $sageCompanyCode;
+            $page->bitrix_sage_company_mapping = $bitrixSageCompanyMapping;
+        }
+        // redirect to overview
+        else {
+            return redirect()->route('reports.bank-summary', ['section' => 'overview']);
+        }
+
         return view('reports.bank_summary', compact('page'));
+
     }
     public function getExpensePlanner()
     {
