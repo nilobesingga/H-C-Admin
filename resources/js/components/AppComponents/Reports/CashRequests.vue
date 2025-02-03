@@ -84,7 +84,7 @@
                             <th class="sticky top-0 w-[100px]">Status</th>
                             <th class="sticky top-0 w-[150px]">Documents</th>
                             <th class="sticky top-0 w-[125px]">Actions</th>
-                            <th class="sticky top-0 w-[125px]">Sage Reference</th>
+                            <th class="sticky top-0 w-[125px]" v-if="page_data.permission === 'full_access'">Sage Reference</th>
                         </tr>
                     </thead>
                     <tbody class="text-center text-xs text-gray-700">
@@ -128,11 +128,27 @@
                                 </button>
                             </td>
                             <td class="text-middle">
-                                <button class="btn btn-sm btn-outline btn-success" v-if="obj.bitrix_bank_transfer_id" @click="showBankTransferDetails(obj.bitrix_bank_transfer_id)">View Transfer</button>
-                                <button v-if="obj.payment_mode_id === '1869' && !obj.bitrix_bank_transfer_id" class="btn btn-sm btn-outline btn-success mb-2" @click="showCreateNewBankTransferModal(obj)">Create Transfer</button>
+                                <button
+                                    @click="openModal('showBankTransferDetailsModal', obj)"
+                                    data-modal-toggle="#show_bank_transfer_details_modal"
+                                    class="btn btn-sm btn-outline btn-primary"
+                                    v-if="obj.bitrix_bank_transfer_id"
+                                >
+                                    <i class="ki-filled ki-eye"></i>
+                                    <span>Transfer</span>
+                                </button>
+                                <button
+                                    @click="openModal('isCreateBankTransferFormModal', obj)"
+                                    data-modal-toggle="#create_bank_transfer_form_modal"
+                                    class="btn btn-sm btn-outline btn-danger"
+                                    v-if="page_data.permission === 'full_access' && obj.payment_mode_id === '1869' && !obj.bitrix_bank_transfer_id"
+                                >
+                                    <i class="ki-filled ki-plus-squared"></i>
+                                    <span>Transfer</span>
+                                </button>
                                 <button class="btn btn-sm btn-outline btn-success mt-2" v-if="obj.charge_extra_to_client === '1990' && !obj.has_offer_generated" @click="createOffer(obj)">Create Offer For Extra Charges</button>
                             </td>
-                            <td>
+                            <td v-if="page_data.permission === 'full_access'">
                                 <div v-if="!obj.sage_transaction_type && !obj.sage_transaction_type_id">
                                     <a class="btn btn-sm btn-outline btn-danger mb-2"
                                        style="width: 10rem"
@@ -164,14 +180,7 @@
                                             View Misc Payment
                                         </a>
                                     </div>
-                                    <!--                                <div>{{ invoice.sage_payment_reference_id }}</div>-->
                                 </div>
-                                <!--                            <button v-if="invoice.sage_payment_reference_id" class="btn btn-sm btn-outline-success mb-2"-->
-                                <!--                                    @click="showSagePaymentReferenceModal(invoice)">View in Sage-->
-                                <!--                            </button>-->
-                                <!--                            <button v-else class="btn btn-sm btn-outline-danger mb-2"-->
-                                <!--                                    @click="showSagePaymentReferenceModal(invoice)">Book in Sage-->
-                                <!--                            </button>-->
                             </td>
                         </tr>
                         <tr v-show="filteredData.length > 0">
@@ -212,14 +221,27 @@
             </div>
         </div>
     </div>
-
+    <!-- show bank transfer detail modal -->
+    <show-bank-transfer-details-modal
+        :obj_id="selected_obj.bitrix_bank_transfer_id"
+        v-if="is_show_bank_transfer_details_modal"
+        @closeModal="closeModal"
+    />
+    <!-- create transfer form modal -->
+    <create-bank-transfer-form-modal
+        :obj="selected_obj"
+        :bitrix_bank_transfer_company_ids="page_data.bitrix_bank_transfer_company_ids"
+        v-if="is_create_bank_transfer_form_modal"
+        type="cashRequest"
+        @closeModal="closeModal"
+    />
 </template>
 <script>
 import {DateTime} from "luxon";
 import _ from "lodash";
 
 export default {
-    name: "cash-reports",
+    name: "cash-requests",
     props: ['page_data'],
     data(){
         return {
@@ -273,6 +295,9 @@ export default {
                 cancelled: 1659,
                 partialCashRelease: 1687
             },
+            selected_obj: null,
+            is_show_bank_transfer_details_modal: false,
+            is_create_bank_transfer_form_modal: false,
         }
     },
     methods: {
@@ -378,6 +403,21 @@ export default {
         showBankTransferDetails(){},
         showCreateNewBankTransferModal(){},
         createOffer(){},
+        openModal(type, obj){
+            this.selected_obj = obj;
+            if(type === 'showBankTransferDetailsModal'){
+                this.is_show_bank_transfer_details_modal = true
+            }
+            if(type === 'isCreateBankTransferFormModal'){
+                this.is_create_bank_transfer_form_modal = true
+            }
+        },
+        closeModal(){
+            this.is_show_bank_transfer_details_modal = false;
+            this.is_create_bank_transfer_form_modal = false;
+            this.selected_obj = null
+            this.removeModalBackdrop();
+        },
     },
     computed:{
         filteredData() {
@@ -433,6 +473,8 @@ export default {
         if(urlParams.get("search")){
             this.filters.search = urlParams.get("search");
         }
+        this.sharedState.bitrix_user_id = this.page_data.user.bitrix_user_id;
+        this.sharedState.bitrix_webhook_token = this.page_data.user.bitrix_webhook_token;
     }
 }
 </script>

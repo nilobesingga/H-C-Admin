@@ -44,7 +44,7 @@
                             <template v-for="(bankCountry, index) in groupedByCountryBanks">
                                 <template v-for="bank in bankCountry">
                                     <td
-                                        :class="['text-right text-black p-2 border-2 cursor-pointer', getBankClass(company.banks, bank.bankId, 'C')]"
+                                        :class="['text-right text-black p-2 border-2 cursor-pointer hover:bg-blue-100', getBankClass(company.banks, bank.bankId, 'C')]"
                                         @click="showBankTransactions(company.banks, bank.bankId, 'C')"
                                         :data-modal-toggle="formatAmount(getBankAmount(company.banks, bank.bankId), false) !== 'N/A' ? '#show_bank_transactions_modal' : null"
                                     >
@@ -82,7 +82,7 @@
                                     <td class="text-black font-bold p-2 text-right border-2">{{ formatAmount(bank.allBlocked, true) }}</td>
                                 </template>
                             </template>
-                            <td class="sticky right-0 text-black font-bold bg-white p-2 text-right z-40 border-2 w-[250px]">{{ formatAmount(overallTotalBlockedCashm, true) }}</td>
+                            <td class="sticky right-0 text-black font-bold bg-white p-2 text-right z-40 border-2 w-[250px]">{{ formatAmount(overallTotalBlockedCash, true) }}</td>
                         </tr>
                         <!-- Blocked Rows -->
                         <tr>
@@ -125,7 +125,7 @@
                             <td class="sticky left-0 text-left z-40 bg-white text-black p-2 border-2 w-[22rem]">{{ company.companyName }}</td>
                             <template v-for="(obj, index) in groupByBankCurrency">
                                 <td
-                                    :class="['text-right text-black p-2 border-2 cursor-pointer hover:bg-gray-300', {'not-applicable-gray': formatAmount(getCurrencyAmount(company.banks, obj.currency, company.companyId), false) === 'N/A'} ]"
+                                    :class="['text-right text-black p-2 border-2 cursor-pointer hover:bg-blue-100', {'not-applicable-gray': formatAmount(getCurrencyAmount(company.banks, obj.currency, company.companyId), false) === 'N/A'} ]"
                                     @click="showBankTransactionsByCurrency(company.banks, obj.currency)"
                                     :data-modal-toggle="formatAmount(getCurrencyAmount(company.banks, obj.currency, company.companyId), false) !== 'N/A' ? '#show_bank_transactions_modal' : null"
                                 >

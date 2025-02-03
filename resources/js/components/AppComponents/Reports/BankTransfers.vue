@@ -113,7 +113,7 @@
                             <td>
                                 <button class="btn btn-sm btn-outline btn-primary mb-1" v-for="pid in obj.purchase_invoice_ids">
                                     <i class="ki-filled ki-eye"></i>
-                                    <span>Invoice Details</span>
+                                    <span>Invoice</span>
                                 </button>
                             </td>
                             <td>
@@ -192,7 +192,6 @@ export default {
             filters:{
                 date: null,
                 category_id: "",
-                sage_company_id: "",
                 transfer_status: "",
                 search: "",
                 is_warning: false,
@@ -237,7 +236,7 @@ export default {
                 }
             }
         },
-        async getPageData(){
+        async getPageData(startDate = null, endDate = null){
             let dateRange = JSON.parse(localStorage.getItem('dateRange'));
             this.loading = true;
             this.data = [];
@@ -245,11 +244,10 @@ export default {
             const bitrixWebhookToken = this.page_data.user.bitrix_webhook_token ? this.page_data.user.bitrix_webhook_token : null;
             const endpoint = 'crm.company.reports_v2';
             const requestData = {
-                startDate: dateRange[0],
-                endDate: dateRange[1],
+                startDate: startDate ? startDate : dateRange[0],
+                endDate: endDate ? endDate : dateRange[1],
                 action: "getBankTransfers",
                 categories: JSON.stringify(this.filters.category_id === "" ? this.page_data.bitrix_list_categories.map((obj) => obj.bitrix_category_id) : [this.filters.category_id]),
-                sage_companies: JSON.stringify(this.filters.sage_company_id === "" ? this.page_data.bitrix_list_sage_companies.map((obj) => obj.bitrix_sage_company_id) : [this.filters.sage_company_id])
             }
             try {
                 const response = await this.callBitrixAPI(endpoint, bitrixUserId, bitrixWebhookToken, requestData);
@@ -346,6 +344,26 @@ export default {
             this.calculateTotalAsPerReportingCurrency();
         },
     },
+    mounted() {
+        const urlParams = new URLSearchParams(window.location.search);
+        let startDate = null;
+        let endDate = null;
+        if(urlParams.get("id")){
+            this.filters.search = urlParams.get("id");
+        }
+        if (urlParams.get('date')) {
+            const parsedDate = DateTime.fromFormat(urlParams.get('date'), 'dd.MM.yyyy');
+            if (parsedDate.isValid) {
+                startDate = parsedDate.toFormat('yyyy-MM-dd');
+                endDate = parsedDate.toFormat('yyyy-MM-dd');
+
+                console.log(startDate, endDate);
+
+                // Call getPageData with formatted date
+                this.getPageData(startDate, endDate);
+            }
+        }
+    }
 }
 </script>
 <style scoped>

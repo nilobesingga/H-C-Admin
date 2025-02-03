@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('pageTitle', $page->title)
 @section('content')
-    <cash-reports
+    <cash-requests
         :page_data='@json($page)'
     />
 @endsection
