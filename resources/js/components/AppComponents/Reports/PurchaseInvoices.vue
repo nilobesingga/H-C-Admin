@@ -80,12 +80,13 @@
                             <th class="sticky top-0 w-[100px]">SAGE Status</th>
                             <th class="sticky top-0 w-[125px]">Status</th>
                             <th class="sticky top-0 w-[125px] text-right">Invoice Amount</th>
-                            <th class="sticky top-0 w-[150px] text-left">Invoice Number</th>
+                            <th class="sticky top-0 w-[125px] text-left">Invoice Number</th>
                             <th class="sticky top-0 w-[150px] text-left">Project</th>
                             <th class="sticky top-0 w-[150px] text-left">Receiver</th>
                             <th class="sticky top-0 w-[70px]">Charge to Client</th>
-                            <th class="sticky top-0 w-[150px] text-left whitespace-normal break-words">Request By & Remarks</th>
-<!--                            <th class="sticky top-0 w-[100px]">Actions</th>-->
+                            <th class="sticky top-0 w-[130px] text-left whitespace-normal break-words">Request By & Remarks</th>
+                            <th class="sticky top-0 w-[100px]">Documents</th>
+                            <th class="sticky top-0 w-[120px]">Action</th>
                         </tr>
                     </thead>
                     <tbody class="text-center text-xs text-gray-700">
@@ -119,13 +120,44 @@
                                 <br><br>
                                 <span class="">{{ obj.detail_text }}</span>
                             </td>
-<!--                            <td>-->
-<!--                                <button-->
-<!--                                    @click="openModal('isCreateBankTransferFormModal', obj)" data-modal-toggle="#create_bank_transfer_form_modal" class="btn btn-sm btn-outline btn-danger">-->
-<!--                                    <i class="ki-filled ki-plus-squared"></i>-->
-<!--                                    <span>Create Transfer</span>-->
-<!--                                </button>-->
-<!--                            </td>-->
+                            <td>
+                                <a v-for="(documentId, index) in obj.document_list"
+                                   class="btn btn-sm btn-outline btn-primary mb-1" target="_blank"
+                                   :href="`https://crm.cresco.ae/bitrix/tools/disk/uf.php?attachedId=${documentId}&action=download&ncc=1'`"
+                                >
+                                    <i class="ki-filled ki-file-down"></i>
+                                    <span>Doc {{ ++index }}</span>
+                                </a>
+                            </td>
+                            <td>
+                                <button
+                                    @click="openModal('showBankTransferDetailsModal', obj)"
+                                    data-modal-toggle="#show_bank_transfer_details_modal"
+                                    class="btn btn-sm btn-outline btn-primary"
+                                    v-if="obj.bitrix_bank_transfer_id"
+                                >
+                                    <i class="ki-filled ki-eye"></i>
+                                    <span>Transfer</span>
+                                </button>
+                                <button
+                                    @click="openModal('isCreateBankTransferFormModal', obj)"
+                                    data-modal-toggle="#create_bank_transfer_form_modal"
+                                    class="btn btn-sm btn-outline btn-danger"
+                                    v-if="page_data.permission === 'full_access' && (!obj.bitrix_bank_transfer_id && obj.status_id !== '1619' && obj.status_id !== '1620' && obj.status_id !== '1871' && obj.sage_status_text === 'Booked In Sage')"
+                                >
+                                    <i class="ki-filled ki-plus-squared"></i>
+                                    <span>Transfer</span>
+                                </button>
+                                <a
+                                    class="btn btn-sm btn-outline btn-success"
+                                    target="_blank"
+                                    :href="`https://10.0.1.17/CRESCOSage/AP/APInvoice?blockId=104&purchaseId=${obj.id}`"
+                                    v-if="page_data.permission === 'full_access' && (obj.sage_status !== '1863' && obj.status_id !== '1619' && obj.status_id !== '1620')"
+                                >
+                                    <i class="ki-filled ki-plus-squared"></i>
+                                    <span>Book In Sage</span>
+                                </a>
+                            </td>
                         </tr>
                         <tr v-show="filteredData.length > 0">
                             <td colspan="6" class="text-black font-bold text-center">Totals per currency</td>
@@ -163,16 +195,22 @@
                     </span>
                 </div>
             </div>
-            <!-- create transfer form modal -->
-            <create-bank-transfer-form-modal
-                :obj="selected_obj"
-                :bitrix_bank_transfer_company_ids="page_data.bitrix_bank_transfer_company_ids"
-                v-if="is_crate_bank_transfer_form_modal"
-                type="purchaseInvoice"
-                @closeModal="closeModal"
-            />
         </div>
     </div>
+    <!-- show bank transfer detail modal -->
+    <show-bank-transfer-details-modal
+        :obj_id="selected_obj.bitrix_bank_transfer_id"
+        v-if="is_show_bank_transfer_details_modal"
+        @closeModal="closeModal"
+    />
+    <!-- create transfer form modal -->
+    <create-bank-transfer-form-modal
+        :obj="selected_obj"
+        :bitrix_bank_transfer_company_ids="page_data.bitrix_bank_transfer_company_ids"
+        v-if="is_create_bank_transfer_form_modal"
+        type="purchaseInvoice"
+        @closeModal="closeModal"
+    />
 </template>
 <script>
 import {DateTime} from "luxon";
@@ -209,7 +247,8 @@ export default {
                 },
             ],
             selected_obj: null,
-            is_crate_bank_transfer_form_modal: false,
+            is_show_bank_transfer_details_modal: false,
+            is_create_bank_transfer_form_modal: false,
             totalAsPerReportingCurrency: 0,
         }
     },
@@ -257,6 +296,12 @@ export default {
             try {
                 const response = await this.callBitrixAPI(endpoint, bitrixUserId, bitrixWebhookToken, requestData);
                 this.data = response.result;
+                _.forEach(this.data, function(item){
+                    item.document_list = []
+                    if (item.invoice_document_id){
+                        item.document_list = item.invoice_document_id.split(",");
+                    }
+                })
                 await this.calculateTotalAsPerReportingCurrency();
             } catch (error) {
                 if (error.status === 500){
@@ -278,17 +323,21 @@ export default {
             let today = DateTime.now();
             return item.status_text === "Approved" && DateTime.fromSQL(item.payment_schedule_date) <= today
         },
-        openModal(modal, obj){
+        openModal(type, obj){
             this.selected_obj = obj;
-            if(modal === 'isCreateBankTransferFormModal'){
-                this.is_crate_bank_transfer_form_modal = true
+            if(type === 'showBankTransferDetailsModal'){
+                this.is_show_bank_transfer_details_modal = true
+            }
+            if(type === 'isCreateBankTransferFormModal'){
+                this.is_create_bank_transfer_form_modal = true
             }
         },
         closeModal(){
-            this.is_crate_bank_transfer_form_modal = false;
-            this.obj_id = null
+            this.is_show_bank_transfer_details_modal = false;
+            this.is_create_bank_transfer_form_modal = false;
+            this.selected_obj = null
             this.removeModalBackdrop();
-        }
+        },
     },
     computed:{
         filteredData() {
@@ -341,6 +390,8 @@ export default {
         if(urlParams.get("search")){
             this.filters.search = urlParams.get("search");
         }
+        this.sharedState.bitrix_user_id = this.page_data.user.bitrix_user_id;
+        this.sharedState.bitrix_webhook_token = this.page_data.user.bitrix_webhook_token;
     }
 }
 </script>

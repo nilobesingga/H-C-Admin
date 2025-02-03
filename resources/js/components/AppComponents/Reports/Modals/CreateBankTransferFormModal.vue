@@ -1,0 +1,455 @@
+<template>
+    <div class="modal" data-modal="true" data-modal-backdrop-static="true" id="create_bank_transfer_form_modal">
+        <div class="modal-content top-[5%] lg:max-w-[1000px]">
+            <div class="modal-header">
+                <h3 class="modal-title capitalize">Create New Bitrix Bank Transfer</h3>
+                <button class="btn btn-xs btn-icon btn-light" data-modal-dismiss="true" @click="$emit('closeModal')">
+                    <i class="ki-outline ki-cross" ></i>
+                </button>
+            </div>
+            <div class="modal-body relative h-full overflow-auto">
+                <!-- Loading Spinner -->
+                <div v-if="loading" class="absolute inset-0 bg-gray-300 bg-opacity-50 flex items-center justify-center z-50">
+                    <div class="flex items-center gap-2 px-4 py-2 font-medium leading-none text-sm border border-gray-200 shadow-default rounded-md text-gray-500 bg-white">
+                        <svg class="animate-spin -ml-1 h-5 w-5 text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Loading...
+                    </div>
+                </div>
+                <!-- Modal Content -->
+                <div v-else>
+                    <div class="text-center">
+                        <span class="badge badge-sm badge-danger badge-outline">Note: If you cannot find the account name make sure to add it first in Bitrix. Click &nbsp <a href="https://crm.cresco.ae/services/lists/39/view/0/?list_section_id=" target="_blank" class="btn btn-link"> here &nbsp </a> to add a new bank account in Bitrix.</span>
+                    </div>
+                    <form @submit.prevent="submit">
+                        <div class="flex gap-5 mt-10">
+                            <div class="w-1/2">
+                                <!-- Transfer from Account -->
+                                <div class="mb-4 w-full gap-2.5">
+                                    <label class="form-label flex items-center gap-1 text-sm mb-1" for="transfer_from_account">Transfer from Account
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <v-select
+                                        v-model="form.transfer_from_account"
+                                        :options="form_data.banks"
+                                        label="NAME"
+                                        :filterable="false"
+                                        placeholder="Search Account Name"
+                                        class="text-black"
+                                        @search="debouncedSearch('banks', $event)"
+                                        id="transfer_from_account"
+                                    >
+                                        <template #no-options>
+                                            <div class="text-black">Search by account name</div>
+                                        </template>
+                                        <template #option="option">
+                                            <div class="p-2 text-xs text-black">
+                                                <div>{{ option.NAME }} - <span v-if="option.PROPERTY_156"> {{ Object.values(option.PROPERTY_156)[0]}}</span></div>
+                                                <div class="font-bold" v-if="option.PROPERTY_158">{{ Object.values(option.PROPERTY_158)[0]}}</div>
+                                                <div v-if="option.PROPERTY_159">{{ Object.values(option.PROPERTY_159)[0]}}</div>
+                                                <div v-if="option.PROPERTY_166">{{ Object.values(option.PROPERTY_166)[0]}}</div>
+                                            </div>
+                                        </template>
+                                        <template #selected-option="option">
+                                            <div>
+                                                <span v-if="form.transfer_from_account.PROPERTY_158"> {{ Object.values(form.transfer_from_account.PROPERTY_158)[0]}}</span>
+                                                <span v-else>{{option.NAME}}</span>
+                                            </div>
+                                        </template>
+                                    </v-select>
+                                    <div v-if="form.transfer_from_account" class="bg-blue-100 text-sm p-2 m-2">
+                                        <div class="text-md mb-2">Transfer From:</div>
+                                        <div class="text-sm">  {{ form.transfer_from_account.NAME }} - <span v-if="form.transfer_from_account.PROPERTY_156"> {{ Object.values(form.transfer_from_account.PROPERTY_156)[0]}}</span></div>
+                                        <div class="text-sm" v-if="form.transfer_from_account.PROPERTY_158"> {{ Object.values(form.transfer_from_account.PROPERTY_158)[0]}}</div>
+                                        <div class="text-sm" v-if="form.transfer_from_account.PROPERTY_159"> {{ Object.values(form.transfer_from_account.PROPERTY_159)[0]}}</div>
+                                        <div class="text-sm" v-if="form.transfer_from_account.PROPERTY_166"> {{ Object.values(form.transfer_from_account.PROPERTY_166)[0]}}</div>
+                                    </div>
+                                    <p class="text-red-500 text-xs italic" v-if="v$.form.transfer_from_account.$error">Please fill out this field.</p>
+                                </div>
+                                <!-- Transfer Amount -->
+                                <div class="mb-4 w-full gap-2.5">
+                                    <label class="form-label flex items-center gap-1 text-sm mb-1" for="amount">Transfer Amount
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <input class="input input-sm text-black bg-inherit" placeholder="Transfer Amount" id="amount" type="text" v-model="form.amount">
+                                    <p class="text-red-500 text-xs italic" v-if="v$.form.amount.$error">Please fill out this field.</p>
+                                </div>
+                                <!-- Reference Number -->
+                                <div class="mb-4 w-full gap-2.5">
+                                    <label class="form-label flex items-center gap-1 text-sm mb-1" for="invoice_number">Reference Number</label>
+                                    <input class="input input-sm text-black bg-inherit" placeholder="Reference Number" id="invoice_number" type="text" v-model="form.invoice_number">
+                                </div>
+                                <!-- Project -->
+                                <div class="mb-4 w-full gap-2.5">
+                                    <label class="form-label flex items-center gap-1 text-sm mb-1" for="project">Project
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <v-select
+                                        v-model="form.project"
+                                        :options="form_data.projects"
+                                        label="TITLE"
+                                        :filterable="false"
+                                        placeholder="Search Project Name"
+                                        class="text-black"
+                                        @search="debouncedSearch('projects', $event)"
+                                        id="project"
+                                    >
+                                        <template #no-options>
+                                            <div class="text-black">Search by project name</div>
+                                        </template>
+                                        <template #option="option">
+                                            <div class="py-2 text-xs text-black">
+                                                <span v-if="option.TYPE === '1'" class="px-1 bg-[#1759cd] text-white">L</span>
+                                                <span v-if="option.TYPE === '2'" class="px-1 bg-[#149ac0] text-white">D</span>
+                                                <span v-if="option.TYPE === '3'" class="px-1">C</span>
+                                                <span class="ml-1">{{ option.TITLE }}</span>
+                                            </div>
+                                        </template>
+                                        <template #selected-option="option">
+                                            <div class="text-xs text-black" v-if="form.project">
+                                                <span v-if="option.TYPE === '1'" class="px-1 bg-[#1759cd] text-white">L</span>
+                                                <span v-if="option.TYPE === '2'" class="px-1 bg-[#149ac0] text-white">D</span>
+                                                <span v-if="option.TYPE === '3'" class="px-1">C</span>
+                                                <span class="ml-1"> {{ form.project.TITLE }}</span>
+                                            </div>
+                                        </template>
+                                    </v-select>
+                                    <p class="text-red-500 text-xs italic" v-if="v$.form.project.$error">Please fill out this field.</p>
+                                </div>
+                                <!-- Transfer Document -->
+                                <div class="mb-4 w-full gap-2.5">
+                                    <label class="form-label flex items-center gap-1 text-sm mb-1" for="transfer_document">Transfer Document
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <input class="file-input file-input-sm" placeholder="Transfer Document" id="transfer_document" type="file" @change="uploadDocument($event, 'transfer_document')">
+                                    <p class="text-red-500 text-xs italic" v-if="v$.form.transfer_document.$error">Please fill out this field.</p>
+                                </div>
+                            </div>
+                            <div class="w-1/2">
+                                <!-- Transfer To Account -->
+                                <div class="mb-4 w-full gap-2.5">
+                                    <label class="form-label flex items-center gap-1 text-sm mb-1" for="transfer_to_account">Transfer To Account
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <v-select
+                                        v-model="form.transfer_to_account"
+                                        :options="form_data.banks"
+                                        label="NAME"
+                                        :filterable="false"
+                                        placeholder="Search Account Name"
+                                        class="text-black"
+                                        @search="debouncedSearch('banks', $event)"
+                                        id="transfer_to_account"
+                                    >
+                                        <template #no-options>
+                                            <div class="text-black">Search by account name</div>
+                                        </template>
+                                        <template #option="option">
+                                            <div class="p-2 text-xs text-black">
+                                                <div>{{ option.NAME }} - <span v-if="option.PROPERTY_156"> {{ Object.values(option.PROPERTY_156)[0]}}</span></div>
+                                                <div class="font-bold" v-if="option.PROPERTY_158">{{ Object.values(option.PROPERTY_158)[0]}}</div>
+                                                <div v-if="option.PROPERTY_159">{{ Object.values(option.PROPERTY_159)[0]}}</div>
+                                                <div v-if="option.PROPERTY_166">{{ Object.values(option.PROPERTY_166)[0]}}</div>
+                                            </div>
+                                        </template>
+                                        <template #selected-option="option">
+                                            <div>
+                                                <span v-if="form.transfer_to_account.PROPERTY_158"> {{ Object.values(form.transfer_to_account.PROPERTY_158)[0]}}</span>
+                                                <span v-else>{{option.NAME}}</span>
+                                            </div>
+                                        </template>
+                                    </v-select>
+                                    <div v-if="form.transfer_to_account" class="bg-blue-100 text-sm p-2 m-2">
+                                        <div class="text-md mb-2">Transfer to:</div>
+                                        <div class="text-sm">  {{ form.transfer_to_account.NAME }} - <span v-if="form.transfer_to_account.PROPERTY_156"> {{ Object.values(form.transfer_to_account.PROPERTY_156)[0]}}</span></div>
+                                        <div class="text-sm" v-if="form.transfer_to_account.PROPERTY_158"> {{ Object.values(form.transfer_to_account.PROPERTY_158)[0]}}</div>
+                                        <div class="text-sm" v-if="form.transfer_to_account.PROPERTY_159"> {{ Object.values(form.transfer_to_account.PROPERTY_159)[0]}}</div>
+                                        <div class="text-sm" v-if="form.transfer_to_account.PROPERTY_166"> {{ Object.values(form.transfer_to_account.PROPERTY_166)[0]}}</div>
+                                    </div>
+                                    <p class="text-red-500 text-xs italic" v-if="v$.form.transfer_to_account.$error">Please fill out this field.</p>
+                                </div>
+                                <!-- Transfer Currency -->
+                                <div class="mb-4 w-full gap-2.5">
+                                    <label class="form-label flex items-center gap-1 text-sm mb-1" for="currency">Transfer Currency
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <select v-model="form.currency" class="select select-sm px-3 pr-8 min-w-fit max-w-full text-black bg-inherit" id="currency">
+                                        <option value="USD">US Dollar</option>
+                                        <option value="AED">UAE Dirham</option>
+                                        <option value="AUD">Australian Dollar</option>
+                                        <option value="CNY">China Yuan Renminbi</option>
+                                        <option value="GBP">Pound Sterling</option>
+                                        <option value="HKD">Hong Kong Dollar</option>
+                                        <option value="SGD">Singapore Dollar</option>
+                                        <option value="THB">Thai Baht</option>
+                                        <option value="EUR">Euro</option>
+                                        <option value="CHF">Swiss Franc</option>
+                                        <option value="PHP">Philippine Peso</option>
+                                        <option value="INR">Indian Rupee</option>
+                                        <option value="SCR">Seychelles Rupee</option>
+                                        <option value="CRC">Costa Rican Coln</option>
+                                        <option value="BRL">Brazilian Real</option>
+                                        <option value="RUB">Russian Ruble</option>
+                                    </select>
+                                    <p class="text-red-500 text-xs italic" v-if="v$.form.currency.$error">Please fill out this field.</p>
+                                </div>
+                                <!-- Purpose of Transfer -->
+                                <div class="mb-4 w-full gap-2.5">
+                                    <label class="form-label flex items-center gap-1 text-sm mb-1" for="detail_text">Purpose of Transfer
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <textarea class="textarea textarea-sm text-black" rows="4" placeholder="Purpose of Transfer" id="detail_text" type="text" v-model="form.detail_text"></textarea>
+                                    <p class="text-red-500 text-xs italic" v-if="v$.form.detail_text.$error">Please fill out this field.</p>
+                                </div>
+                                <!-- Supporting Document  -->
+                                <div class="mb-4 w-full gap-2.5">
+                                    <label class="form-label flex items-center gap-1 text-sm mb-1" for="supporting_document">Supporting Document
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <input class="file-input file-input-sm" placeholder="Supporting Document " id="supporting_document" type="file" @change="uploadDocument($event, 'supporting_document')">
+                                    <p class="text-red-500 text-xs italic" v-if="v$.form.supporting_document.$error">Please fill out this field.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer justify-end">
+                <div class="flex gap-4">
+                    <button class="btn btn-light" data-modal-dismiss="true" @click="$emit('closeModal')">
+                        Cancel
+                    </button>
+                    <button
+                        class="btn btn-primary w-[11rem] justify-center"
+                        type="submit"
+                        @click="submit"
+                        :disabled="loading || crud_loading"
+                    >
+                        <svg v-if="crud_loading" class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span v-else>Create Bank Transfer</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+<script>
+import { useVuelidate } from '@vuelidate/core'
+import { required } from '@vuelidate/validators'
+import qs from 'qs';
+import vSelect from 'vue-select';
+import 'vue-select/dist/vue-select.css';
+import { debounce } from 'lodash';
+
+export default {
+    name: "create-bank-transfer-form-modal",
+    props: ['obj', 'type', 'bitrix_bank_transfer_company_ids'],
+    components: { vSelect },
+    data(){
+        return {
+            form: {
+                transfer_from_account: null,
+                transfer_to_account: null,
+                amount: '',
+                transfer_document: null,
+                invoice_number: '',
+                currency: '',
+                detail_text: '',
+                supporting_document: null,
+                project: null,
+            },
+            form_data: {
+                banks: [],
+                projects: [],
+            },
+            crud_loading: false,
+            loading: false,
+            debouncedSearch: null,
+        }
+    },
+    setup() {
+        const v$ = useVuelidate();
+        return { v$ };
+    },
+    validations () {
+        return {
+            form: {
+                transfer_from_account: { required },
+                transfer_to_account: { required },
+                amount: { required },
+                currency: { required },
+                detail_text: { required },
+                project: {required},
+                transfer_document: { required },
+                supporting_document: { required },
+            }
+        }
+    },
+    methods: {
+        async submit(){
+            const isFormCorrect = await this.v$.$validate();
+            if (!isFormCorrect) return;
+            this.crud_loading = true;
+
+            let fields = {
+                'NAME': 'Outgoing Bank Transfer',
+                'PROPERTY_875': this.form.transfer_from_account.ID,
+                'PROPERTY_876': this.form.transfer_to_account.ID,
+                'PROPERTY_872': this.form.amount + "|" + this.form.currency,
+                'PROPERTY_877': this.form.invoice_number,
+                'DETAIL_TEXT': this.form.detail_text,
+                'PROPERTY_887': 1532, //Transfer status
+                'PROPERTY_901': `${this.form.project.TYPE === '1' ? 'L_' : this.form.project.TYPE === '2' ? 'D_' : this.form.project.TYPE === '3' ? 'C' : ''}${this.form.project.ID}`
+            }
+
+            if(this.type === "purchaseInvoice"){
+                fields['PROPERTY_1080'] = this.bitrix_bank_transfer_company_ids.find(
+                    (item) => item.purchase_invoice_company_id === this.obj.company_id
+                )?.bank_transfer_company_id,
+
+                fields['PROPERTY_1194'] = this.obj.id;
+            }
+            else if (this.type === "cashRequest"){
+                fields['PROPERTY_1223'] = this.obj.id;
+
+            }
+            let transferElem = document.getElementById('transfer_document');
+            let supportingElem = document.getElementById('supporting_document');
+
+            // if(transferElem.files.length !== 0){
+            //     const transferDoc = await this.uploadDocumentToBitrixDrive(document.getElementById('transfer_document'));
+            //     fields['PROPERTY_892'] = {
+            //         'n0': 'n' + transferDoc.ID
+            //     };
+            // }
+            // if(supportingElem.files.length !== 0){
+            //     const supportingDoc = await this.uploadDocumentToBitrixDrive(document.getElementById('supporting_document'));
+            //     fields['PROPERTY_878'] = {
+            //         'n0': 'n' + supportingDoc.ID
+            //     };
+            // }
+        },
+        async searchData(type, query) {
+            if (query) {
+                const bitrixUserId = this.sharedState.bitrix_user_id;
+                const bitrixWebhookToken = this.sharedState.bitrix_webhook_token;
+                let endpoint, requestData;
+
+                if (type === "banks") {
+                    endpoint = "lists.element.get";
+                    requestData = {
+                        IBLOCK_TYPE_ID: "lists",
+                        IBLOCK_ID: 39,
+                        FILTER: { PROPERTY_158: `%${query}%`, PROPERTY_175: "226" },
+                    };
+                } else if (type === "projects") {
+                    endpoint = "crm.contact.search";
+                    requestData = { search: `%${query}%` };
+                }
+
+                try {
+                    const response = await this.callBitrixAPI(endpoint, bitrixUserId, bitrixWebhookToken, qs.stringify(requestData));
+                    if (response.result) {
+                        if (type === "banks"){
+                            this.form_data.banks = [];
+                            this.form_data.banks = response.result;
+                        }
+                        if (type === "projects"){
+                            this.form_data.projects = [];
+                            this.form_data.projects = response.result.filter(obj => {
+                                return obj.TYPE !== "3"
+                            });
+                        }
+                    }
+                } catch (error) {
+                    console.error(`Error fetching ${type}:`, error);
+                }
+            }
+        },
+        async getProjectById(projectId){
+            if (projectId){
+                const bitrixUserId = this.sharedState.bitrix_user_id;
+                const bitrixWebhookToken = this.sharedState.bitrix_webhook_token;
+                const endpoint = "crm.contact.search";
+                const requestData = {
+                    id: `%${projectId.split("_")[1]}%`,
+                };
+                try {
+                    const response = await this.callBitrixAPI(endpoint, bitrixUserId, bitrixWebhookToken, qs.stringify(requestData));
+                    if (response.result) {
+                        this.form.project = response.result[0]
+                    }
+                } catch (error) {
+                    console.error("Error fetching project:", error);
+                }
+            }
+        },
+        uploadDocument(event, fieldName) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (fieldName === 'transfer_document') {
+                this.form.transfer_document = file;
+            } else if (fieldName === 'supporting_document') {
+                this.form.supporting_document = file;
+            }
+        },
+        async uploadDocumentToBitrixDrive(fileInput){
+            let fileName = "Transfer Document"
+            if (fileInput.files.length > 0) {
+                fileName = fileInput.files[0].name;
+
+            }
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(fileInput.files[0]);
+                reader.onload = async () => {
+                    try {
+                        const base64File = reader.result.split(',')[1];
+                        const response  = await axios({
+                            url: this.bitrixWebhookUrl + "disk.storage.uploadFile",
+                            method: 'post',
+                            data:{
+                                id: 490,
+                                data: {
+                                    'NAME': fileName
+                                },
+                                fileContent:base64File,
+                                generateUniqueName: true,
+                            }
+                        })
+                        resolve(response.data.result);
+                    } catch (error) {
+                        alert("Unable to upload file")
+                        reject(0);
+                    }
+                };
+                reader.onerror = error => reject(error);
+            });
+
+        },
+    },
+    created() {
+        this.debouncedSearch = debounce((type, query) => {
+            this.searchData(type, query);
+        }, 500);
+    },
+    mounted() {
+        this.form = this.obj;
+        this.form.transfer_from_account = null;
+        this.form.transfer_to_account = null;
+        if(this.obj.project_id){
+            this.getProjectById(this.obj.project_id)
+        }
+    },
+}
+</script>
+
+<style scoped>
+
+</style>
