@@ -42,6 +42,7 @@ class ReportsController extends Controller
         $bitrixBankTransferCompanyIds = DB::table('bitrix_lists_sage_companies_mapping')
                         ->select([
                             DB::raw('MAX(CASE WHEN bitrix_list_id = 1 THEN bitrix_category_id END) as purchase_invoice_company_id'),
+                            DB::raw('MAX(CASE WHEN bitrix_list_id = 2 THEN bitrix_category_id END) as cash_request_company_id'),
                             DB::raw('MAX(CASE WHEN bitrix_list_id = 4 THEN bitrix_category_id END) as bank_transfer_company_id'),
                             'bitrix_category_name',
                         ])

@@ -21,24 +21,32 @@ class BitrixService
 
         foreach ($bitrixUsers as $bitrixUser) {
             DB::transaction(function () use ($bitrixUser) {
-                // Insert or update data in Users table
+                // Check if user exists
+                $userExists = User::where('bitrix_user_id', $bitrixUser['ID'])->exists();
+                // Prepare user data with conditional fields
+                $userData = [
+                    'bitrix_active' => $bitrixUser['ACTIVE'],
+                    'updated_by' => 0,
+                ];
+                // Add fields only for new users
+                if (!$userExists) {
+                    $userData = array_merge($userData, [
+                        'email' => $bitrixUser['EMAIL'],
+                        'password' => bcrypt('123456789'),
+                        'access_token' => md5($bitrixUser['ID'] . $bitrixUser['EMAIL']),
+                        'is_default_password' => true,
+                        'created_by' => 0,
+                    ]);
+                }
+                // Insert or update user
                 $user = User::updateOrCreate(
                     ['bitrix_user_id' => $bitrixUser['ID']],
-                    [
-//                        'email' => $bitrixUser['EMAIL'],
-//                        'password' => bcrypt('123456789'),
-//                        'access_token' => md5($bitrixUser['ID'] . $bitrixUser['EMAIL']),
-//                        'is_default_password' => true,
-                        'bitrix_active' => $bitrixUser['ACTIVE'],
-//                        'created_by' => 0,
-                        'updated_by' => 0,
-                    ]
+                    $userData
                 );
                 UserProfile::updateOrCreate(
                     ['bitrix_user_id' => $bitrixUser['ID']],
                     [
-//                        'user_id' => $user->id,
-//                        'bitrix_user_id' => $bitrixUser['ID'],
+                        'user_id' => $user->id,
                         'bitrix_name' => $bitrixUser['NAME'] ?? null,
                         'bitrix_last_name' => $bitrixUser['LAST_NAME'] ?? null,
                         'bitrix_second_name' => $bitrixUser['SECOND_NAME'] ?? null,
@@ -71,7 +79,6 @@ class BitrixService
                         'bitrix_district' => $bitrixUser['UF_DISTRICT'] ?? null,
                         'bitrix_phone_inner' => $bitrixUser['UF_PHONE_INNER'] ?? null,
                         'bitrix_user_type' => $bitrixUser['USER_TYPE'] ?? null,
-                        'created_by' => 0,
                         'updated_by' => 0,
                     ]
                 );

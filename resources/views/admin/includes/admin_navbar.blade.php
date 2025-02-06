@@ -62,6 +62,11 @@
                                             <span class="menu-title">Modules</span>
                                         </a>
                                     </div>
+                                    <div class="menu-item {{ request()->routeIs('admin.settings.bitrix-sage-mapping') ? 'active' : '' }}">
+                                        <a class="menu-link" href="{{ route('admin.settings.bitrix-sage-mapping') }}" tabindex="0">
+                                            <span class="menu-title">Bitrix Sage Mapping</span>
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>

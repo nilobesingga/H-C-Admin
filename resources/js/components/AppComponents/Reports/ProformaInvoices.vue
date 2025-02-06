@@ -73,26 +73,28 @@
                     <thead>
                         <tr class="bg-black text-gray-900 font-medium text-center">
                             <th class="sticky top-0 w-10">#</th>
-                            <th class="sticky top-0 w-[70px]">Id</th>
+                            <th class="sticky top-0 w-[50px]">Id</th>
+                            <th class="sticky top-0 w-[100px] text-left">Company</th>
+                            <th class="sticky top-0 w-[100px] text-left">Contact</th>
+                            <th class="sticky top-0 w-[100px] text-right">Amount</th>
                             <th class="sticky top-0 w-[100px]">Status</th>
-                            <th class="sticky top-0 w-[100px]">Expiration Date</th>
-                            <th class="sticky top-0 w-[125px] text-right">Amount</th>
-                            <th class="sticky top-0 w-[200px] text-left">Subject</th>
-                            <th class="sticky top-0 w-[250px] text-left">CRM</th>
-                            <th class="sticky top-0 w-[150px]">Payment Terms</th>
-                            <th class="sticky top-0 w-[150px]">Responsible Person</th>
-                            <th class="sticky top-0 w-[150px]">Charge to Account</th>
-                            <th class="sticky top-0 w-[150px]">Created On</th>
+                            <th class="sticky top-0 w-[200px] text-left">CRM</th>
+                            <th class="sticky top-0 w-[100px]">Due Date</th>
+<!--                            <th class="sticky top-0 text-left">Subject</th>-->
+<!--                            <th class="sticky top-0">Payment Terms</th>-->
+                            <th class="sticky top-0 w-[100px]">Responsible Person</th>
+                            <th class="sticky top-0 w-[100px]">Charge to Account</th>
+                            <th class="sticky top-0 w-[100px]">Created On</th>
                         </tr>
                     </thead>
                     <tbody class="text-center text-xs text-gray-700">
                         <tr v-for="(obj, index) in filteredData" :key="index" class="odd:bg-white even:bg-slate-100">
                             <td>{{ ++index }}</td>
                             <td><a class="btn btn-link" target="_blank" :href="`https://crm.cresco.ae/crm/quote/show/${obj.id}/`">{{ obj.id }}</a></td>
-                            <td>{{ getStatusValue(obj.status) }}</td>
-                            <td><div :class="isWarning(obj) ? 'badge badge-warning' : ''" v-if="obj.expiration_date">{{ formatDate(obj.expiration_date) }}</div></td>
+                            <td class="text-left"><a target="_blank" class="btn btn-link" :href="`https://crm.cresco.ae/crm/company/details/${obj.company_id}/`">{{ obj.company }}</a></td>
+                            <td class="text-left"><a target="_blank" class="btn btn-link" :href="`https://crm.cresco.ae/crm/contact/details/${obj.contact_id}/`">{{ obj.contact }}</a></td>
                             <td class="text-right">{{ formatAmount(obj.amount) }} <strong class="font-bold text-black">{{ obj.currency }}</strong></td>
-                            <td class="text-left">{{ obj.subject }}</td>
+                            <td>{{ getStatusValue(obj.status) }}</td>
                             <td class="text-left">
                                 <div v-if="obj.deal">
                                     <span class="text-black font-bold">Deal: </span>
@@ -102,12 +104,10 @@
                                     <span class="text-black font-bold">Lead: </span>
                                     <a class="btn btn-link" target="_blank" :href="`https://crm.cresco.ae/crm/lead/details/${obj.lead_id}/`">{{ obj.lead }}</a>
                                 </div>
-                                <div>
-                                    <span class="text-black font-bold">Company: </span>
-                                    <a class="btn btn-link" target="_blank" :href="`https://crm.cresco.ae/crm/company/details/${obj.company_id}/`">{{ obj.company }}</a>
-                                </div>
                             </td>
-                            <td>{{ obj.payment_term }}</td>
+                            <td><div :class="isWarning(obj) ? 'badge badge-warning' : ''" v-if="obj.expiration_date">{{ formatDate(obj.expiration_date) }}</div></td>
+<!--                            <td class="text-left">{{ obj.subject }}</td>-->
+<!--                            <td>{{ obj.payment_term }}</td>-->
                             <td>{{ obj.responsible_person }}</td>
                             <td>{{ obj.charge_to_running_account }}</td>
                             <td>{{ formatDate(obj.created_on) }}</td>
