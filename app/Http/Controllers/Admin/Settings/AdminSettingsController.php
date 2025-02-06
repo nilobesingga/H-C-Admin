@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin\Settings;
 
 use App\Http\Controllers\Controller;
+use App\Models\Bitrix\BitrixList;
+use App\Models\Bitrix\BitrixListsSageCompanyMapping;
 use App\Models\Bitrix\Country;
 use App\Models\Category;
 use App\Models\Module;
@@ -96,5 +98,70 @@ class AdminSettingsController extends Controller
             return $this->errorResponse('Oops! An error occurred. Please refresh the page or contact support', config('app.debug') === true ? $e->getMessage() : null, 500 );
         }
 
+    }
+    public function bitrixSageMapping()
+    {
+        $page = (Object) [
+            'title' => 'Bitrix Sage Mapping',
+            'identifier' => 'admin_settings_bitrix_sage_mapping',
+            'categories' => Category::select('id', 'name')->get(),
+            'bitrix_lists' => BitrixList::select('id', 'name', 'bitrix_iblock_type', 'bitrix_iblock_id')->get(),
+        ];
+
+        return view('admin.settings.bitrix_sage_mapping', compact('page'));
+    }
+    public function bitrixSageMappingGetData($id)
+    {
+        try {
+            if($id){
+                dd('from bitrixSageMappingGetData', $id);
+            }
+            else {
+                $filters = request('filters');
+
+                $query = BitrixListsSageCompanyMapping::select('id', 'category_id', 'bitrix_list_id', 'sage_company_code', 'bitrix_sage_company_id', 'bitrix_sage_company_name', 'bitrix_category_id', 'bitrix_category_name');
+
+                // category filter
+                if (!empty($filters['category_id'])) {
+                    $query->where('category_id', $filters['category_id']);
+                }
+                // bitrix list filter
+                if (!empty($filters['bitrix_list_id'])) {
+                    $query->where('bitrix_list_id', $filters['bitrix_list_id']);
+                }
+
+                return $query->get();
+            }
+
+        } catch (\Exception $e){
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+    public function bitrixSageMappingSave(Request $request)
+    {
+        try {
+            $requestData = $request->request_data;
+
+            if ($request->form_type === 'add'){
+                $obj = new BitrixListsSageCompanyMapping();
+                $obj->category_id = $requestData['category_id'];
+                $obj->bitrix_list_id = $requestData['bitrix_list_id'];
+                $obj->sage_company_code = $requestData['sage_company_code'];
+                $obj->bitrix_sage_company_id = $requestData['bitrix_sage_company_id'];
+                $obj->bitrix_sage_company_name = $requestData['bitrix_sage_company_name'];
+                $obj->bitrix_category_id = $requestData['bitrix_category_id'];
+                $obj->bitrix_category_name = $requestData['bitrix_category_name'];
+
+                $obj->save();
+
+                return $this->successResponse('Data save successfully', null, 201);
+            }
+            if ($request->form_type === 'edit'){
+
+            }
+
+        } catch (\Exception $e){
+            return $this->errorResponse('Something went wrong', $e->getMessage(), 500);
+        }
     }
 }

@@ -66,9 +66,7 @@ export default {
                 customClass: {
                     container: "sweet-toast-custom-success"
                 },
-                timer: 3000
             });
-            $("body").removeClass("swal2-height-auto");
         },
         errorToast(text) {
             this.$swal.fire({

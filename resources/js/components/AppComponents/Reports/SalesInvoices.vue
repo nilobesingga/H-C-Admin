@@ -63,9 +63,16 @@
                         @click="filters.is_warning = !filters.is_warning"
                     >
                         <i class="ki-filled ki-information-1"></i>
-                        <span class="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">{{ warningCount }}</span>
+                        <span class="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center text-[8px]">{{ warningCount }}</span>
                     </button>
                 </div>
+                <!-- All Overdue Invoices -->
+                <div class="flex flex-shrink-0 ml-5">
+                    <label class="form-label flex items-center gap-2.5">
+                        <input class="checkbox checkbox-sm" name="check" type="checkbox" value="1" v-model="filters.is_all_overdue" @change="getData" />All Overdue
+                    </label>
+                </div>
+
             </div>
             <!-- table -->
             <div class="relative flex-grow overflow-auto reports-table-container">
@@ -92,7 +99,7 @@
                             <td class="text-left"><a target="_blank" class="btn btn-link" :href="`https://crm.cresco.ae/crm/company/details/${obj.company_id}/`">{{ obj.company }}</a></td>
                             <td class="text-left"><a target="_blank" class="btn btn-link" :href="`https://crm.cresco.ae/crm/contact/details/${obj.contact_id}/`">{{ obj.contact }}</a></td>
                             <td class="text-right"><span>{{ formatAmount(obj.price) }}</span> <strong class="text-black font-bold">{{ obj.currency }}</strong></td>
-                            <td><div :class="isWarning(obj) ? 'badge badge-warning' : ''">{{ obj.status }}</div></td>
+                            <td>{{ obj.status }}</td>
                             <td class="text-left">
                                 <div>
                                     <span class="text-black font-bold">Deal: </span>
@@ -103,8 +110,8 @@
                                     <a class="btn btn-link" target="_blank" :href="`https://crm.cresco.ae/crm/quote/show/${obj.quote_id}/`">View</a>
                                 </div>
                             </td>
-                            <td>{{ formatDate(obj.date_bill)  }}</td>
-                            <td>{{ formatDate(obj.date_pay_before) }}</td>
+                            <td><div :class="isNotBooked(obj) ? 'badge badge-warning' : ''">{{ formatDate(obj.date_bill)  }}</div></td>
+                            <td><div :class="isOverDueDate(obj) ? 'badge badge-warning' : ''">{{ formatDate(obj.date_pay_before) }}</div></td>
                             <td>{{ formatDate(obj.date_payed) }}</td>
                             <td class="text-left">
                                 <div v-if="obj.sage_invoice_number">
@@ -175,6 +182,7 @@ export default {
                 charge_to_account: "",
                 search: "",
                 is_warning: false,
+                is_all_overdue: false,
             },
             page_filters: [
                 {
@@ -209,12 +217,13 @@ export default {
             for (const filter of this.page_filters) {
                 try {
                     if(filter.key === 'status'){
-                        const endpoint = 'crm.invoice.status.list';
-                        const response = await this.callBitrixAPI(endpoint, bitrixUserId, bitrixWebhookToken);
-                        filter.values = response.result.reduce((acc, item) => {
-                            acc[item.STATUS_ID] = item.NAME;
-                            return acc
-                        }, {})
+                        filter.values = {
+                            "P": "Paid",
+                            "PP": "Partially Paid",
+                            "B": "Booked",
+                            "NB": "Not Booked",
+                            "C": "Cancelled"
+                        }
                     }
                     else {
                         const endpoint = 'crm.invoice.userfield.list';
@@ -236,7 +245,6 @@ export default {
         },
         async getPageData(){
             let dateRange = JSON.parse(localStorage.getItem('dateRange'));
-            this.loading = true;
             this.data = [];
             const bitrixUserId = this.page_data.user.bitrix_user_id ? this.page_data.user.bitrix_user_id : null;
             const bitrixWebhookToken = this.page_data.user.bitrix_webhook_token ? this.page_data.user.bitrix_webhook_token : null;
@@ -246,11 +254,11 @@ export default {
                 endDate: dateRange[1],
                 action: "getSalesInvoices",
                 categories: JSON.stringify(this.filters.category_id === "" ? this.page_data.bitrix_list_categories.map((obj) => obj.bitrix_category_id) : [this.filters.category_id]),
-                sage_companies: JSON.stringify(this.filters.sage_company_id === "" ? this.page_data.bitrix_list_sage_companies.map((obj) => obj.bitrix_sage_company_id) : [this.filters.sage_company_id])
+                sage_companies: JSON.stringify(this.filters.sage_company_id === "" ? this.page_data.bitrix_list_sage_companies.map((obj) => obj.bitrix_sage_company_id) : [this.filters.sage_company_id]),
+                is_all_overdue: this.filters.is_all_overdue
             }
             try {
                 const response = await this.callBitrixAPI(endpoint, bitrixUserId, bitrixWebhookToken, requestData);
-                this.loading = false
                 this.data = response.result;
                 await this.calculateTotalAsPerReportingCurrency();
             } catch (error) {
@@ -260,11 +268,40 @@ export default {
         async calculateTotalAsPerReportingCurrency(){
             this.totalAsPerReportingCurrency = await this.calculateTotalInBaseCurrency(this.groupedByCurrency)
         },
-        isWarning(item){
-            const today = new Date();
-            const invoiceDate = new Date(item.date_pay_before);
-            return ((item.status === "Booked in SAGE" || item.status === "New") && invoiceDate < today);
+        isWarning(item, today){
+            const dueDate = DateTime.fromSQL(item.date_pay_before)
+            const invoiceDate = DateTime.fromSQL(item.date_bill);
+            return ((item.status_id === "2" || item.status_id === "N") && dueDate < today) ||
+                ((item.status_id === "N" || item.status_id === "S") && invoiceDate < today);
         },
+        isOverDueDate(item){
+            const today = DateTime.now();
+            const dueDate = DateTime.fromSQL(item.date_pay_before)
+            return ((item.status_id === "2" || item.status_id === "N") && dueDate < today);
+        },
+        isNotBooked(item){
+            const today = DateTime.now();
+            const invoiceDate = DateTime.fromSQL(item.date_bill);
+            return ((item.status_id === "N" || item.status_id === "S") && invoiceDate < today);
+        },
+        customStatusFilter(item, status){
+            if (status === 'P'){
+                return item.status_id === "P"
+            }
+            if (status === 'PP'){
+                return item.status_id === "3"
+            }
+            if (status === 'B'){
+                return item.status_id === "2"
+            }
+            if (status === 'NB'){
+                return item.status_id === "N" || item.status_id === "S"
+            }
+            if (status === 'C'){
+                return item.status_id === "D" || item.status_id === "1"
+            }
+            return true;
+        }
     },
     computed:{
         filteredData() {
@@ -281,7 +318,7 @@ export default {
                     item.to_iban,
                 ].some(field => field?.toLowerCase().includes(searchTerm));
                 // Filter by status
-                const matchesStatus = this.filters.status ? item.status_id === this.filters.status : true;
+                const matchesStatus = this.filters.status ? this.customStatusFilter(item, this.filters.status) : true;
                 // Filter by chargeToAccount
                 const matchesChargeToAccount = this.filters.charge_to_account ? item.charge_to_running_account_id === this.filters.charge_to_account : true;
                 // Filter by warning
