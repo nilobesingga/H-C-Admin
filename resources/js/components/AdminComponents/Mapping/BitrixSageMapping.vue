@@ -10,78 +10,70 @@
                 <!-- Filters -->
                 <div class="flex items-center gap-4 flex-wrap w-full justify-end">
                     <div class="flex max-w-full min-w-[10rem]">
-                        <select v-model="filters.bitrix_active" name="bitrix_active" class="select select-sm max-w-full truncate" @change="getData(false)">
-                            <option value="">All</option>
-                            <option value="1">Active</option>
-                            <option value="0">In-Active</option>
+                        <select
+                            class="select select-sm max-w-full truncate"
+                            v-model="filters.bitrix_list_id"
+                            @change="getData"
+                        >
+                            <option value="" selected>Filter by Bitrix List</option>
+                            <option v-for="obj in page_data.bitrix_lists" :key="obj.id" :value="obj.id">
+                                {{ obj.name }}
+                            </option>
                         </select>
                     </div>
-                    <div class="flex">
-                        <div class="relative">
-                            <i class="ki-filled ki-magnifier leading-none text-md text-gray-500 absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
-                            <input class="input input-sm ps-8 text-black bg-inherit min-w-[20rem]" placeholder="Search" type="text" v-model="filters.search">
-                        </div>
+                    <div class="flex max-w-full min-w-[10rem]">
+                        <select
+                            class="select select-sm max-w-full truncate"
+                            v-model="filters.category_id"
+                            @change="getData"
+                        >
+                            <option value="" selected>Filter by Category</option>
+                            <option v-for="obj in page_data.categories" :key="obj.id" :value="obj.id">
+                                {{ obj.name }}
+                            </option>
+                        </select>
                     </div>
                     <div class="flex">
                         <button
                             class="btn btn-sm btn-outline btn-primary"
                             :disabled="loading"
-                            @click="getData(true)"
+                            @click="openModal('add')"
+                            data-modal-toggle="#bitrix_sage_mapping_form_modal"
                         >
-                            <i class="ki-filled ki-arrows-circle"></i>
-                            <span>Sync Users</span>
+                            <i class="ki-filled ki-plus-squared"></i>
+                            <span>Add Mapping</span>
                         </button>
                     </div>
                 </div>
             </div>
         </div>
-        <!-- Content -->
+        <!-- table -->
         <div class="relative flex-grow overflow-auto table-container">
             <!-- Table -->
             <table class="w-full table table-main table-border align-middle text-xs table-fixed">
                 <thead>
                     <tr class="bg-black text-gray-900 font-medium text-center">
                         <th class="sticky top-0 w-10">#</th>
-                        <th class="sticky top-0 w-[300px] text-left">Name</th>
-                        <th class="sticky top-0 w-[100px]">Bitrix User Id</th>
-                        <th class="sticky top-0 w-[150px]">Bitrix Webhook Token</th>
-                        <th class="sticky top-0 w-[100px]">Access URL</th>
-                        <th class="sticky top-0 w-[300px] text-left">Modules</th>
-                        <th class="sticky top-0 w-[200px] text-left">Categories</th>
-<!--                        <th class="sticky top-0 w-[150px]">Status</th>-->
+                        <th class="sticky top-0 w-[80px] text-left">Bitrix List Name</th>
+                        <th class="sticky top-0 w-[80px] text-left">Category Name</th>
+                        <th class="sticky top-0 w-[100px]">Sage Company Code</th>
+                        <th class="sticky top-0 w-[100px]">Bitrix Sage Company Id</th>
+                        <th class="sticky top-0 w-[150px] text-left">Bitrix Sage Company Name</th>
+                        <th class="sticky top-0 w-[100px]">Bitrix Category Id</th>
+                        <th class="sticky top-0 w-[100px] text-left">Bitrix Category Name</th>
                         <th class="sticky top-0 w-10"></th>
                     </tr>
                 </thead>
                 <tbody class="text-center text-xs text-gray-700">
-                    <tr v-for="(obj, index) in data" :key="index" class="odd:bg-white even:bg-slate-100">
+                    <tr v-for="(obj, index) in data" :key="index" class="odd:bg-white even:bg-slate-100 hover:bg-gray-300">
                         <td>{{ ++index }}</td>
-                        <td class="text-left">
-                            <a :href="`https://crm.cresco.ae/company/personal/user/${obj.bitrix_user_id}/`" target="_blank" class="hover:text-primary-active">
-                                <div class="flex items-center justify-between py-1.5 gap-1.5">
-                                    <div class="flex items-center gap-2">
-                                        <img alt="" class="rounded-full size-9 shrink-0" :src="obj.profile ? obj.profile.bitrix_profile_photo : null">
-                                        <div class="flex flex-col">
-                                            <div class="text-sm font-semibold text-gray-900  mb-px">{{ obj.profile ? obj.profile.bitrix_name : null }}</div>
-                                            <span class="text-xs font-normal text-gray-600">{{ obj.email }}</span>
-                                        </div>
-                                    </div>
-                                    <span v-if="obj.is_admin" class="badge badge-xs badge-primary badge-outline">Admin</span>
-                                </div>
-                            </a>
-                        </td>
-                        <td>{{ obj.bitrix_user_id }}</td>
-                        <td>{{ obj.bitrix_webhook_token }}</td>
-                        <td><a :href="`${appUrl}/login/${obj.access_token}`" class="btn btn-link" target="_blank">Authorize</a></td>
-<!--                        <td>-->
-<!--                            <div><span class="badge badge-primary badge-sm">{{ obj.status }}</span></div>-->
-<!--                            <div>{{ formatDateTime12Hours(obj.last_login) }}</div>-->
-<!--                        </td>-->
-                        <td class="text-left">
-                            <span class="badge badge-sm badge-primary ml-1 mb-1" v-for="(category, index) in obj.modules" :key="index">{{ category.name }}</span>
-                        </td>
-                        <td class="text-left">
-                            <span class="badge badge-sm badge-success ml-1 mb-1" v-for="(category, index) in obj.categories" :key="index">{{ category.name }}</span>
-                        </td>
+                        <td class="text-black text-left">{{ obj.bitrix_list }}</td>
+                        <td class="text-black text-left">{{ obj.category }}</td>
+                        <td class="text-black">{{ obj.sage_company_code }}</td>
+                        <td class="text-black">{{ obj.bitrix_sage_company_id }}</td>
+                        <td class="text-black text-left">{{ obj.bitrix_sage_company_name }}</td>
+                        <td class="text-black">{{ obj.bitrix_category_id }}</td>
+                        <td class="text-black text-left">{{ obj.bitrix_category_name }}</td>
                         <td class="text-end">
                             <div class="menu inline-flex" data-menu="true">
                                 <div class="menu-item menu-item-dropdown" data-menu-item-offset="0, 10px" data-menu-item-placement="bottom-end" data-menu-item-placement-rtl="bottom-start" data-menu-item-toggle="dropdown" data-menu-item-trigger="click|lg:click">
@@ -91,7 +83,7 @@
                                     </button>
                                     <div class="menu-dropdown menu-default w-full max-w-[175px]" data-menu-dismiss="true">
                                         <div class="menu-item">
-                                            <span class="menu-link" data-modal-toggle="#user_form_modal" @click="openModal('edit', obj.id)">
+                                            <span class="menu-link" data-modal-toggle="#bitrix_sage_mapping_form_modal" @click="openModal('edit', obj.id)">
                                                 <span class="menu-icon"><i class="ki-filled ki-pencil"></i></span>
                                                 <span class="menu-title">Edit</span>
                                             </span>
@@ -123,7 +115,9 @@
             </div>
         </div>
     </div>
-    <user-form-modal
+    <bitrix-sage-mapping-form-modal
+        :categories="page_data.categories"
+        :bitrix_lists="page_data.bitrix_lists"
         :obj_id="obj_id"
         :modal_type="modal_type"
         v-if="is_form_modal"
@@ -132,39 +126,36 @@
 </template>
 
 <script>
-import { debounce } from 'lodash';
+import {debounce} from "lodash";
+
 export default {
-    name: "users",
+    name: "bitrix-sage-mapping",
     props: ['page_data'],
     data() {
         return {
             data: [],
             loading: false,
             filters: {
-                search: null,
-                bitrix_active: "1"
+                category_id: "",
+                bitrix_list_id: "",
             },
             obj_id: null,
             is_form_modal: false,
             modal_type: null
         }
     },
-    methods:{
-        getData(isSync = false){
+    methods: {
+        getData(){
             this.loading = true
             this.data = []
             axios({
-                url: `/admin/settings/users/get-data`,
+                url: `/admin/settings/bitrix-sage-mapping/get-data`,
                 method: 'POST',
                 data: {
                     filters: this.filters,
-                    is_sync: isSync
                 }
             }).then(response => {
                 this.data = response.data;
-                if (isSync){
-                    this.successToast('User sync successfully')
-                }
             }).catch(error => {
                 console.log(error)
             }).finally(() => {
@@ -185,16 +176,10 @@ export default {
             this.obj_id = null
             this.removeModalBackdrop();
             this.getData();
-        }
-    },
-    watch: {
-        'filters.search': {
-            handler: 'debouncedSearch',
-            immediate: false
-        }
+        },
     },
     mounted() {
-        this.getData(false);
+        this.getData();
     }
 }
 </script>

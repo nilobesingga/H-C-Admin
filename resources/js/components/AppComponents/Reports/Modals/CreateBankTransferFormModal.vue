@@ -245,6 +245,7 @@ import qs from 'qs';
 import vSelect from 'vue-select';
 import 'vue-select/dist/vue-select.css';
 import { debounce } from 'lodash';
+import Swal from "sweetalert2";
 
 export default {
     name: "create-bank-transfer-form-modal",
@@ -315,24 +316,96 @@ export default {
                 fields['PROPERTY_1194'] = this.obj.id;
             }
             else if (this.type === "cashRequest"){
+                fields['PROPERTY_1080'] = this.bitrix_bank_transfer_company_ids.find(
+                    (item) => item.cash_request_company_id === this.obj.company_id
+                )?.bank_transfer_company_id,
+
                 fields['PROPERTY_1223'] = this.obj.id;
 
             }
             let transferElem = document.getElementById('transfer_document');
             let supportingElem = document.getElementById('supporting_document');
 
-            // if(transferElem.files.length !== 0){
-            //     const transferDoc = await this.uploadDocumentToBitrixDrive(document.getElementById('transfer_document'));
-            //     fields['PROPERTY_892'] = {
-            //         'n0': 'n' + transferDoc.ID
-            //     };
-            // }
-            // if(supportingElem.files.length !== 0){
-            //     const supportingDoc = await this.uploadDocumentToBitrixDrive(document.getElementById('supporting_document'));
-            //     fields['PROPERTY_878'] = {
-            //         'n0': 'n' + supportingDoc.ID
-            //     };
-            // }
+            if(transferElem.files.length !== 0){
+                //upload transfer document
+                const transferDoc = await this.uploadDocumentToBitrixDrive(transferElem);
+                fields['PROPERTY_892'] = {
+                    'n0': 'n' + transferDoc.ID
+                };
+            }
+            if(supportingElem.files.length !== 0){
+                //upload supporting document
+                const supportingDoc = await this.uploadDocumentToBitrixDrive(supportingElem);
+                fields['PROPERTY_878'] = {
+                    'n0': 'n' + supportingDoc.ID
+                };
+            }
+            this.infoToast('Uploading documents. This may take some time. Please wait.')
+            const bitrixUserId = this.page_data.user.bitrix_user_id ? this.page_data.user.bitrix_user_id : null;
+            const bitrixWebhookToken = this.page_data.user.bitrix_webhook_token ? this.page_data.user.bitrix_webhook_token : null;
+            const endpoint = 'lists.element.add';
+            const requestData = {
+                IBLOCK_TYPE_ID: 'lists',
+                IBLOCK_ID: '99',
+                ELEMENT_CODE: 'element1_' + Date.now(),
+                FIELDS: fields
+            }
+            try {
+                const response = await this.callBitrixAPI(endpoint, bitrixUserId, bitrixWebhookToken, requestData);
+                if(response.data.result){
+                    let bankTransferId = response.data.result;
+                    let iBlockId = 0;
+                    if(this.type === "purchaseInvoice"){
+                        //update purchase invoice
+                        this.requestObject.PROPERTY_1195 = bankTransferId;
+                        this.requestObject.PROPERTY_929 = `${this.selectedProject.TYPE === '1' ? 'L_' : this.selectedProject.TYPE === '2' ? 'D_' : this.selectedProject.TYPE === '3' ? 'C' : ''}${this.selectedProject.ID}`;
+                        iBlockId = '104';
+                    }
+                    else if (this.type === "cashRequest"){
+                        this.requestObject.PROPERTY_1222 = bankTransferId;
+                        this.requestObject.PROPERTY_942 = `${this.selectedProject.TYPE === '1' ? 'L_' : this.selectedProject.TYPE === '2' ? 'D_' : this.selectedProject.TYPE === '3' ? 'C' : ''}${this.selectedProject.ID}`;
+                        iBlockId = '105';
+                    }
+
+                    const invoiceResponse = await axios({
+                        method: 'post',
+                        url: this.bitrixWebhookUrl + 'lists.element.update',
+                        data:{
+                            IBLOCK_TYPE_ID: 'bitrix_processes',
+                            IBLOCK_ID: iblockId,
+                            ELEMENT_ID: this.requestId,
+                            FIELDS: this.requestObject
+                        }
+                    });
+
+                    if(invoiceResponse.data.result){
+                        this.status = "Create Bank Transfer";
+                        this.loading = false;
+                        let result = {
+                            bankTransferId: bankTransferId,
+                            requestId: this.requestId
+                        }
+
+                        this.$emit('success', result);
+                        this.$refs.crescoNewBankTransferModal.closeModal();
+                        Swal.fire({
+                            icon: "success",
+                            title: "Bank transfer successfully created",
+                            confirmButtonText: 'Close'
+                        });
+                    }
+                }
+            } catch (error) {
+                this.loading = false;
+                this.status = "Create Bank Transfer";
+                this.$refs.crescoNewBankTransferModal.closeModal();
+                Swal.fire({
+                    icon: "error",
+                    title: "Something went wrong",
+                    html: "Please try again",
+                    confirmButtonText: 'Close',
+                });
+            }
         },
         async searchData(type, query) {
             if (query) {

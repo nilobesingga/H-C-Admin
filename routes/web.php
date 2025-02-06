@@ -50,6 +50,9 @@ Route::middleware(['auth'])->group(function(){
             Route::get('/modules', [AdminSettingsController::class, 'modules'])->name('modules');
             Route::post('/modules/get-data', [AdminSettingsController::class, 'moduleGetData']);
             Route::post('/modules/update', [AdminSettingsController::class, 'modulesOrderUpdate']);
+            Route::get('/bitrix-sage-mapping', [AdminSettingsController::class, 'bitrixSageMapping'])->name('bitrix-sage-mapping');
+            Route::post('/bitrix-sage-mapping/get-data/{id?}', [AdminSettingsController::class, 'bitrixSageMappingGetData']);
+            Route::post('/bitrix-sage-mapping/save', [AdminSettingsController::class, 'bitrixSageMappingSave']);
             //  Users
             Route::controller(AdminUserController::class)->group(function(){
                 Route::get('/users', 'index')->name('users');

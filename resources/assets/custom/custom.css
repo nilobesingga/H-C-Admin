@@ -99,7 +99,15 @@
     border-start-end-radius: unset !important;
 }
 
+
 /* *********************************************** Global ************************************************************** */
 .swal2-container .swal2-html-container {
     margin: 1em 0.6em .3em !important;
+}
+
+.is-invalid-text{
+    position: absolute;
+    color: #f8295a;
+    font-size: 0.75rem;
+    line-height: 1rem;
 }
