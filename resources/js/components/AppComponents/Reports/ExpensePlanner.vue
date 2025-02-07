@@ -1,29 +1,29 @@
 <template>
-    <div class="container-fluid relative">
+    <div class="container-fluid px-3">
         <!-- Left Hover Area -->
-        <div class="hover-area hover-area-left group">
+        <div class="hover-area hover-area-left group transition-all duration-500">
             <button
-                class="prev-week-btn opacity-0 group-hover:opacity-100"
+                class="prev-week-btn group-hover:w-16 group-hover:h-16 group-hover:bg-black"
                 @click="navigateWeeks(-1)"
             >
-                <i class="ki-filled ki-to-left"></i>
+                <i class="ki-solid ki-to-left text-black group-hover:text-white"></i>
             </button>
         </div>
         <!-- Right Hover Area -->
-        <div class="hover-area hover-area-right group">
+        <div class="hover-area hover-area-right group transition-all duration-500">
             <button
-                class="next-week-btn opacity-0 group-hover:opacity-100"
+                class="next-week-btn group-hover:w-16 group-hover:h-16 group-hover:right-0 group-hover:bg-black"
                 @click="navigateWeeks(1)"
             >
-                <i class="ki-filled ki-to-right"></i>
+                <i class="ki-solid ki-to-right text-black group-hover:text-white"></i>
             </button>
         </div>
 
-        <div class="grid gap-5 lg:gap-7.5 pt-6">
+        <div class="grid gap-2 pt-2">
             <!-- filters -->
-            <div class="flex items-center justify-between gap-2">
+            <div class="flex flex-wrap items-center gap-2">
                 <div class="flex">
-                    <select class="select select-sm min-w-[12rem] max-w-full text-black bg-inherit" v-model="filters.category_id" @change="getData">
+                    <select class="select select-sm select-input w-48" v-model="filters.category_id" @change="getData">
                         <option value="" selected>Filter by Category</option>
                         <option v-for="(obj, index) in page_data.categories" :key="index" :value="obj.category_id">
                             {{ obj.bitrix_category_name }}
@@ -31,7 +31,7 @@
                     </select>
                 </div>
                 <div class="flex">
-                    <select class="select select-sm min-w-[25rem] max-w-full text-black bg-inherit" v-model="filters.sage_company_code" @change="getData">
+                    <select class="select select-sm select-input w-96" v-model="filters.sage_company_code" @change="getData">
                         <option value="" selected>Filter by Sage Company</option>
                         <option v-for="(obj, index) in page_data.sage_companies" :key="index" :value="obj.sage_company_code">
                             {{ obj.bitrix_sage_company_name }}
@@ -39,7 +39,7 @@
                     </select>
                 </div>
                 <div class="flex">
-                    <select class="select select-sm min-w-[10rem] max-w-full text-black bg-inherit" v-model="filters.currency">
+                    <select class="select select-sm select-input w-40" v-model="filters.currency">
                         <option value="" selected>Filter by Currency</option>
                         <option value="USD">USD</option>
                         <option value="AED">AED</option>
@@ -57,7 +57,7 @@
                     </select>
                 </div>
                 <div class="flex">
-                    <select class="select select-sm min-w-[10rem] max-w-full text-black bg-inherit" v-model="filters.request_type">
+                    <select class="select select-sm select-input w-40" v-model="filters.request_type">
                         <option value="" selected>Filter by Type</option>
                         <option value="cash_request">Cash Request</option>
                         <option value="purchase_invoice">Purchase Invoice</option>
@@ -65,25 +65,30 @@
                     </select>
                 </div>
                 <div class="flex">
-                    <select class="select select-sm min-w-[16rem] max-w-full text-black bg-inherit" v-model="filters.awaiting_for_exchange_rate">
+                    <select class="select select-sm select-input w-64" v-model="filters.awaiting_for_exchange_rate">
                         <option value="" selected>Filter by Awaiting for Exchange Rate</option>
                         <option value="include">Include</option>
                         <option value="only">Only</option>
                     </select>
                 </div>
-                <div class="flex">
-                    <div class="relative">
-                        <i class="ki-filled ki-magnifier leading-none text-md text-gray-500 absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
-                        <input class="input input-sm ps-8 text-black bg-inherit min-w-[25rem]" placeholder="Search" type="text" v-model="filters.search">
+                <div class="flex grow">
+                    <div class="relative w-full">
+                        <i class="ki-outline ki-magnifier leading-none text-md text-black absolute top-1/2 left-3 transform -translate-y-1/2"></i>
+                        <input
+                            class="input input-sm text-input !ps-8"
+                            placeholder="Search"
+                            type="text"
+                            v-model="filters.search"
+                        />
                     </div>
                 </div>
             </div>
             <!-- content area -->
             <div class="relative flex-grow overflow-auto">
                 <!-- Loading Indicator -->
-                <div v-if="loading" class="data-loading absolute inset-0 bg-gray-300 bg-opacity-100 flex items-center justify-center z-50 pointer-events-none">
-                    <div class="flex items-center gap-2 px-4 py-2 font-medium leading-none text-sm border border-gray-200 shadow-default rounded-md text-gray-500 bg-white">
-                        <svg class="animate-spin -ml-1 h-5 w-5 text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <div v-if="loading" class="data-loading absolute inset-0 bg-gray-100 bg-opacity-50 flex items-center justify-center z-100 pointer-events-none">
+                    <div class="flex items-center gap-2 px-4 py-2 font-medium leading-none text-sm text-brand-active">
+                        <svg class="animate-spin -ml-1 h-5 w-5 text-brand-active" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
@@ -91,41 +96,39 @@
                     </div>
                 </div>
                 <!-- week columns -->
-                <div class="flex gap-4 text-sm expense-planner-columns">
+                <div class="flex gap-3 text-sm expense-planner-columns">
                     <!-- Each column represents a week -->
-                    <div v-for="(week, index) in weekHeaders" :key="index" class="flex-1 flex flex-col bg-gray-200 p-4 rounded text-center text-sm overflow-auto">
+                    <div v-for="(week, index) in weekHeaders" :key="index" class="flex-1 flex flex-col bg-gray-200 p-4 rounded text-center text-sm overflow-auto group">
                         <!-- Week Header -->
-                        <div class="text-black font-black mb-2">Week {{ week.week_number }}</div>
-                        <div class="text-black">({{ week.start_date }} to {{ week.end_date }})</div>
+                        <div class="text-black text-2xl tracking-tight font-bold">Week {{ week.week_number }}</div>
+                        <div class="text-gray-700 text-xs">{{ week.start_date }} &mdash; {{ week.end_date }}</div>
 
                         <!-- Total Amount -->
                         <div v-if="week.data.length" class="mt-4 mb-4">
-                            <strong class="text-xl text-danger">{{ getWeeklyTotalWithCurrency(week.data) }}</strong>
-                            <div class="mt-1">{{ getWeeklyTotalWithCurrencyConversion(week.data) }}</div>
+                            <strong class="text-xl text-red-700">{{ getWeeklyTotalWithCurrency(week.data) }}</strong>
+                            <div class="mt-1 text-xs text-gray-700">{{ getWeeklyTotalWithCurrencyConversion(week.data) }}</div>
                         </div>
 
                         <!-- Week Data -->
-                        <div v-if="week.data.length" class="flex flex-col gap-2 overflow-y-auto h-full">
+                        <div v-if="week.data.length" class="flex flex-col gap-2 overflow-y-auto h-full border-t border-gray-200 pt-4 group-hover:border-black">
                             <div v-for="(item, itemIndex) in week.data" :key="itemIndex">
                                 <!-- cash requests -->
-                                <div :class="['card', (item.is_budget_only === '1937' ? 'budget-only' : 'cash-request')]" v-if="item.request_type === 'cash_request'">
-                                    <div class="card-title text-left">
-                                        <a class="btn btn-link" target="_blank" :href="getBitrixUrlByBlockIdAndId('105', item.id)">
-                                            <div class="text-black text-lg">
-                                                {{ formatAmount(item.amount) }} {{ item.currency }}
-                                                <sub class="text-xs text-gray-600" v-if="item.currency !== 'USD'">({{ formatAmount(item.exchange_amount) }} USD)</sub>
-                                            </div>
+                                <div class="group-hover:border-gray-300" :class="['card', (item.is_budget_only === '1937' ? 'budget-only' : 'cash-request')]" v-if="item.request_type === 'cash_request'">
+                                    <div class="card-title text-left flex w-full flex-col">
+                                        <a class="btn btn-link !text-black hover:!text-brand-active text-lg" target="_blank" :href="getBitrixUrlByBlockIdAndId('105', item.id)">
+                                            {{ formatAmount(item.amount) }} {{ item.currency }}
                                         </a>
+                                        <sub class="text-xs text-gray-600 mb-2 -mt-1" v-if="item.currency !== 'USD'">({{ formatAmount(item.exchange_amount) }} USD)</sub>
                                     </div>
-                                    <a class="btn btn-link text-left" target="_blank" :href="getBitrixProjectLink(item)">{{ item.project_name }}</a>
-                                    <div class="text-black text-left mt-2">{{ item.detail_text }}</div>
-                                    <div class="text-left text-xs mt-2">
+                                    <a class="btn btn-link text-left !text-gray-800" target="_blank" :href="getBitrixProjectLink(item)">{{ item.project_name }}</a>
+                                    <div class="text-gray-700 text-left">{{ item.detail_text }}</div>
+                                    <div class="text-left text-xs text-gray-700 mt-2">
                                         <span>Requested By: </span>
-                                        <span class="text-black">{{ item.requested_by_name }}</span>
+                                        <span class="text-gray-800">{{ item.requested_by_name }}</span>
                                     </div>
-                                    <div class="text-left text-xs">
+                                    <div class="text-left text-xs text-gray-700">
                                         <span>Pay By: </span>
-                                        <span class="text-black">{{ getPaymentMode(item.payment_mode_id) }}</span>
+                                        <span class="text-gray-800">{{ getPaymentMode(item.payment_mode_id) }}</span>
                                     </div>
                                     <div class="text-left mt-2">
                                         <small :class="['badge text-xs', isOverdue(item.payment_date) ? 'badge-danger' : 'badge-success']">Due: {{ formatDate(item.payment_date) }}</small>
@@ -134,24 +137,24 @@
                                 </div>
                                 <!-- purchase invoices -->
                                 <div class="card purchase-invoice" v-if="item.request_type === 'purchase_invoice'">
-                                    <div class="card-title text-left">
-                                        <a class="btn btn-link" target="_blank" :href="getBitrixUrlByBlockIdAndId(item.request_type === 'cash_request' ? '104' : '104', item.id)">
-                                            <div class="text-black text-lg">
+                                    <div class="card-title text-left flex">
+                                        <a class="btn btn-link text-black hover:!text-brand-active " target="_blank" :href="getBitrixUrlByBlockIdAndId(item.request_type === 'cash_request' ? '104' : '104', item.id)">
+                                            <div class="text-lg">
                                                 <span v-if="item.remaining_balance">{{ formatAmount(item.remaining_balance) }}</span>
                                                 <span v-else>{{ formatAmount(item.amount) }}</span>
                                                 {{ item.currency }}
                                             </div>
                                         </a>
                                     </div>
-                                    <a class="btn btn-link text-left" target="_blank" :href="getBitrixProjectLink(item)">{{ item.project_name }}</a>
-                                    <div class="text-black text-left mt-2">{{ item.detail_text }}</div>
-                                    <div class="text-left text-xs mt-2">
+                                    <a class="btn btn-link text-left !text-gray-800" target="_blank" :href="getBitrixProjectLink(item)">{{ item.project_name }}</a>
+                                    <div class="text-gray-700 text-left mt-2">{{ item.detail_text }}</div>
+                                    <div class="text-left text-xs text-gray-700 mt-2">
                                         <span>Requested By: </span>
-                                        <span class="text-black">{{ item.requested_by_name }}</span>
+                                        <span class="text-gray-800">{{ item.requested_by_name }}</span>
                                     </div>
                                     <div class="text-left mt-2">
                                         <small class="badge badge-danger text-xs font-bold">Due: {{ formatDate(item.due_date) }}</small>
-                                        <small v-if="item.sage_status && item.sage_status === '1863'" class="badge badge-success text-xs font-bold ml-1">Booked In Sage</small>
+                                        <small v-if="item.sage_status && item.sage_status === '1863'" class="badge badge-info text-xs font-bold ml-1">Booked In Sage</small>
                                         <small v-else class="badge badge-warning text-xs font-bold ml-1">NOT Booked In Sage</small>
                                         <small v-if="item.status_id === '1864'" class="badge badge-warning text-xs font-bold ml-1 ">Partially Paid</small>
                                     </div>
@@ -454,46 +457,58 @@ export default {
 <style scoped>
 /* Column Styles */
 .expense-planner-columns > div {
-    background: linear-gradient(135deg, #fffafa, #b2b6bf); /* Subtle gradient background */
-    border: 1px solid #d6d6d6; /* Light gray border */
-    border-radius: 8px; /* Rounded corners */
-    padding: 16px;
-    transition: box-shadow 0.3s ease, background-color 0.3s ease; /* Smooth hover effect */
+    /* background: linear-gradient(135deg, #fffafa, #b2b6bf); /* Subtle gradient background */
+    background: #f0f0f0;
+    border: 1px solid transparent; /* Light gray border */
+    border-radius: 0; /* Rounded corners */
+    padding: 20px 0 0;
+    transition: all 0.3s ease; /* Smooth hover effect */
 }
 
 .expense-planner-columns > div:hover {
-    background: linear-gradient(135deg, #ffffff, #f5f5f5); /* Slightly brighter background on hover */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Soft shadow */
+    background: #FFF;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12); /* Soft shadow */
+    border-color: #000;
 }
 
 /* Card Styles */
 .card {
-    padding: 16px;
-    border-radius: 8px;
-    transition: transform 0.2s, box-shadow 0.2s;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle card shadow */
-    margin-bottom: 12px; /* Space between cards */
+    padding: 12px 16px;
+    margin: 0 16px 4px;
+    border-radius: 0;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0); /* Subtle card shadow */
+    border: 2px solid transparent;
 }
 
 .card:hover {
-    transform: translateY(-5px); /* Lift the card slightly on hover */
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Stronger shadow on hover */
+    box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.12); /* Stronger shadow on hover */
 }
 
 /* Cash Request Card */
 .card.cash-request {
     background-color: #ffffff; /* White background for cash requests */
-    border: 2px solid #e5e5e5; /* Subtle border */
 }
+.card.cash-request:hover {
+    border: 2px solid #cbcfda;
+}
+
+/* Budget Only Card */
 .card.budget-only {
-    background-color: #ebca92; /* White background for cash requests */
-    border: 2px solid #e5e5e5; /* Subtle border */
+    background-color: rgb(255, 248, 229); /* White background for cash requests */
+    border: 2px solid rgb(239, 228, 210); /* Subtle border */
+}
+.card.budget-only:hover {
+    border: 2px solid rgb(239, 210, 160);
 }
 
 /* Purchase Invoice Card */
 .card.purchase-invoice {
-    background-color: #bae9f8; /* Light blue background */
-    border: 2px solid #cde4f6; /* Matching border */
+    background-color: rgb(240, 249, 255); /* Light blue background */
+    border: 2px solid rgb(218, 231, 241); /* Matching border */
+}
+.card.purchase-invoice:hover {
+    border: 2px solid rgb(188, 210, 227);
 }
 
 /* Card Content */
@@ -517,21 +532,27 @@ export default {
 
 .badge {
     display: inline-block;
-    padding: 0px 4px;
-    font-size: 8px;
+    padding: 1px 7px;
+    font-size: 10px;
     font-weight: 500;
-    border-radius: 4px;
+    border-radius: 40px;
     margin-top: 8px;
+    letter-spacing: -0.3px;
 }
 
-.badge.due {
-    background-color: #ffebea; /* Light red background */
-    color: #941301; /* Red text */
+.badge-danger {
+    background-color: #ef4444;
+    color: #FFF;
 }
 .badge-warning{
-    background-color: yellow;
+    background-color: rgb(250 204 21 / 0.5);
     color: black;
 }
+.badge-info{
+    background-color: rgb(193, 238, 255);
+    color: black;
+}
+
 /* Ensure borders are not hidden */
 .expense-planner-columns > div:hover {
     outline: 1px solid transparent; /* Prevent border from collapsing */
@@ -542,18 +563,18 @@ export default {
     position: fixed;
     top: 0;
     bottom: 0;
-    width: 40px;
+    width: 14px;
     z-index: 1000;
     background-color: transparent; /* Default transparent */
     transition: background-color 0.3s ease; /* Smooth transition for hover effect */
 }
 
 .hover-area-left {
-    left: 45px;
+    left: 0;
 }
 
 .hover-area-right {
-    right: 0;
+    right:-2px;
 }
 
 /* Change background color on hover */
@@ -564,18 +585,14 @@ export default {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    background-color: rgba(255, 255, 255, 0.8); /* Subtle opacity */
-    border: 1px solid #d6d6d6;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
+    background-color: rgba(0, 0, 0, 0); /* Subtle opacity */
+    width: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0);
     cursor: pointer;
     transition: opacity 0.3s, background-color 0.3s, box-shadow 0.3s;
-    opacity: 0.5; /* Subtle visibility */
 }
 
 /* Buttons fully visible on hover */
@@ -586,12 +603,6 @@ export default {
 
 /* Button hover effect */
 .prev-week-btn:hover, .next-week-btn:hover {
-    background-color: rgba(255, 255, 255, 1); /* Fully opaque on hover */
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-    opacity: 1; /* Full visibility on hover */
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
 }
 </style>
-
-
-
-
