@@ -1,13 +1,13 @@
 <template>
-    <div class="container-fluid">
+    <div class="container-fluid px-3">
         <reports-filters-component
             @get-data="getData"
         />
-        <div class="grid gap-5 lg:gap-7.5">
+        <div class="grid gap-2">
             <!-- filters -->
             <div class="flex items-center justify-between gap-2">
                 <div class="flex">
-                    <select class="select select-sm min-w-[22rem] max-w-full text-black bg-inherit" v-model="filters.sage_company_code">
+                    <select class="select select-sm select-input w-96" v-model="filters.sage_company_code">
                         <option value="" selected>Filter by Sage Company</option>
                         <option v-for="obj in page_data.sage_companies_code" :key="obj.id" :value="obj.sage_company_code">
                             {{ obj.bitrix_sage_company_name }}
@@ -15,9 +15,10 @@
                     </select>
                 </div>
             </div>
+
             <!-- Bank Summary Table -->
-            <div v-if="current_section === 'overview'" class="relative overflow-auto reports-table-container w-full">
-                <table v-if="filteredCompanies.length > 0 && filteredBanks.length > 0" class="w-full table-auto border-collapse table-border border text-center whitespace-nowrap">
+            <div v-if="current_section === 'overview'" class="relative flex-grow overflow-auto reports-table-container shadow-md border border-brand">
+                <table v-if="filteredCompanies.length > 0 && filteredBanks.length > 0" class="w-full c-table table-auto border-collapse table-border border text-center text-xs whitespace-nowrap">
                     <thead class="text-sm">
                         <!-- Country Row -->
                         <tr>
@@ -29,10 +30,10 @@
                         </tr>
                         <!-- Company Row -->
                         <tr>
-                            <th class="sticky top-[28px] left-0 z-50 text-white p-1 w-[22rem] company-head-bg">Company</th>
+                            <th class="sticky !bg-black top-[28px] left-0 z-50 text-white p-1 w-[22rem] company-head-bg">Company</th>
                             <template v-for="(bankCounty, index) in groupedByCountryBanks">
                                 <template v-for="bank in bankCounty">
-                                    <th class="sticky top-[28px] text-white text-center z-40 p-2 min-w-[130px] company-head-bg">{{ bank.bankName }}</th>
+                                    <th class="sticky !bg-black top-[28px] text-white text-center z-40 p-2 min-w-[130px] company-head-bg">{{ bank.bankName }}</th>
                                 </template>
                             </template>
                         </tr>
@@ -109,6 +110,7 @@
                     </div>
                 </div>
             </div>
+
             <!-- Cash by Currency Table -->
             <div v-if="current_section === 'cash-by-currency'" class="relative overflow-auto reports-table-container w-full">
                 <table v-if="filteredCompanies.length > 0 && groupByBankCurrency.length > 0" class="w-full table-auto border-collapse table-border border text-center whitespace-nowrap">
