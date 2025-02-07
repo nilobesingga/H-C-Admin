@@ -29,14 +29,17 @@
 .app .table thead th,
 .app .table tfoot td,
 .app .table tfoot th {
-    background-color: #343a3f !important;
-    color: white !important;
-    padding: 5px 10px !important;
+    background-color: #850F00 !important;
+    color: #FFF !important;
+    padding: 7px 8px !important;
     z-index: 50 !important;
+    border:1px solid #8f3c3c !important;
+    font-weight: 600!important;
 }
 .app .table tbody tr td,
 .app .table tbody tr th {
-    padding: 5px 10px !important;
+    padding: 8px 8px !important;
+    border:1px solid #e7e7e7;
 }
 .app .table th:first-child {
     border-start-start-radius: unset !important;
@@ -45,10 +48,10 @@
     border-start-end-radius: unset !important;
 }
 .app .reports-table-container {
-    height: calc(100vh - (var(--tw-header-height) + var(--tw-navbar-height) + 245px)) !important;
+    height: calc(100vh - (var(--tw-header-height) + 200px)) !important;
 }
 .app .expense-planner-columns {
-    height: calc(100vh - (var(--tw-header-height) + var(--tw-navbar-height) + 150px)) !important;
+    height: calc(100vh - (var(--tw-header-height) + 103px)) !important;
 }
 .app .cheque-register .reports-table-container {
     height: calc(100vh - (var(--tw-header-height) + var(--tw-navbar-height) + 285px)) !important;
@@ -68,7 +71,7 @@
 }
 .app .btn-link:hover {
     text-decoration: underline;
-    color: #1d68a7;
+    color: #CA2C22;
 }
 .app .modal .modal-content{
     height: calc(100vh - (var(--tw-header-height) + var(--tw-navbar-height))) !important;
