@@ -46,6 +46,32 @@ export default {
                 });
             });
         },
+        adjustReportsTableHeight() {
+            const calculateHeight = () => {
+                this.$nextTick(() => {
+                    const headerHeight = 54 + 39 + 48;
+                    const headerFilters = document.querySelector('.reports-header-filters');
+                    const onlyFiltersElement = document.querySelector('.reports-only-filters');
+                    const tableElement = document.querySelector('.reports-table-container');
+
+                    if (headerFilters && onlyFiltersElement && tableElement) {
+                        const filtersHeight = headerFilters.offsetHeight + onlyFiltersElement.offsetHeight;
+                        const totalHeight = window.innerHeight;
+                        const tableHeight = totalHeight - (headerHeight + filtersHeight);
+                        tableElement.style.height = `${tableHeight}px`;
+                    }
+                });
+            };
+
+            // Initial call
+            calculateHeight();
+
+            // Add resize listener
+            window.addEventListener('resize', calculateHeight);
+
+            // Store reference for cleanup
+            this._resizeHandler = calculateHeight;
+        },
         successToast(text) {
             this.$swal.fire({
                 toast: true,
@@ -162,8 +188,15 @@ export default {
     },
     mounted() {
         this.setTableNoDataColspan();
+        this.adjustReportsTableHeight();
     },
     updated() {
         this.setTableNoDataColspan();
+        this.adjustReportsTableHeight();
     },
+    beforeDestroy() {
+        if (this._resizeHandler) {
+            window.removeEventListener('resize', this._resizeHandler);
+        }
+    }
 }

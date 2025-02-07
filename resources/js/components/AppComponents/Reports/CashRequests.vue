@@ -2,10 +2,11 @@
     <div class="container-fluid px-3">
         <reports-filters-component
             @get-data="getData"
+            class="reports-header-filters"
         />
         <div class="grid gap-2">
             <!-- Filters Section -->
-            <div class="flex flex-wrap items-center gap-2">
+            <div class="flex flex-wrap items-center gap-2 reports-only-filters">
                 <div class="flex gap-2">
                     <!-- Category Filter -->
                     <div class="flex flex-shrink-0">
