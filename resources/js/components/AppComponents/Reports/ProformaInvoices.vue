@@ -2,10 +2,11 @@
     <div class="container-fluid px-3">
         <reports-filters-component
             @get-data="getData"
+            class="reports-header-filters"
         />
         <div class="grid gap-2">
             <!-- Filters Section -->
-            <div class="flex flex-wrap items-center gap-2">
+            <div class="flex flex-wrap items-center gap-2 reports-only-filters">
                 <div class="flex flex-grow gap-2">
                     <!-- Category Filter -->
                     <div class="flex flex-shrink-0">
@@ -126,7 +127,7 @@
                         </tr>
                     </tbody>
                 </table>
-                <div v-if="loading" class="data-loading absolute inset-0 bg-neutral-100 bg-opacity-50 flex items-center justify-center z-100 pointer-events-none">
+                <div v-if="loading" class="data-loading absolute inset-0 bg-neutral-100 flex items-center justify-center z-100 pointer-events-none">
                     <div class="flex items-center gap-2 px-4 py-2 font-medium leading-none text-sm text-brand-active">
                         <svg class="animate-spin -ml-1 h-5 w-5 text-brand-active" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"></circle>

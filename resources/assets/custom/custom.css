@@ -47,9 +47,9 @@
 .app .table th:last-child {
     border-start-end-radius: unset !important;
 }
-.app .reports-table-container {
-    height: calc(100vh - (var(--tw-header-height) + 200px)) !important;
-}
+/*.app .reports-table-container {*/
+/*    height: calc(100vh - (var(--tw-header-height) + 200px)) !important;*/
+/*}*/
 .app .expense-planner-columns {
     height: calc(100vh - (var(--tw-header-height) + 103px)) !important;
 }
