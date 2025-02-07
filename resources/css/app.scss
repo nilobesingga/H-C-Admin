@@ -12,3 +12,74 @@
 @import "../assets/theme/keenicons/filled/style.css";
 @import "../assets/theme/keenicons/outline/style.css";
 @import "../assets/theme/keenicons/solid/style.css";
+
+.btn-cresco{
+    @apply bg-transparent hover:bg-white rounded-none justify-center border-2 font-semibold transition-all duration-300
+    hover:border-black hover:shadow-md
+    focus:border-brand-active
+}
+.nav-link {
+    @apply font-semibold px-4 py-1 text-black transition-all duration-300 tracking-tight border border-transparent
+        hover:shadow-md hover:border-black focus:bg-black focus:text-white
+}
+.nav-active {
+    @apply bg-black text-white hover:bg-black hover:text-white
+}
+.select-input,
+.text-input{
+    @apply text-black bg-white h-10 !rounded-none border border-gray-300 px-4 outline-none duration-300 transition-all
+    hover:shadow-md hover:border-black
+    focus:border-black focus:shadow-md
+}
+.secondary-btn{
+    @apply bg-transparent border border-gray-300 py-1.5 px-2.5 text-black outline-none duration-300 transition-all text-xs
+    hover:shadow-md hover:border-black hover:bg-white
+    focus:border-brand-active focus:shadow-md
+}
+.dp__input{
+    @apply h-10 !rounded-none !text-sm !text-black !bg-white !border !border-gray-300 outline-none duration-300 transition-all
+     hover:shadow-md hover:!border-black
+    focus:!border-black focus:shadow-md;
+}
+.dp__input_icons{
+    color: #000!important;
+}
+.dp__menu{
+    border-radius: 0;
+}
+.dp__menu,
+.dp__arrow_top{
+    border-color: #000!important;
+}
+.dp__flex_display {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .2);
+}
+.dp__range_end, .dp__range_start, .dp__active_date, .dp__active_date {
+    background: #CA2C22!important;
+}
+.dp__range_between {
+    background: #ca2c2212 !important;
+}
+.dp__today {
+    border: 1px solid #ca2c22!important;
+}
+/* Apply background color to even rows */
+.c-table tr:nth-child(even) {
+    background-color: #ececec;
+}
+/* Apply background color to odd rows */
+.c-table tr:nth-child(odd) {
+    background-color: #f1f1f1;
+}
+.c-table tr:hover {
+    background: #FFF!important;
+}
+.menu-dropdown{
+    background: rgba(255,255,255, .7);
+}
+.badge{
+    @apply rounded-full py-1 px-1.5;
+}
+.badge-warning{
+    @apply bg-yellow-400/30 text-gray-800;
+}

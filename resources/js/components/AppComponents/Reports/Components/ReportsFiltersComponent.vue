@@ -1,21 +1,21 @@
 <template>
-    <div class="pb-6 pt-6">
+    <div class="pb-4 pt-4">
         <div class="flex items-center justify-between">
             <!-- Date Range Picker Text on the Left -->
-            <div class="flex flex-col justify-start w-full max-w-sm text-black font-black">
-                <div>{{ dateRangePickerText }}</div>
+            <div class="flex flex-col justify-start w-1/2 text-black font-bold text-3xl tracking-tight">
+                {{ dateRangePickerText }}
             </div>
 
             <!-- Right Side Controls -->
-            <div class="flex items-center gap-4 flex-wrap w-full justify-end">
+            <div class="flex items-center gap-2 flex-wrap w-1/2 justify-end">
                 <!-- Currency Select -->
-                <div class="flex flex-col w-full max-w-xs">
-                    <select class="select select-md text-black bg-inherit" v-model="currency">
+                <div class="flex flex-col w-24">
+                    <select class="select select-input" v-model="currency">
                         <option v-for="(currency, index) in currencies" :key="index" :value="currency">{{ currency }}</option>
                     </select>
                 </div>
                 <!-- Date Picker -->
-                <div class="flex flex-col w-full max-w-md text-black bg-inherit">
+                <div class="flex flex-col w-64">
                     <VueDatePicker
                         v-model="datePickerRange"
                         model-type="yyyy-MM-dd"
@@ -26,12 +26,12 @@
                         :enable-time-picker="false"
                         format="dd-MM-yyyy"
                         :clearable="false"
-                        class="w-full text-black"
+                        class="rounded-none"
                     />
                 </div>
                 <!-- Period Select -->
-                <div class="flex flex-col w-full max-w-xs">
-                    <select class="select select-md text-black bg-inherit" v-model="period">
+                <div class="flex flex-col w-36">
+                    <select class="select select-input" v-model="period">
                         <option v-for="(period, index) in periods" :key="index" :value="period.key">
                             {{ period.value }}
                         </option>
@@ -154,7 +154,7 @@ export default {
             }
             const formattedStart = DateTime.fromISO(this.dateRange[0]).toFormat("d MMMM yyyy");
             const formattedEnd = DateTime.fromISO(this.dateRange[1]).toFormat("d MMMM yyyy");
-            return `${formattedStart} to ${formattedEnd}`;
+            return `${formattedStart} - ${formattedEnd}`;
         },
         currency: {
             get() {
@@ -215,7 +215,3 @@ export default {
 
 }
 </script>
-
-<style scoped>
-
-</style>

@@ -47,9 +47,9 @@ export default {
                     contextual: {
                         light: {
                             brand: {
-                                default: '#FF6F1E',
-                                active: '#F15700',
-                                light: '#FFF5EF',
+                                default: '#850F00',
+                                active: '#CA2C22',
+                                light: '#70170c',
                                 clarity: 'rgba(255, 111, 30, 0.20)',
                                 inverse: '#ffffff'
                             },
