@@ -46,11 +46,11 @@
                 <!-- Warning Filter -->
                 <div class="flex flex-shrink-0">
                     <button
-                        :class="['btn btn-icon btn-sm relative px-3 h-10 !w-10 !rounded-none transition-all duration-300', filters.is_warning ? 'btn-warning text-white' : 'btn-light text-black']"
+                        :class="['btn btn-icon btn-sm relative px-3 h-10 !w-10 !rounded-none transition-all duration-300 hover:border-black', filters.is_warning ? 'bg-yellow-100 text-black border-black' : 'btn-light text-black']"
                         @click="filters.is_warning = !filters.is_warning"
                     >
                         <i class="ki-outline ki-information-1"></i>
-                        <span class="absolute top-1 right-1 translate-x-1/2 -translate-y-1/2 shadow-md shadow-red-300 bg-red-500 text-white text-xs font-bold rounded-full min-h-5 min-w-5 flex items-center justify-center">{{ warningCount }}</span>
+                        <span class="absolute top-1 right-1 translate-x-1/2 -translate-y-1/2 shadow-md shadow-yellow-300 bg-yellow-500 text-white text-xs font-bold rounded-full min-h-5 min-w-5 flex items-center justify-center">{{ warningCount }}</span>
                     </button>
                 </div>
             </div>
@@ -77,9 +77,9 @@
                         </tr>
                     </thead>
                     <tbody class="text-center text-xs tracking-tight">
-                        <tr v-for="(obj, index) in filteredData" :key="index" class="transition-all duration-300 text-gray-800 group">
+                        <tr v-for="(obj, index) in filteredData" :key="index" class="transition-all duration-300 text-neutral-800 group">
                             <td>{{ index + 1 }}</td>
-                            <td><a target="_blank" class="btn btn-link" :href="'https://crm.cresco.ae/services/lists/99/element/0/' + obj.id  + '/?list_section_id='">{{ obj.id }}</a></td>
+                            <td><a target="_blank" class="btn btn-link !text-neutral-800 hover:!text-brand-active" :href="'https://crm.cresco.ae/services/lists/99/element/0/' + obj.id  + '/?list_section_id='">{{ obj.id }}</a></td>
                             <td class="text-right">{{ formatAmount(obj.amount) }} <strong class="font-bold text-black">{{ obj.currency }}</strong></td>
                             <td class="text-left whitespace-normal break-words">
                                 <div class="relative">
@@ -91,7 +91,7 @@
                                         <div v-if="obj.from_company_name">
                                             <br>
                                             <span class="text-black">Company:</span>
-                                            <span><a :href="`https://crm.cresco.ae/crm/company/details/${obj.from_company_id}/`" target="_blank" class="btn btn-link">{{ obj.from_company_name }}</a></span>
+                                            <span><a :href="`https://crm.cresco.ae/crm/company/details/${obj.from_company_id}/`" target="_blank" class="btn btn-link !text-neutral-800 hover:!text-brand-active">{{ obj.from_company_name }}</a></span>
                                         </div>
                                     </div>
                                 </div>
@@ -107,7 +107,7 @@
                                             <br>
 
                                             <span class="text-black">Company:</span>
-                                            <span><a :href="`https://crm.cresco.ae/crm/company/details/${obj.to_company_id}/`" target="_blank" class="btn btn-link">{{ obj.to_company_name }}</a></span>
+                                            <span><a :href="`https://crm.cresco.ae/crm/company/details/${obj.to_company_id}/`" target="_blank" class="btn btn-link !text-neutral-800 hover:!text-brand-active">{{ obj.to_company_name }}</a></span>
                                         </div>
                                     </div>
                                 </div>
@@ -119,7 +119,7 @@
                                         <br>
                                         <div v-if="obj.project_id">
                                             <span>Project:</span>
-                                            <span><a :href="getBitrixProjectLink(obj)" target="_blank" class="btn btn-link !text-xs">{{ obj.project_name }}</a></span>
+                                            <span><a :href="getBitrixProjectLink(obj)" target="_blank" class="btn btn-link !text-xs !text-neutral-800 hover:!text-brand-active">{{ obj.project_name }}</a></span>
                                         </div>
                                     </div>
                                 </div>
@@ -148,10 +148,10 @@
                                 </a>
                             </td>
                         </tr>
-                        <tr v-show="filteredData.length > 0" class="!bg-brand text-white">
-                            <td colspan="2" class="font-bold text-center">Totals per currency</td>
-                            <td colspan="1" class="text-right">
-                                <div v-for="(amount, currency) in groupedByCurrency">{{ formatAmount(amount) }} <span class="font-bold text-white">{{ currency }} </span></div>
+                        <tr v-show="filteredData.length > 0">
+                            <td colspan="2" class="font-bold text-center text-sm text-black">Total per currency</td>
+                            <td class="text-right text-neutral-800">
+                                <div v-for="(amount, currency) in groupedByCurrency">{{ formatAmount(amount) }} <span class="font-bold text-black">{{ currency }} </span></div>
                             </td>
                         </tr>
                         <tr class="table-no-data-available" v-if="filteredData.length === 0">
@@ -159,7 +159,7 @@
                         </tr>
                     </tbody>
                 </table>
-                <div v-if="loading" class="data-loading absolute inset-0 bg-gray-100 bg-opacity-50 flex items-center justify-center z-100 pointer-events-none">
+                <div v-if="loading" class="data-loading absolute inset-0 bg-neutral-100 bg-opacity-50 flex items-center justify-center z-100 pointer-events-none">
                     <div class="flex items-center gap-2 px-4 py-2 font-medium leading-none text-sm text-brand-active">
                         <svg class="animate-spin -ml-1 h-5 w-5 text-brand-active" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"></circle>
@@ -172,14 +172,14 @@
             <!-- footer -->
             <div class="flex items-center justify-between">
                 <!-- Left Section: Showing Records -->
-                <div class="text-xs">
+                <div class="text-xs text-neutral-700">
                     <span>Showing {{ filteredData.length }} records</span>
                 </div>
 
                 <!-- Right Section: Total as per Reporting Currency -->
-                <div class="flex items-center justify-center text-right text-dark">
+                <div class="flex items-center justify-center text-right text-neutral-800">
                     <span class="mr-2 tracking-tight">Total as per reporting currency ({{ currency }}):</span>
-                    <span class="font-black">
+                    <span class="font-bold text-black">
                         {{ formatAmount(totalAsPerReportingCurrency) }} {{ currency }}
                     </span>
                 </div>

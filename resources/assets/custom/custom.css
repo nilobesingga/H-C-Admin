@@ -54,7 +54,7 @@
     height: calc(100vh - (var(--tw-header-height) + 103px)) !important;
 }
 .app .cheque-register .reports-table-container {
-    height: calc(100vh - (var(--tw-header-height) + var(--tw-navbar-height) + 285px)) !important;
+    height: calc(100vh - (var(--tw-header-height) + 240px)) !important;
 }
 .app .bg-warning {
     color: white;

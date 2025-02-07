@@ -5,12 +5,12 @@
         />
         <div class="grid gap-2">
             <!-- Filters Section -->
-            <div class="flex flex-wrap items-center gap-2">
+            <div class="flex flex-wrap items-center gap-2 filter-w">
                 <div class="flex gap-2">
                     <!-- Category Filter -->
                     <div class="flex flex-shrink-0">
                         <select
-                            class="select select-sm select-input w-48"
+                            class="select select-sm select-input w-full"
                             v-model="filters.category_id"
                             @change="getData"
                         >
@@ -23,7 +23,7 @@
                     <!-- Sage Company Filter -->
                     <div class="flex flex-shrink-0">
                         <select
-                            class="select select-sm select-input w-96"
+                            class="select select-sm select-input w-full"
                             v-model="filters.sage_company_id"
                             @change="getData"
                         >
@@ -36,10 +36,10 @@
                     <!-- Dynamic Filters -->
                     <div v-for="filter in page_filters" :key="filter.key" class="flex flex-shrink-0">
                         <select
-                            class="select select-sm select-input w-52"
+                            class="select select-sm select-input w-full"
                             v-model="filters[filter.key]"
                         >
-                            <option value="" selected>Filter by {{ filter.name }}</option>
+                            <option value="" selected class="">Filter by {{ filter.name }}</option>
                             <option v-for="(value, key) in filter.values" :value="key" :key="key">{{ value }}</option>
                         </select>
                     </div>
@@ -59,11 +59,11 @@
                 <!-- Warning Filter -->
                 <div class="flex flex-shrink-0">
                     <button
-                        :class="['btn btn-icon btn-sm relative px-3 h-10 !w-10 !rounded-none transition-all duration-300', filters.is_warning ? 'btn-warning text-white' : 'btn-light text-black']"
+                        :class="['btn btn-icon btn-sm relative px-3 h-10 !w-10 !rounded-none transition-all duration-300 hover:border-black', filters.is_warning ? 'bg-yellow-100 text-black border-black' : 'btn-light text-black']"
                         @click="filters.is_warning = !filters.is_warning"
                     >
                         <i class="ki-outline ki-information-1"></i>
-                        <span class="absolute top-1 right-1 translate-x-1/2 -translate-y-1/2 shadow-md shadow-red-300 bg-red-500 text-white text-xs font-bold rounded-full min-h-5 min-w-5 flex items-center justify-center">{{ warningCount }}</span>
+                        <span class="absolute top-1 right-1 translate-x-1/2 -translate-y-1/2 shadow-md shadow-yellow-300 bg-yellow-500 text-white text-xs font-bold rounded-full min-h-5 min-w-5 flex items-center justify-center">{{ warningCount }}</span>
                     </button>
                 </div>
             </div>
@@ -71,7 +71,7 @@
             <div class="relative flex-grow overflow-auto reports-table-container shadow-md border border-brand">
                 <table class="w-full c-table table table-border align-middle text-xs table-fixed">
                     <thead>
-                        <tr class="bg-black text-gray-900 font-medium text-center">
+                        <tr class="bg-black text-neutral-900 font-medium text-center">
                             <th class="sticky top-0 w-10">#</th>
                             <th class="sticky top-0 w-[60px]">Id</th>
                             <th class="sticky top-0 w-[60px]" data-tooltip="#Payment_Mode_tooltip">
@@ -97,16 +97,16 @@
                         </tr>
                     </thead>
                     <tbody class="text-center text-xs tracking-tight">
-                        <tr v-for="(obj, index) in filteredData" :key="index" class="transition-all duration-300 text-gray-800">
+                        <tr v-for="(obj, index) in filteredData" :key="index" class="transition-all duration-300 text-neutral-800">
                             <td>{{ ++index }}</td>
-                            <td><a class="btn btn-link" target="_blank" :href="'https://crm.cresco.ae/bizproc/processes/105/element/0/' + obj.id  + '/?list_section_id='">{{obj.id }}</a></td>
+                            <td><a class="btn btn-link !text-neutral-800 hover:!text-brand-active" target="_blank" :href="'https://crm.cresco.ae/bizproc/processes/105/element/0/' + obj.id  + '/?list_section_id='">{{obj.id }}</a></td>
                             <td class="text-center">{{ obj.payment_mode }}</td>
                             <td class="text-right">{{ formatAmount(obj.amount) }} <strong class="font-bold text-black">{{ obj.currency }}</strong></td>
                             <td>{{ formatDate(obj.payment_date)  }}</td>
                             <td>{{ formatDate(obj.funds_available_date) }}</td>
                             <td class="text-left">
                                 <span class="font-bold text-black" v-if="obj.project_type">{{ obj.project_type }}:</span>
-                                <a class="btn btn-link !text-xs" target="_blank" v-if="obj.project_type" :href="getBitrixProjectLink(obj)">{{ obj.project_name }}</a>
+                                <a class="btn btn-link !text-xs !text-neutral-800 hover:!text-brand-active" target="_blank" v-if="obj.project_type" :href="getBitrixProjectLink(obj)">{{ obj.project_name }}</a>
                             </td>
                             <td class="text-center">{{ obj.charge_extra_to_client }}</td>
                             <td class="text-left whitespace-normal break-words group/request">
@@ -193,18 +193,18 @@
                                 </div>
                             </td>
                         </tr>
-                        <tr v-show="filteredData.length > 0" class="!bg-brand text-white">
-                            <td colspan="3" class="font-bold text-center">Totals per currency</td>
-                            <td class="text-right">
-                                <div v-for="(amount, currency) in groupedByCurrency">{{ formatAmount(amount) }} <span class="font-bold text-white">{{ currency }} </span></div>
+                        <tr v-show="filteredData.length > 0">
+                            <td colspan="3" class="font-bold text-center text-sm text-black">Total per currency</td>
+                            <td class="text-right text-neutral-800">
+                                <div v-for="(amount, currency) in groupedByCurrency">{{ formatAmount(amount) }} <span class="font-bold text-black">{{ currency }} </span></div>
                             </td>
                         </tr>
                         <tr class="table-no-data-available" v-if="filteredData.length === 0">
-                            <td class="text-center text-red-400">No data available</td>
+                            <td class="text-center text-md text-red-400">No data available</td>
                         </tr>
                     </tbody>
                 </table>
-                <div v-if="loading" class="data-loading absolute inset-0 bg-gray-100 bg-opacity-50 flex items-center justify-center z-100 pointer-events-none">
+                <div v-if="loading" class="data-loading absolute inset-0 bg-neutral-100 bg-opacity-50 flex items-center justify-center z-100 pointer-events-none">
                     <div class="flex items-center gap-2 px-4 py-2 font-medium leading-none text-sm text-brand-active">
                         <svg class="animate-spin -ml-1 h-5 w-5 text-brand-active" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"></circle>
@@ -217,14 +217,14 @@
             <!-- footer -->
             <div class="flex items-center justify-between">
                 <!-- Left Section: Showing Records -->
-                <div class="text-xs">
+                <div class="text-xs text-neutral-700">
                     <span>Showing {{ filteredData.length }} records</span>
                 </div>
 
                 <!-- Right Section: Total as per Reporting Currency -->
-                <div class="flex items-center justify-center text-right text-dark">
+                <div class="flex items-center justify-center text-right text-neutral-800">
                     <span class="mr-2 tracking-tight">Total as per reporting currency ({{ currency }}):</span>
-                    <span class="font-black">
+                    <span class="font-bold text-black">
                         {{ formatAmount(totalAsPerReportingCurrency) }} {{ currency }}
                     </span>
                 </div>
@@ -246,6 +246,7 @@
         @closeModal="closeModal"
     />
 </template>
+
 <script>
 import {DateTime} from "luxon";
 import _ from "lodash";

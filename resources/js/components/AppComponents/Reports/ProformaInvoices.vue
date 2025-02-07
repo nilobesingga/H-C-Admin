@@ -59,11 +59,11 @@
                 <!-- Warning Filter -->
                 <div class="flex flex-shrink-0">
                     <button
-                        :class="['btn btn-icon btn-sm relative px-3 h-10 !w-10 !rounded-none transition-all duration-300', filters.is_warning ? 'btn-warning text-white' : 'btn-light text-black']"
+                        :class="['btn btn-icon btn-sm relative px-3 h-10 !w-10 !rounded-none transition-all duration-300 hover:border-black', filters.is_warning ? 'bg-yellow-100 text-black border-black' : 'btn-light text-black']"
                         @click="filters.is_warning = !filters.is_warning"
                     >
                         <i class="ki-outline ki-information-1"></i>
-                        <span class="absolute top-1 right-1 translate-x-1/2 -translate-y-1/2 shadow-md shadow-red-300 bg-red-500 text-white text-xs font-bold rounded-full min-h-5 min-w-5 flex items-center justify-center">{{ warningCount }}</span>
+                        <span class="absolute top-1 right-1 translate-x-1/2 -translate-y-1/2 shadow-md shadow-yellow-300 bg-yellow-500 text-white text-xs font-bold rounded-full min-h-5 min-w-5 flex items-center justify-center">{{ warningCount }}</span>
                     </button>
                 </div>
             </div>
@@ -72,37 +72,40 @@
                 <table class="w-full c-table table table-border align-middle text-xs table-fixed">
                     <thead>
                         <tr class="text-center tracking-tight">
-                            <th class="sticky top-0 w-10">#</th>
+                            <th class="sticky top-0 w-[30px]">#</th>
                             <th class="sticky top-0 w-[50px]">Id</th>
-                            <th class="sticky top-0 w-[100px] text-left">Company</th>
+                            <th class="sticky top-0 w-[150px] text-left">Company</th>
                             <th class="sticky top-0 w-[100px] text-left">Contact</th>
-                            <th class="sticky top-0 w-[100px] text-right">Amount</th>
-                            <th class="sticky top-0 w-[100px]">Status</th>
+                            <th class="sticky top-0 w-[80px] text-right">Amount</th>
+                            <th class="sticky top-0 w-[80px]">Status</th>
                             <th class="sticky top-0 w-[200px] text-left">CRM</th>
-                            <th class="sticky top-0 w-[100px]">Due Date</th>
+                            <th class="sticky top-0 w-[70px]">Due Date</th>
 <!--                            <th class="sticky top-0 text-left">Subject</th>-->
 <!--                            <th class="sticky top-0">Payment Terms</th>-->
                             <th class="sticky top-0 w-[100px]">Responsible Person</th>
-                            <th class="sticky top-0 w-[100px]">Charge to Account</th>
-                            <th class="sticky top-0 w-[100px]">Created On</th>
+                            <th class="sticky top-0 w-[60px]" data-tooltip="#charge_to_account_tooltip">
+                                Charge <i class="ki-outline ki-information-2"></i>
+                                <div class="tooltip transition-opacity duration-300" id="charge_to_account_tooltip">Charge to Account</div>
+                            </th>
+                            <th class="sticky top-0 w-[60px]">Created On</th>
                         </tr>
                     </thead>
                     <tbody class="text-center text-xs tracking-tight">
-                        <tr v-for="(obj, index) in filteredData" :key="index" class="transition-all duration-300 text-gray-800">
+                        <tr v-for="(obj, index) in filteredData" :key="index" class="transition-all duration-300 text-neutral-800">
                             <td>{{ ++index }}</td>
-                            <td><a class="btn btn-link" target="_blank" :href="`https://crm.cresco.ae/crm/quote/show/${obj.id}/`">{{ obj.id }}</a></td>
-                            <td class="text-left"><a target="_blank" class="btn btn-link" :href="`https://crm.cresco.ae/crm/company/details/${obj.company_id}/`">{{ obj.company }}</a></td>
-                            <td class="text-left"><a target="_blank" class="btn btn-link" :href="`https://crm.cresco.ae/crm/contact/details/${obj.contact_id}/`">{{ obj.contact }}</a></td>
+                            <td><a class="btn btn-link !text-neutral-800 hover:!text-brand-active" target="_blank" :href="`https://crm.cresco.ae/crm/quote/show/${obj.id}/`">{{ obj.id }}</a></td>
+                            <td class="text-left"><a target="_blank" class="btn btn-link !text-neutral-800 hover:!text-brand-active" :href="`https://crm.cresco.ae/crm/company/details/${obj.company_id}/`">{{ obj.company }}</a></td>
+                            <td class="text-left"><a target="_blank" class="btn btn-link !text-neutral-800 hover:!text-brand-active" :href="`https://crm.cresco.ae/crm/contact/details/${obj.contact_id}/`">{{ obj.contact }}</a></td>
                             <td class="text-right">{{ formatAmount(obj.amount) }} <strong class="font-bold text-black">{{ obj.currency }}</strong></td>
                             <td>{{ getStatusValue(obj.status) }}</td>
                             <td class="text-left">
                                 <div v-if="obj.deal">
                                     <span class="text-black font-bold">Deal: </span>
-                                    <a target="_blank" class="btn btn-link" :href="`https://crm.cresco.ae/crm/deal/details/${obj.deal_id}/`">{{ obj.deal }}</a>
+                                    <a target="_blank" class="btn btn-link !text-neutral-800 hover:!text-brand-active" :href="`https://crm.cresco.ae/crm/deal/details/${obj.deal_id}/`">{{ obj.deal }}</a>
                                 </div>
                                 <div>
                                     <span class="text-black font-bold">Lead: </span>
-                                    <a class="btn btn-link" target="_blank" :href="`https://crm.cresco.ae/crm/lead/details/${obj.lead_id}/`">{{ obj.lead }}</a>
+                                    <a class="btn btn-link !text-neutral-800 hover:!text-brand-active" target="_blank" :href="`https://crm.cresco.ae/crm/lead/details/${obj.lead_id}/`">{{ obj.lead }}</a>
                                 </div>
                             </td>
                             <td><div :class="isWarning(obj) ? 'badge badge-warning' : ''" v-if="obj.expiration_date">{{ formatDate(obj.expiration_date) }}</div></td>
@@ -112,10 +115,10 @@
                             <td>{{ obj.charge_to_running_account }}</td>
                             <td>{{ formatDate(obj.created_on) }}</td>
                         </tr>
-                        <tr v-show="filteredData.length > 0" class="!bg-brand text-white">
-                            <td colspan="3" class="font-bold text-center">Totals per currency</td>
-                            <td colspan="2" class="text-right">
-                                <div v-for="(amount, currency) in groupedByCurrency">{{ formatAmount(amount) }} <span class="font-bold text-white">{{ currency }} </span></div>
+                        <tr v-show="filteredData.length > 0">
+                            <td colspan="4" class="font-bold text-center text-sm text-black">Total per currency</td>
+                            <td colspan="1" class="text-right text-neutral-800">
+                                <div v-for="(amount, currency) in groupedByCurrency">{{ formatAmount(amount) }} <span class="font-bold text-black">{{ currency }} </span></div>
                             </td>
                         </tr>
                         <tr class="table-no-data-available" v-if="filteredData.length === 0">
@@ -123,7 +126,7 @@
                         </tr>
                     </tbody>
                 </table>
-                <div v-if="loading" class="data-loading absolute inset-0 bg-gray-100 bg-opacity-50 flex items-center justify-center z-100 pointer-events-none">
+                <div v-if="loading" class="data-loading absolute inset-0 bg-neutral-100 bg-opacity-50 flex items-center justify-center z-100 pointer-events-none">
                     <div class="flex items-center gap-2 px-4 py-2 font-medium leading-none text-sm text-brand-active">
                         <svg class="animate-spin -ml-1 h-5 w-5 text-brand-active" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"></circle>
@@ -136,13 +139,14 @@
             <!-- footer -->
             <div class="flex items-center justify-between">
                 <!-- Left Section: Showing Records -->
-                <div class="text-xs">
+                <div class="text-xs text-neutral-700">
                     <span>Showing {{ filteredData.length }} records</span>
                 </div>
+
                 <!-- Right Section: Total as per Reporting Currency -->
-                <div class="flex items-center justify-center text-right text-dark">
+                <div class="flex items-center justify-center text-right text-neutral-800">
                     <span class="mr-2 tracking-tight">Total as per reporting currency ({{ currency }}):</span>
-                    <span class="font-black">
+                    <span class="font-bold text-black">
                         {{ formatAmount(totalAsPerReportingCurrency) }} {{ currency }}
                     </span>
                 </div>
