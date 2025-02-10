@@ -105,7 +105,7 @@
                             <td>{{ ++index }}</td>
                             <td><a class="btn btn-link !text-neutral-800 hover:!text-brand-active" target="_blank" :href="'https://crm.cresco.ae/bizproc/processes/104/element/0/' + obj.id  + '/?list_section_id='">{{ obj.id }}</a></td>
                             <td>{{ formatDate(obj.invoice_date) }}</td>
-                            <td>{{ formatDate(obj.due_date) }}</td>
+                            <td><div :class="[isBitrixStatusWarning(obj) ? 'badge badge-warning' : '']">{{ formatDate(obj.due_date) }}</div></td>
                             <td><span v-if="obj.payment_schedule_date" class="font-bold text-black">{{ formatDate(obj.payment_schedule_date)}}</span></td>
                             <td>
                                 <div :class="[isSageStatusWarning(obj) ? 'badge badge-warning' : '']">
@@ -114,7 +114,7 @@
                                 </div>
                             </td>
                             <td>
-                                <div :class="[isBitrixStatusWarning(obj) ? 'badge badge-warning' : '']">
+                                <div>
                                     <span> {{ obj.status_text }} </span>&nbsp
                                     <span v-if="obj.sage_payment_date"> {{ formatBitrixDate(obj.sage_payment_date) }} </span>
                                     <div v-if="obj.payment_reference_id"> {{ obj.payment_reference_id }} </div>
@@ -289,15 +289,15 @@ export default {
                 }
             }
         },
-        async getPageData(){
+        async getPageData(startDate = null, endDate = null){
             let dateRange = JSON.parse(localStorage.getItem('dateRange'));
             this.data = [];
             const bitrixUserId = this.page_data.user.bitrix_user_id ? this.page_data.user.bitrix_user_id : null;
             const bitrixWebhookToken = this.page_data.user.bitrix_webhook_token ? this.page_data.user.bitrix_webhook_token : null;
             const endpoint = 'crm.company.reports_v2';
             const requestData = {
-                startDate: dateRange[0],
-                endDate: dateRange[1],
+                startDate: startDate ? startDate : dateRange[0],
+                endDate: endDate ? endDate : dateRange[1],
                 action: "getPurchaseInvoices",
                 categories: JSON.stringify(this.filters.category_id === "" ? this.page_data.bitrix_list_categories.map((obj) => obj.bitrix_category_id) : [this.filters.category_id]),
                 sage_companies: JSON.stringify(this.filters.sage_company_id === "" ? this.page_data.bitrix_list_sage_companies.map((obj) => obj.bitrix_sage_company_id) : [this.filters.sage_company_id])
@@ -394,8 +394,23 @@ export default {
             this.calculateTotalAsPerReportingCurrency();
         }
     },
-    created() {
+    mounted() {
         const urlParams = new URLSearchParams(window.location.search);
+        let startDate = null;
+        let endDate = null;
+        if(urlParams.get("id")){
+            this.filters.search = urlParams.get("id");
+        }
+        if (urlParams.get('date')) {
+            const parsedDate = DateTime.fromFormat(urlParams.get('date'), 'dd.MM.yyyy');
+            if (parsedDate.isValid) {
+                startDate = parsedDate.toFormat('yyyy-MM-dd');
+                endDate = parsedDate.toFormat('yyyy-MM-dd');
+                // Call getPageData with formatted date
+                this.getPageData(startDate, endDate);
+            }
+        }
+
         if(urlParams.get("search")){
             this.filters.search = urlParams.get("search");
         }

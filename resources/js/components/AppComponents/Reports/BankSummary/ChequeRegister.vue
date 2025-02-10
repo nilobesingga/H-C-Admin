@@ -231,7 +231,7 @@ export default {
             if (workingDaysDifference === 2) {
                 return 'badge badge-warning';
             } else if (workingDaysDifference > 2 && workingDaysDifference <= 5) {
-                return 'badge badge-dark';
+                return 'badge badge-warning';
             } else if (workingDaysDifference < 2) {
                 return 'badge badge-danger';
             }

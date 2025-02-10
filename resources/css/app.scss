@@ -13,6 +13,60 @@
 @import "../assets/theme/keenicons/outline/style.css";
 @import "../assets/theme/keenicons/solid/style.css";
 
+.page-bg {
+    background-image: url("/public/tec-bg-7.jpg/");
+}
+
+@keyframes smoothFadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+.animate-in {
+    animation: smoothFadeInUp 0.8s cubic-bezier(0.16, 1, 0.4, 1) forwards;
+    opacity: 0;
+    will-change: transform, opacity;
+}
+
+.animate-fadeIn {
+    opacity: 0; /* Make sure the element is initially invisible */
+    animation: fadeIn 2s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+}
+
+.animate-delay-100 { animation-delay: .1s }
+.animate-delay-150 { animation-delay: .15s }
+.animate-delay-200 { animation-delay: .2s }
+.animate-delay-250 { animation-delay: .25s }
+.animate-delay-300 { animation-delay: .3s }
+.animate-delay-350 { animation-delay: .35s }
+.animate-delay-400 { animation-delay: .4s }
+.animate-delay-450 { animation-delay: .45s }
+.animate-delay-500 { animation-delay: .5s }
+.animate-delay-550 { animation-delay: .55s }
+.animate-delay-600 { animation-delay: .6s }
+.animate-delay-650 { animation-delay: .65s }
+.animate-delay-700 { animation-delay: .7s }
+.animate-delay-750 { animation-delay: .75s }
+.animate-delay-800 { animation-delay: .8s }
+.animate-delay-850 { animation-delay: .85s }
+.animate-delay-900 { animation-delay: .9s }
+.animate-delay-950 { animation-delay: .95s }
+.animate-delay-1000{ animation-delay: 1s }
+
 .btn-cresco{
     @apply bg-transparent hover:bg-white rounded-none justify-center border-2 font-semibold transition-all duration-300
     hover:border-black hover:shadow-md
@@ -96,7 +150,7 @@
 }
 /* Apply background color to odd rows */
 .c-table tr:nth-child(odd) {
-    background-color: #f1f1f1;
+    background-color: #F5F5F5;
 }
 .c-table tr:hover {
     background: #FFF!important;
@@ -155,7 +209,9 @@
     .modal-footer .btn-primary{
         @apply rounded-none px-5 text-lg
     }
-
+.content-box {
+    @apply text-sm px-8 py-4 text-black whitespace-pre-line;
+}
 .form-label{
     @apply text-xs uppercase font-light text-neutral-700 tracking-wide
 }
@@ -205,6 +261,18 @@
 .v-select.has-error .vs__dropdown-toggle {
     border-color: rgb(239 68 68) !important; /* red-500 */
 }
-.column-hover {
-    background-color: #FFF !important;
+.column-highlight {
+    background-color: #FFF;
+}
+.accordion-item{
+    @apply relative border border-neutral-200 transition-all duration-300;
+    margin-top:4px;
+}
+.accordion-item:hover,
+.accordion-item:first-child:hover{
+    @apply border-neutral-400 z-10;
+}
+.accordion-item[aria-expanded="true"],
+.accordion-item[aria-expanded="true"]:hover{
+    @apply border border-black shadow-lg z-50;
 }
