@@ -1,0 +1,30 @@
+name: Deploy to Staging/Production
+
+on:
+  push:
+    branches:
+      - staging
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Deploy to Server
+        run: |
+          if [ $GITHUB_REF == "refs/heads/staging" ]; then
+            echo "Deploying to Staging server"
+            ssh -o StrictHostKeyChecking=no user@10.0.1.61 'cd /path/to/your/staging/folder && git pull origin staging && ./deploy.sh'
+          elif [ $GITHUB_REF == "refs/heads/master" ]; then
+            echo "Deploying to Production server"
+            ssh -o StrictHostKeyChecking=no user@10.0.1.61 'cd /path/to/your/production/folder && git pull origin master && ./deploy.sh'
+          fi
