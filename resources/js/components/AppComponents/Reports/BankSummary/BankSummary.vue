@@ -136,15 +136,15 @@
                                 <td
                                     :class="[
                                         'text-right p-2 border border-neutral-200 cursor-pointer hover:bg-red-700/5',
-                                        {'not-applicable-gray': formatAmount(getCurrencyAmount(company.banks, obj.currency, company.companyId), false) === 'N/A'},
+                                        {'not-applicable-gray': formatAmountForCurrency(getCurrencyAmount(company.banks, obj.currency, company.companyId), company.banks, obj.currency) === 'N/A'},
                                         {'column-highlight': highlightedCurrency === obj.currency}
                                     ]"
                                     @mouseenter="highlightedCurrency = obj.currency"
                                     @mouseleave="highlightedCurrency = null"
                                     @click="showBankTransactionsByCurrency(company.banks, obj.currency)"
-                                    :data-modal-toggle="formatAmount(getCurrencyAmount(company.banks, obj.currency, company.companyId), false) !== 'N/A' ? '#show_bank_transactions_modal' : null"
+                                    :data-modal-toggle="formatAmountForCurrency(getCurrencyAmount(company.banks, obj.currency, company.companyId), company.banks, obj.currency) !== 'N/A' ? '#show_bank_transactions_modal' : null"
                                 >
-                                    {{ formatAmount(getCurrencyAmount(company.banks, obj.currency, company.companyId), false) }}
+                                    {{ formatAmountForCurrency(getCurrencyAmount(company.banks, obj.currency, company.companyId), company.banks, obj.currency) }}
                                 </td>
 
                             </template>
@@ -152,7 +152,7 @@
                         <!-- Total Cash -->
                         <tr class="border-t-2 border-b-2 border-t-brand-active">
                             <td class="text-left sticky left-0 bg-white z-40 p-2 text-black font-bold border w-[250px]">TOTAL CASH</td>
-                            <td v-for="obj in groupByBankCurrency" class="bg-white text-black font-bold p-2 text-right border">{{ formatAmount(obj.total, true) }}</td>
+                            <td v-for="obj in groupByBankCurrency" class="bg-white text-black font-bold p-2 text-right border">{{ formatAmountForCurrency(obj.total) }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -380,6 +380,28 @@ export default {
             else {
                 if (companyBanks){
                     if (companyBanks.some(bank => bank.bankId === bankId)){
+                        return 0;
+                    }
+                    else {
+                        return 'N/A'
+                    }
+                }
+                else {
+                    return 0
+                }
+            }
+        },
+        formatAmountForCurrency(value, companyBanks = null, currency = null){
+            if (value) {
+                let numericValue = typeof value === 'string' ? parseFloat(value) : value;
+                return numericValue.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+            }
+            else {
+                if (companyBanks){
+                    if (companyBanks.some(bank => bank.bankCurrency === currency)){
                         return 0;
                     }
                     else {
