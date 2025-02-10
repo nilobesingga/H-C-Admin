@@ -134,8 +134,14 @@
                             <td>{{ obj.reference_number }}</td>
                             <td>{{ formatDate(obj.date_create) }}</td>
                             <td>
-                                <!--TODO: add link to invoice-->
-                                <button class="secondary-btn mb-1 block w-full" v-for="pid in obj.purchase_invoice_ids">View Invoice</button>
+                                <button
+                                    v-for="pid in obj.purchase_invoice_ids"
+                                    @click="openModal(pid)"
+                                    data-modal-toggle="#view_purchase_invoice_details_modal"
+                                    class="secondary-btn mb-1 block w-full"
+                                >
+                                    View Invoice
+                                </button>
                             </td>
                             <td>
                                 <div :class="isWarning(obj) ? 'badge badge-warning' : ''">{{ obj.status_text }}</div>
@@ -194,7 +200,12 @@
             </div>
         </div>
     </div>
-
+    <!-- View Purchase Invoice Details Modal -->
+    <view-purchase-invoice-details-modal
+        :obj_id="obj_id"
+        v-if="is_view_purchase_invoice_details_modal"
+        @closeModal="closeModal"
+    />
 </template>
 <script>
 import {DateTime} from "luxon";
@@ -223,6 +234,8 @@ export default {
                 }
             ],
             totalAsPerReportingCurrency: 0,
+            is_view_purchase_invoice_details_modal: false,
+            obj_id: null,
         }
     },
     methods: {
@@ -321,6 +334,15 @@ export default {
             }
             return count;
         },
+        openModal(purchaseInvoiceId){
+            this.obj_id = purchaseInvoiceId;
+            this.is_view_purchase_invoice_details_modal = true
+        },
+        closeModal(){
+            this.is_view_purchase_invoice_details_modal = false;
+            this.selected_obj = null
+            this.removeModalBackdrop();
+        },
     },
     computed:{
         filteredData() {
@@ -374,13 +396,12 @@ export default {
             if (parsedDate.isValid) {
                 startDate = parsedDate.toFormat('yyyy-MM-dd');
                 endDate = parsedDate.toFormat('yyyy-MM-dd');
-
-                console.log(startDate, endDate);
-
                 // Call getPageData with formatted date
                 this.getPageData(startDate, endDate);
             }
         }
+        this.sharedState.bitrix_user_id = this.page_data.user.bitrix_user_id;
+        this.sharedState.bitrix_webhook_token = this.page_data.user.bitrix_webhook_token;
     }
 }
 </script>
