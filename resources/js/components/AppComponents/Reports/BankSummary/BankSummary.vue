@@ -27,7 +27,7 @@
                                 <!--<th class="sticky top-0 text-white z-40" :colspan="bankCounty.length" :style="{'background-color': bankCounty[0].countryColor}">{{ index }}</th>-->
                                 <th class="!border-red-800 sticky top-0 text-white z-40 c-column" :colspan="bankCounty.length">{{ index }}</th>
                             </template>
-                            <th class="sticky top-0 right-0 bg-black/30 backdrop-blur-md text-white z-50 p-1 w-[22rem]" rowspan="2">Total ({{ currency }})</th>
+                            <th class="sticky top-0 right-0 bg-brand-active text-white z-50 p-1 w-[22rem]" rowspan="2">Total ({{ currency }})</th>
                         </tr>
                         <!-- Company Row -->
                         <tr class="!border !border-black">
@@ -46,7 +46,13 @@
                             <template v-for="(bankCountry, index) in groupedByCountryBanks">
                                 <template v-for="bank in bankCountry">
                                     <td
-                                        :class="['text-right p-2 border border-neutral-200 cursor-pointer hover:bg-black/10', getBankClass(company.banks, bank.bankId, 'C')]"
+                                        :class="[
+                                            'text-right p-2 border border-neutral-200 cursor-pointer hover:bg-red-700/5 transition-all duration-300',
+                                            getBankClass(company.banks, bank.bankId, 'C'),
+                                            { 'column-highlight': highlightedColumn === bank.bankId }
+                                        ]"
+                                        @mouseenter="highlightedColumn = bank.bankId"
+                                        @mouseleave="highlightedColumn = null"
                                         @click="showBankTransactions(company.banks, bank.bankId, 'C')"
                                         :data-modal-toggle="formatAmount(getBankAmount(company.banks, bank.bankId), false) !== 'N/A' ? '#show_bank_transactions_modal' : null"
                                     >
@@ -57,14 +63,14 @@
                             <td class="sticky right-0 z-40 bg-white text-right p-2 border font-bold min-w-[150px] w-[22rem]">{{ formatAmount(getTotalsPerCompany(company), false) }}</td>
                         </tr>
                         <!-- Total Cash -->
-                        <tr class="">
-                            <td class="text-left sticky left-0 bg-neutral-300 z-40 p-2 text-black font-bold border w-[250px]">TOTAL CASH</td>
+                        <tr class="border-t-2 border-b-2 border-brand-active">
+                            <td class="text-left sticky left-0 bg-white z-40 p-2 text-black font-bold border w-[250px]">TOTAL CASH</td>
                             <template v-for="(bankCountry, index) in groupedByCountryBanks">
                                 <template v-for="bank in bankCountry">
-                                    <td class="bg-neutral-300 text-black font-bold p-2 text-right border">{{ formatAmount(bank.allCash, true) }}</td>
+                                    <td class="bg-white text-black font-bold p-2 text-right border">{{ formatAmount(bank.allCash, true) }}</td>
                                 </template>
                             </template>
-                            <td class="sticky right-0 bg-neutral-300 text-black font-bold p-2 text-right z-40 border w-[250px]">{{ formatAmount(overAllTotalCash, true) }}</td>
+                            <td class="sticky right-0 bg-white text-black font-bold p-2 text-right z-40 border w-[250px]">{{ formatAmount(overAllTotalCash, true) }}</td>
                         </tr>
                         <!-- Reserved Rows -->
                         <tr>
@@ -128,18 +134,25 @@
                             <td class="sticky left-0 text-left z-40 bg-white text-black p-2 border w-[22rem]">{{ company.companyName }}</td>
                             <template v-for="(obj, index) in groupByBankCurrency">
                                 <td
-                                    :class="['text-right p-2 border border-neutral-200 cursor-pointer hover:bg-black/10', {'not-applicable-gray': formatAmount(getCurrencyAmount(company.banks, obj.currency, company.companyId), false) === 'N/A'} ]"
+                                    :class="[
+                                        'text-right p-2 border border-neutral-200 cursor-pointer hover:bg-red-700/5',
+                                        {'not-applicable-gray': formatAmount(getCurrencyAmount(company.banks, obj.currency, company.companyId), false) === 'N/A'},
+                                        {'column-highlight': highlightedCurrency === obj.currency}
+                                    ]"
+                                    @mouseenter="highlightedCurrency = obj.currency"
+                                    @mouseleave="highlightedCurrency = null"
                                     @click="showBankTransactionsByCurrency(company.banks, obj.currency)"
                                     :data-modal-toggle="formatAmount(getCurrencyAmount(company.banks, obj.currency, company.companyId), false) !== 'N/A' ? '#show_bank_transactions_modal' : null"
                                 >
                                     {{ formatAmount(getCurrencyAmount(company.banks, obj.currency, company.companyId), false) }}
                                 </td>
+
                             </template>
                         </tr>
                         <!-- Total Cash -->
-                        <tr>
-                            <td class="text-left sticky left-0 bg-neutral-300 z-40 p-2 text-black font-bold border w-[250px]">TOTAL CASH</td>
-                            <td v-for="obj in groupByBankCurrency" class="bg-neutral-300 text-black font-bold p-2 text-right border">{{ formatAmount(obj.total, true) }}</td>
+                        <tr class="border-t-2 border-b-2 border-t-brand-active">
+                            <td class="text-left sticky left-0 bg-white z-40 p-2 text-black font-bold border w-[250px]">TOTAL CASH</td>
+                            <td v-for="obj in groupByBankCurrency" class="bg-white text-black font-bold p-2 text-right border">{{ formatAmount(obj.total, true) }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -187,6 +200,8 @@ export default {
             overAllMinimumBalance: 0,
             is_show_bank_transactions_modal: false,
             current_section: null,
+            highlightedColumn: null,
+            highlightedCurrency: null
         }
     },
     methods: {

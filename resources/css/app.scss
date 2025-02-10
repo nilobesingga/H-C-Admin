@@ -96,7 +96,7 @@
 }
 /* Apply background color to odd rows */
 .c-table tr:nth-child(odd) {
-    background-color: #f1f1f1;
+    background-color: #F5F5F5;
 }
 .c-table tr:hover {
     background: #FFF!important;
@@ -205,6 +205,18 @@
 .v-select.has-error .vs__dropdown-toggle {
     border-color: rgb(239 68 68) !important; /* red-500 */
 }
-.column-hover {
-    background-color: #FFF !important;
+.column-highlight {
+    background-color: #FFF;
+}
+.accordion-item{
+    @apply relative border border-neutral-200 transition-all duration-300;
+    margin-top:4px;
+}
+.accordion-item:hover,
+.accordion-item:first-child:hover{
+    @apply border-neutral-400 z-10;
+}
+.accordion-item[aria-expanded="true"],
+.accordion-item[aria-expanded="true"]:hover{
+    @apply border border-black shadow-lg z-50;
 }
