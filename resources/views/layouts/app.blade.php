@@ -39,7 +39,7 @@
         <div class="flex grow flex-col">
             @include('includes.header')
             @include('includes.navbar')
-            <div class="container-fluid w-full flex px-0 bg-neutral-100">
+            <div class="container-fluid w-full flex px-0 bg-neutral-100 page-bg bg-top bg-cover bg-no-repeat bg-fixed">
                 <main class="grow" role="content">
                     @yield('content')
                 </main>
