@@ -105,7 +105,7 @@
                             <td>{{ ++index }}</td>
                             <td><a class="btn btn-link !text-neutral-800 hover:!text-brand-active" target="_blank" :href="'https://crm.cresco.ae/bizproc/processes/104/element/0/' + obj.id  + '/?list_section_id='">{{ obj.id }}</a></td>
                             <td>{{ formatDate(obj.invoice_date) }}</td>
-                            <td>{{ formatDate(obj.due_date) }}</td>
+                            <td><div :class="[isBitrixStatusWarning(obj) ? 'badge badge-warning' : '']">{{ formatDate(obj.due_date) }}</div></td>
                             <td><span v-if="obj.payment_schedule_date" class="font-bold text-black">{{ formatDate(obj.payment_schedule_date)}}</span></td>
                             <td>
                                 <div :class="[isSageStatusWarning(obj) ? 'badge badge-warning' : '']">
@@ -114,7 +114,7 @@
                                 </div>
                             </td>
                             <td>
-                                <div :class="[isBitrixStatusWarning(obj) ? 'badge badge-warning' : '']">
+                                <div>
                                     <span> {{ obj.status_text }} </span>&nbsp
                                     <span v-if="obj.sage_payment_date"> {{ formatBitrixDate(obj.sage_payment_date) }} </span>
                                     <div v-if="obj.payment_reference_id"> {{ obj.payment_reference_id }} </div>
