@@ -26,18 +26,42 @@
     @apply bg-black text-white hover:bg-black hover:text-white
 }
 .select-input,
-.text-input{
-    @apply text-black bg-white h-10 !rounded-none border border-gray-300 px-4 outline-none duration-300 transition-all
-    hover:shadow-md hover:border-black
-    focus:border-black focus:shadow-md
+.text-input,
+.input,
+.textarea-input,
+.file-input{
+    @apply text-black bg-white h-10 !rounded-none border border-neutral-300 px-4 outline-none duration-300 transition-all
+    hover:shadow-md hover:border-black placeholder:text-neutral-400
+    focus:border-black focus:shadow-xl focus:bg-white
+}
+.textarea-input{
+    height: auto!important;
+    @apply border-2 px-3 resize-none;
+}
+.file-input{
+    @apply border-2 px-0;
+}
+.file-input::-webkit-file-upload-button,
+.file-input::file-selector-button{
+    color: #000;
 }
 .secondary-btn{
-    @apply bg-transparent border border-gray-300 py-1.5 px-2.5 text-black outline-none duration-300 transition-all text-xs
+    @apply bg-transparent border border-neutral-300 py-1.5 px-2.5 text-black outline-none duration-300 transition-all text-xs
     hover:shadow-md hover:border-black hover:bg-white
     focus:border-brand-active focus:shadow-md
 }
+.main-btn{
+    @apply relative flex min-w-[200px] items-center justify-center border-2 outline-none text-md
+    px-8 py-3 text-black font-semibold  tracking-tight transition-all duration-500 ease-in-out
+    shadow-sm hover:bg-white hover:shadow-lg overflow-hidden bg-transparent border-black
+    focus:border-brand-active
+}
+.main-btn:focus,
+.main-btn:active{
+    box-shadow: 0 10px 15px -3px rgba(202,44,34,.3)!important;
+}
 .dp__input{
-    @apply h-10 !rounded-none !text-sm !text-black !bg-white !border !border-gray-300 outline-none duration-300 transition-all
+    @apply h-10 !rounded-none !text-sm !text-black !bg-white !border !border-neutral-300 outline-none duration-300 transition-all
      hover:shadow-md hover:!border-black
     focus:!border-black focus:shadow-md;
 }
@@ -81,5 +105,97 @@
     @apply rounded-full py-1 px-1.5;
 }
 .badge-warning{
-    @apply bg-yellow-400/30 text-gray-800;
+    @apply bg-yellow-400/30 text-neutral-800;
+}
+.modal-backdrop {
+    @apply bg-black/70;
+}
+.modal-content {
+    @apply rounded-none ring-8 ring-black/30 border-2 border-black shadow-2xl bg-neutral-100
+}
+.modal-header{
+    @apply px-8 py-5 border-b-neutral-200 bg-white text-black
+}
+.modal-header .btn{
+    @apply rounded-none border-neutral-200 transition-all duration-300
+}
+    .modal-header .btn:hover{
+        @apply border-black
+    }
+    .modal-header .btn:active,
+    .modal-header .btn:focus{
+        @apply border-brand-active
+    }
+    .modal-header .btn i{
+        @apply text-neutral-700
+    }
+.modal-body {
+    @apply px-8 py-5
+}
+    .modal-body .badge{
+        @apply text-xs px-3
+    }
+    .modal-body .badge-danger{
+        @apply bg-red-500/10 border-red-500/5 text-red-500
+    }
+    .modal-body .input,
+    .modal-body .select-input,
+    .input-normal{
+        color: #000!important;
+        @apply border-2 h-12 text-lg px-3
+    }
+
+.modal-footer{
+    @apply border-none p-8 pt-0
+}
+    .modal-footer .btn-light,
+    .modal-footer .btn-primary{
+        @apply rounded-none px-5 text-lg
+    }
+
+.form-label{
+    @apply text-xs uppercase font-light text-neutral-700 tracking-wide
+}
+.vs__dropdown-toggle {
+    border-radius: 0!important;
+    border: 2px solid #d4d4d4!important;
+    background: #FFF!important;
+    padding-left: 2px!important;
+    @apply transition-all duration-300
+}
+.vs__dropdown-toggle:hover{
+    border: 2px solid #000!important;
+}
+.vs__dropdown-toggle[aria-expanded="true"] {
+    border: 2px solid #000!important;
+    background: #FFF!important;
+}
+.vs__open-indicator{
+    scale: 0.75;
+}
+.vs__search, .vs__search:focus{
+    font-size: 1rem!important;
+    font-weight: 500!important;
+    color: #000!important;
+    line-height: 1.75rem!important;
+    margin: 5px 0 0!important;
+    padding: 0 8px!important;
+}
+.vs__search:focus{
+    background: #FFF!important;
+}
+.vs__dropdown-menu{
+    background: #f1f1f1!important;
+    border-radius: 0!important;
+    border: 2px solid #000!important;
+    border-top: none!important;
+    margin-top: -2px!important;
+    letter-spacing: -.4px;
+}
+.vs__dropdown-option--highlight {
+    background: #FFF!important;
+}
+.vs__selected span{
+    font-weight: 500!important;
+    color: #000!important;
 }
