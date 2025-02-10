@@ -17,7 +17,7 @@
             </div>
 
             <!-- Bank Summary Table -->
-            <div v-if="current_section === 'overview'" class="relative flex-grow overflow-auto reports-table-container shadow-md border border-brand">
+            <div v-if="current_section === 'overview'" class="relative flex-grow overflow-auto bank-summary-table-container shadow-md border border-brand">
                 <table v-if="filteredCompanies.length > 0 && filteredBanks.length > 0" class="w-full c-table table-auto border-collapse table-border border text-center text-xs whitespace-nowrap">
                     <thead class="text-sm">
                         <!-- Country Row -->
@@ -101,7 +101,7 @@
                 <div v-else>
                     <div class="text-center text-md text-red-400">No data available</div>
                 </div>
-                <div v-if="loading" class="data-loading absolute inset-0 bg-neutral-100 bg-opacity-50 flex items-center justify-center z-100 pointer-events-none">
+                <div v-if="loading" class="data-loading absolute inset-0 bg-neutral-100 flex items-center justify-center z-100 pointer-events-none">
                     <div class="flex items-center gap-2 px-4 py-2 font-medium leading-none text-sm text-brand-active">
                         <svg class="animate-spin -ml-1 h-5 w-5 text-brand-active" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"></circle>
@@ -113,7 +113,7 @@
             </div>
 
             <!-- Cash by Currency Table -->
-            <div v-if="current_section === 'cash-by-currency'" class="relative flex-grow overflow-auto reports-table-container shadow-md border border-brand">
+            <div v-if="current_section === 'cash-by-currency'" class="relative flex-grow overflow-auto bank-summary-table-container shadow-md border border-brand">
                 <table v-if="filteredCompanies.length > 0 && groupByBankCurrency.length > 0" class="w-full c-table table-auto border-collapse table-border border text-center text-xs whitespace-nowrap">
                     <thead class="text-sm">
                         <!-- Company Row -->
@@ -146,7 +146,7 @@
                 <div v-else>
                     <div class="text-center text-md text-red-400">No data available</div>
                 </div>
-                <div v-if="loading" class="data-loading absolute inset-0 bg-neutral-100 bg-opacity-50 flex items-center justify-center z-100 pointer-events-none">
+                <div v-if="loading" class="data-loading absolute inset-0 bg-neutral-100 flex items-center justify-center z-100 pointer-events-none">
                     <div class="flex items-center gap-2 px-4 py-2 font-medium leading-none text-sm text-brand-active">
                         <svg class="animate-spin -ml-1 h-5 w-5 text-brand-active" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"></circle>

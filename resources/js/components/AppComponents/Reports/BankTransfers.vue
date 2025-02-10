@@ -67,14 +67,20 @@
                             <th class="sticky top-0 w-[150px] text-left">Transfer To <i class="ki-outline ki-exit-down"></i></th>
                             <th class="sticky top-0 w-[150px] text-left">Purpose of Transfer <i class="ki-outline ki-exit-down"></i></th>
                             <th class="sticky top-0 w-[80px]">Reference No</th>
-                            <th class="sticky top-0 w-[70px]">Created Date</th>
-                            <th class="sticky top-0 w-[90px]" data-tooltip="#Payment_Invoice_Reference_tooltip">
+                            <th class="sticky top-0 w-[70px]" data-tooltip="#Created_Date_tooltip">
+                                Created <i class="ki-outline ki-information-2"></i>
+                                <div class="tooltip transition-opacity duration-300" id="Created_Date_tooltip">Created Date</div>
+                            </th>
+                            <th class="sticky top-0 w-[80px]" data-tooltip="#Payment_Invoice_Reference_tooltip">
                                 Reference <i class="ki-outline ki-information-2"></i>
                                 <div class="tooltip transition-opacity duration-300" id="Payment_Invoice_Reference_tooltip">Purchase Invoice Reference</div>
                             </th>
                             <th class="sticky top-0 w-[80px]">Transfer Status</th>
-                            <th class="sticky top-0 w-[70px]">Transfer Date</th>
-                            <th class="sticky top-0 w-[120px]">Transfer Documents</th>
+                            <th class="sticky top-0 w-[80px]">Transfer Date</th>
+                            <th class="sticky top-0 w-[80px]" data-tooltip="#Transfer_Documents_tooltip">
+                                Documents <i class="ki-outline ki-information-2"></i>
+                                <div class="tooltip transition-opacity duration-300" id="Transfer_Documents_tooltip">Transfer Documents</div>
+                            </th>
                         </tr>
                     </thead>
                     <tbody class="text-center text-xs tracking-tight">
@@ -128,6 +134,7 @@
                             <td>{{ obj.reference_number }}</td>
                             <td>{{ formatDate(obj.date_create) }}</td>
                             <td>
+                                <!--TODO: add link to invoice-->
                                 <button class="secondary-btn mb-1 block w-full" v-for="pid in obj.purchase_invoice_ids">View Invoice</button>
                             </td>
                             <td>

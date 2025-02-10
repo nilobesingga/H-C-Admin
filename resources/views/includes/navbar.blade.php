@@ -1,6 +1,6 @@
 @if(request()->is('reports*'))
     @if(!$page->user->modules->isEmpty())
-        <div class="bg-[--tw-header-bg] dark:bg-[--tw-header-bg-dark] border-b border-b-gray-200">
+        <div class="bg-[--tw-header-bg] dark:bg-[--tw-header-bg-dark] border-b border-b-neutral-200">
             <!-- Container -->
             <div class="container-fluid pl-3 pr-2 flex flex-wrap justify-between items-center gap-2">
                 <div class="grid">
