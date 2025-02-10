@@ -1,5 +1,5 @@
 <header
-    class="flex items-center transition-[height] shrink-0 bg-[--tw-header-bg] dark:bg-[--tw-header-bg-dark] h-[--tw-header-height] border-b border-b-gray-200"
+    class="flex items-center transition-[height] shrink-0 bg-[--tw-header-bg] dark:bg-[--tw-header-bg-dark] h-[--tw-header-height] border-b border-b-neutral-200"
     data-sticky="true"
     data-sticky-class="transition-[height] fixed z-10 top-0 left-0 right-0 shadow-sm backdrop-blur-md bg-white/70 dark:bg-coal-500/70 dark:border-b dark:border-b-coal-100"
     data-sticky-name="header" data-sticky-offset="100px" id="header">
@@ -55,7 +55,7 @@
                                 <img alt="" class="size-9 rounded-full border-2 border-black shadow-lg" src="{{ Auth::user()->profile->bitrix_profile_photo ?? '' }}" />
                                 <div class="flex flex-col gap-1.5">
                                     <span class="text-sm text-black font-semibold leading-none">{{ Auth::user()->profile->bitrix_name ?? '' }}</span>
-                                    <span class="text-xs text-gray-600 leading-none">{{ Auth::user()->email }}</span>
+                                    <span class="text-xs text-neutral-600 leading-none">{{ Auth::user()->email }}</span>
                                 </div>
                             </div>
                             @if(Auth::user()->is_admin)

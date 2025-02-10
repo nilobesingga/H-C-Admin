@@ -8,7 +8,7 @@
     <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport"/>
     <meta content="" name="description"/>
     <title>CRESCO - @yield('pageTitle')</title>
-    <link rel="icon" href="{{ asset('storage/images/logos/CRESCO_faviicon.ico') }}" sizes="32x32"/>
+    <link rel="icon" href="{{ asset('storage/images/logos/CRESCO_favicon.ico') }}" sizes="32x32"/>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
     @vite('resources/css/app.scss')
 </head>
@@ -35,10 +35,10 @@
     </script>
     <style>
         .page-bg {
-            background-image: url('assets/media/images/2600x1200/bg-10.png');
+            background-image: url('tec-bg-7.jpg');
         }
         .dark .page-bg {
-            background-image: url('assets/media/images/2600x1200/bg-10-dark.png');
+            background-image: url('tec-bg-7.jpg');
         }
     </style>
     @yield('content')

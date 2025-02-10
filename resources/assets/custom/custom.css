@@ -50,6 +50,9 @@
 /*.app .reports-table-container {*/
 /*    height: calc(100vh - (var(--tw-header-height) + 200px)) !important;*/
 /*}*/
+.app .bank-summary-table-container {
+    height: calc(100vh - (var(--tw-header-height) + 200px)) !important;
+}
 .app .expense-planner-columns {
     height: calc(100vh - (var(--tw-header-height) + 103px)) !important;
 }

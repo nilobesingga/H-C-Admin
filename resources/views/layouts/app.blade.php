@@ -12,7 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
     @vite(['resources/css/app.scss'])
 </head>
-<body class="antialiased flex h-full text-base text-gray-700 [--tw-header-height:54px] [--tw-sidebar-width:200px] [--tw-header-bg:var(--tw-light)] [--tw-header-bg-dark:var(--tw-coal-500)] bg-light dark:bg-coal-500">
+<body class="antialiased flex h-full text-base text-neutral-700 [--tw-header-height:54px] [--tw-sidebar-width:200px] [--tw-header-bg:var(--tw-light)] [--tw-header-bg-dark:var(--tw-coal-500)] bg-light dark:bg-coal-500">
     <script>
         window.env = @json($env);
         const defaultThemeMode = 'light';
@@ -39,7 +39,7 @@
         <div class="flex grow flex-col">
             @include('includes.header')
             @include('includes.navbar')
-            <div class="container-fluid w-full flex px-0 bg-gray-100">
+            <div class="container-fluid w-full flex px-0 bg-neutral-100">
                 <main class="grow" role="content">
                     @yield('content')
                 </main>
