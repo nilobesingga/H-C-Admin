@@ -29,7 +29,7 @@
                                 <!-- Transfer from Account -->
                                 <div class="mb-4 w-full gap-2.5">
                                     <label class="form-label flex items-center gap-1 text-sm mb-1" for="transfer_from_account">Transfer from Account
-                                        <span class="text-danger">*</span>
+                                        <span class="text-danger">* <span class="form-text-error" v-if="v$.form.transfer_from_account.$error">Please fill out this field</span></span>
                                     </label>
                                     <v-select
                                         v-model="form.transfer_from_account"
@@ -38,6 +38,7 @@
                                         :filterable="false"
                                         placeholder="Search Account Name"
                                         class="text-black"
+                                        :class="{'has-error': v$.form.transfer_from_account.$error}"
                                         @search="debouncedSearch('banks', $event)"
                                         id="transfer_from_account"
                                     >
@@ -66,15 +67,13 @@
                                         <div class="text-sm" v-if="form.transfer_from_account.PROPERTY_159"> {{ Object.values(form.transfer_from_account.PROPERTY_159)[0]}}</div>
                                         <div class="text-sm" v-if="form.transfer_from_account.PROPERTY_166"> {{ Object.values(form.transfer_from_account.PROPERTY_166)[0]}}</div>
                                     </div>
-                                    <p class="text-red-500 text-xs italic" v-if="v$.form.transfer_from_account.$error">Please fill out this field.</p>
                                 </div>
                                 <!-- Transfer Amount -->
                                 <div class="mb-4 w-full gap-2.5">
                                     <label class="form-label flex items-center gap-1 text-sm mb-1" for="amount">Transfer Amount
-                                        <span class="text-danger">*</span>
+                                        <span class="text-danger">* <span class="form-text-error" v-if="v$.form.amount.$error">Please fill out this field</span></span>
                                     </label>
-                                    <input class="input text-black bg-inherit" placeholder="Transfer Amount" id="amount" type="text" v-model="form.amount">
-                                    <p class="text-red-500 text-xs italic" v-if="v$.form.amount.$error">Please fill out this field.</p>
+                                    <input class="input text-black bg-inherit" :class="v$.form.amount.$error ? '!border-red-500' : ''" placeholder="Transfer Amount" id="amount" type="text" v-model="form.amount">
                                 </div>
                                 <!-- Reference Number -->
                                 <div class="mb-4 w-full gap-2.5">
@@ -84,7 +83,7 @@
                                 <!-- Project -->
                                 <div class="mb-4 w-full gap-2.5">
                                     <label class="form-label flex items-center gap-1 text-sm mb-1" for="project">Project
-                                        <span class="text-danger">*</span>
+                                        <span class="text-danger">* <span class="form-text-error" v-if="v$.form.project.$error">Please fill out this field</span></span>
                                     </label>
                                     <v-select
                                         v-model="form.project"
@@ -93,6 +92,7 @@
                                         :filterable="false"
                                         placeholder="Search Project Name"
                                         class="text-black"
+                                        :class="{'has-error': v$.form.project.$error}"
                                         @search="debouncedSearch('projects', $event)"
                                         id="project"
                                     >
@@ -116,22 +116,20 @@
                                             </div>
                                         </template>
                                     </v-select>
-                                    <p class="text-red-500 text-xs italic" v-if="v$.form.project.$error">Please fill out this field.</p>
                                 </div>
                                 <!-- Transfer Document -->
                                 <div class="mb-4 w-full gap-2.5">
                                     <label class="form-label flex items-center gap-1 text-sm mb-1" for="transfer_document">Transfer Document
-                                        <span class="text-danger">*</span>
+                                        <span class="text-danger">* <span class="form-text-error" v-if="v$.form.transfer_document.$error">Please fill out this field</span></span>
                                     </label>
-                                    <input class="file-input file-input-sm" placeholder="Transfer Document" id="transfer_document" type="file" @change="uploadDocument($event, 'transfer_document')">
-                                    <p class="text-red-500 text-xs italic" v-if="v$.form.transfer_document.$error">Please fill out this field.</p>
+                                    <input class="file-input file-input-sm" :class="v$.form.transfer_document.$error ? '!border-red-500' : ''" placeholder="Transfer Document" id="transfer_document" type="file" @change="uploadDocument($event, 'transfer_document')">
                                 </div>
                             </div>
                             <div class="w-1/2">
                                 <!-- Transfer To Account -->
                                 <div class="mb-4 w-full gap-2.5">
                                     <label class="form-label flex items-center gap-1 text-sm mb-1" for="transfer_to_account">Transfer To Account
-                                        <span class="text-danger">*</span>
+                                        <span class="text-danger">* <span class="form-text-error" v-if="v$.form.transfer_to_account.$error">Please fill out this field</span></span>
                                     </label>
                                     <v-select
                                         v-model="form.transfer_to_account"
@@ -140,6 +138,7 @@
                                         :filterable="false"
                                         placeholder="Search Account Name"
                                         class="text-black"
+                                        :class="{'has-error': v$.form.transfer_to_account.$error}"
                                         @search="debouncedSearch('banks', $event)"
                                         id="transfer_to_account"
                                     >
@@ -168,14 +167,13 @@
                                         <div class="text-sm" v-if="form.transfer_to_account.PROPERTY_159"> {{ Object.values(form.transfer_to_account.PROPERTY_159)[0]}}</div>
                                         <div class="text-sm" v-if="form.transfer_to_account.PROPERTY_166"> {{ Object.values(form.transfer_to_account.PROPERTY_166)[0]}}</div>
                                     </div>
-                                    <p class="text-red-500 text-xs italic" v-if="v$.form.transfer_to_account.$error">Please fill out this field.</p>
                                 </div>
                                 <!-- Transfer Currency -->
                                 <div class="mb-4 w-full gap-2.5">
                                     <label class="form-label flex items-center gap-1 text-sm mb-1" for="currency">Transfer Currency
-                                        <span class="text-danger">*</span>
+                                        <span class="text-danger">* <span class="form-text-error" v-if="v$.form.currency.$error">Please fill out this field</span></span>
                                     </label>
-                                    <select v-model="form.currency" class="select select-input select-sm px-3 pr-8 min-w-fit max-w-full text-black bg-inherit" id="currency">
+                                    <select v-model="form.currency" class="select select-input select-sm px-3 pr-8 min-w-fit max-w-full text-black bg-inherit" :class="v$.form.currency.$error ? '!border-red-500' : ''" id="currency">
                                         <option value="USD">US Dollar</option>
                                         <option value="AED">UAE Dirham</option>
                                         <option value="AUD">Australian Dollar</option>
@@ -193,23 +191,20 @@
                                         <option value="BRL">Brazilian Real</option>
                                         <option value="RUB">Russian Ruble</option>
                                     </select>
-                                    <p class="text-red-500 text-xs italic" v-if="v$.form.currency.$error">Please fill out this field.</p>
                                 </div>
                                 <!-- Purpose of Transfer -->
                                 <div class="mb-4 w-full gap-2.5">
                                     <label class="form-label flex items-center gap-1 text-sm mb-1" for="detail_text">Purpose of Transfer
-                                        <span class="text-danger">*</span>
+                                        <span class="text-danger">* <span class="form-text-error" v-if="v$.form.detail_text.$error">Please fill out this field.</span></span>
                                     </label>
-                                    <textarea class="textarea textarea-input textarea-sm text-black" style="height:127px!important" rows="4" placeholder="Purpose of Transfer" id="detail_text" type="text" v-model="form.detail_text"></textarea>
-                                    <p class="text-red-500 text-xs italic" v-if="v$.form.detail_text.$error">Please fill out this field.</p>
+                                    <textarea class="textarea textarea-input textarea-sm text-black" :class="v$.form.detail_text.$error ? '!border-red-500' : ''" style="height:127px!important" rows="4" placeholder="Purpose of Transfer" id="detail_text" type="text" v-model="form.detail_text"></textarea>
                                 </div>
                                 <!-- Supporting Document  -->
                                 <div class="mb-4 w-full gap-2.5">
                                     <label class="form-label flex items-center gap-1 text-sm mb-1" for="supporting_document">Supporting Document
-                                        <span class="text-danger">*</span>
+                                        <span class="text-danger">* <span class="form-text-error" v-if="v$.form.supporting_document.$error">Please fill out this field</span></span>
                                     </label>
-                                    <input class="file-input file-input-sm !text-black" placeholder="Supporting Document " id="supporting_document" type="file" @change="uploadDocument($event, 'supporting_document')">
-                                    <p class="text-red-500 text-xs italic" v-if="v$.form.supporting_document.$error">Please fill out this field.</p>
+                                    <input class="file-input file-input-sm !text-black" :class="v$.form.supporting_document.$error ? '!border-red-500' : ''" placeholder="Supporting Document " id="supporting_document" type="file" @change="uploadDocument($event, 'supporting_document')">
                                 </div>
                             </div>
                         </div>

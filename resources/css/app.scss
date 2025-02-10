@@ -60,6 +60,9 @@
 .main-btn:active{
     box-shadow: 0 10px 15px -3px rgba(202,44,34,.3)!important;
 }
+.form-text-error{
+    @apply text-red-500 text-xs italic normal-case tracking-tight;
+}
 .dp__input{
     @apply h-10 !rounded-none !text-sm !text-black !bg-white !border !border-neutral-300 outline-none duration-300 transition-all
      hover:shadow-md hover:!border-black
@@ -198,4 +201,10 @@
 .vs__selected span{
     font-weight: 500!important;
     color: #000!important;
+}
+.v-select.has-error .vs__dropdown-toggle {
+    border-color: rgb(239 68 68) !important; /* red-500 */
+}
+.column-hover {
+    background-color: #FFF !important;
 }
