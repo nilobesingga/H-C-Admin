@@ -54,53 +54,53 @@
                                         @mouseenter="highlightedColumn = bank.bankId"
                                         @mouseleave="highlightedColumn = null"
                                         @click="showBankTransactions(company.banks, bank.bankId, 'C')"
-                                        :data-modal-toggle="formatAmount(getBankAmount(company.banks, bank.bankId), false) !== 'N/A' ? '#show_bank_transactions_modal' : null"
+                                        :data-modal-toggle="formatAmount(getBankAmount(company.banks, bank.bankId), company.banks, bank.bankId) !== 'N/A' ? '#show_bank_transactions_modal' : null"
                                     >
-                                        {{ formatAmount(getBankAmount(company.banks, bank.bankId), false) }}
+                                        {{ formatAmount(getBankAmount(company.banks, bank.bankId), company.banks, bank.bankId) }}
                                     </td>
                                 </template>
                             </template>
-                            <td class="sticky right-0 z-40 bg-white text-right p-2 border font-bold min-w-[150px] w-[22rem]">{{ formatAmount(getTotalsPerCompany(company), false) }}</td>
+                            <td class="sticky right-0 z-40 bg-white text-right p-2 border font-bold min-w-[150px] w-[22rem]">{{ formatAmount(getTotalsPerCompany(company)) }}</td>
                         </tr>
                         <!-- Total Cash -->
                         <tr class="border-t-2 border-b-2 border-brand-active">
                             <td class="text-left sticky left-0 bg-white z-40 p-2 text-black font-bold border w-[250px]">TOTAL CASH</td>
                             <template v-for="(bankCountry, index) in groupedByCountryBanks">
                                 <template v-for="bank in bankCountry">
-                                    <td class="bg-white text-black font-bold p-2 text-right border">{{ formatAmount(bank.allCash, true) }}</td>
+                                    <td class="bg-white text-black font-bold p-2 text-right border">{{ formatAmount(bank.allCash) }}</td>
                                 </template>
                             </template>
-                            <td class="sticky right-0 bg-white text-black font-bold p-2 text-right z-40 border w-[250px]">{{ formatAmount(overAllTotalCash, true) }}</td>
+                            <td class="sticky right-0 bg-white text-black font-bold p-2 text-right z-40 border w-[250px]">{{ formatAmount(overAllTotalCash) }}</td>
                         </tr>
                         <!-- Reserved Rows -->
                         <tr>
                             <td class="text-left text-black font-bold sticky left-0 z-40 bg-white p-2 border w-[250px]">RESERVED</td>
                             <template v-for="(bankCountry, index) in groupedByCountryBanks">
                                 <template v-for="bank in bankCountry">
-                                    <td class="text-black font-bold p-2 text-right border">{{ formatAmount(getReservedAmountsByBank(bank), true) }}</td>
+                                    <td class="text-black font-bold p-2 text-right border">{{ formatAmount(getReservedAmountsByBank(bank)) }}</td>
                                 </template>
                             </template>
-                            <td class="sticky right-0 text-black font-bold bg-white p-2 text-right z-40 border w-[250px]">{{ formatAmount(overAllMinimumBalance, true) }}</td>
+                            <td class="sticky right-0 text-black font-bold bg-white p-2 text-right z-40 border w-[250px]">{{ formatAmount(overAllMinimumBalance) }}</td>
                         </tr>
                         <!-- Blocked Rows -->
                         <tr>
                             <td class="text-left text-black font-bold sticky left-0 z-40 bg-white p-2 border w-[250px]">BLOCKED</td>
                             <template v-for="(bankCountry, index) in groupedByCountryBanks">
                                 <template v-for="bank in bankCountry">
-                                    <td class="text-black font-bold p-2 text-right border">{{ formatAmount(bank.allBlocked, true) }}</td>
+                                    <td class="text-black font-bold p-2 text-right border">{{ formatAmount(bank.allBlocked) }}</td>
                                 </template>
                             </template>
-                            <td class="sticky right-0 text-black font-bold bg-white p-2 text-right z-40 border w-[250px]">{{ formatAmount(overallTotalBlockedCash, true) }}</td>
+                            <td class="sticky right-0 text-black font-bold bg-white p-2 text-right z-40 border w-[250px]">{{ formatAmount(overallTotalBlockedCash) }}</td>
                         </tr>
                         <!-- Blocked Rows -->
                         <tr>
                             <td class="text-left text-black font-bold sticky left-0 z-40 bg-white p-2 border w-[250px]">AVAILABLE CASH</td>
                             <template v-for="(bankCountry, index) in groupedByCountryBanks">
                                 <template v-for="bank in bankCountry">
-                                    <td class="text-black font-bold p-2 text-right border">{{ formatAmount(bank.availableCash, true) }}</td>
+                                    <td class="text-black font-bold p-2 text-right border">{{ formatAmount(bank.availableCash) }}</td>
                                 </template>
                             </template>
-                            <td class="sticky right-0 text-black font-bold bg-white p-2 text-right z-40 border w-[250px]">{{ formatAmount(overAllAvailableCash, true) }}</td>
+                            <td class="sticky right-0 text-black font-bold bg-white p-2 text-right z-40 border w-[250px]">{{ formatAmount(overAllAvailableCash) }}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -340,7 +340,7 @@ export default {
                 return "blocked";
             } else if (bankAmount < 0){
                 return "bg-orange";
-            } else if (bankAmount === 0) {
+            } else if (!banks.some(obj => obj.bankId === bankId)) {
                 return "not-applicable-gray";
             } else {
                 return "cash-item";
@@ -369,15 +369,26 @@ export default {
             this.is_show_bank_transactions_modal = false;
             this.removeModalBackdrop();
         },
-        formatAmount(value, isTotalAmount){
+        formatAmount(value, companyBanks = null, bankId = null){
             if (value) {
                 let numericValue = typeof value === 'string' ? parseFloat(value) : value;
                 return numericValue.toLocaleString(undefined, {
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2
                 });
-            } else {
-                return isTotalAmount ? 0 : 'N/A';
+            }
+            else {
+                if (companyBanks){
+                    if (companyBanks.some(bank => bank.bankId === bankId)){
+                        return 0;
+                    }
+                    else {
+                        return 'N/A'
+                    }
+                }
+                else {
+                    return 0
+                }
             }
         }
     },
