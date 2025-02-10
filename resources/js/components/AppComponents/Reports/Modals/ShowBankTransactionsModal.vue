@@ -55,7 +55,7 @@
                                                     <td class="text-left">
                                                         <div>{{ transaction.Comments }}</div>
                                                         <div>
-                                                            <a class="btn btn-link !text-black hover:!text-black" :href="getURL(transaction)" target="_blank">{{ transaction.transactionNo }}</a>
+                                                            <a class="btn btn-link !text-black hover:!text-brand-active" :href="getURL(transaction)" target="_blank">{{ transaction.transactionNo }}</a>
                                                         </div>
                                                     </td>
                                                     <td class="text-right">{{ formatAmount(transaction.DepositAmt) }}</td>
