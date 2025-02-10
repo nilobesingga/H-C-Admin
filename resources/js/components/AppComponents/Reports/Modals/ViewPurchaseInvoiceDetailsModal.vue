@@ -24,14 +24,13 @@
                     <!-- Bank Details -->
                     <div class="grid grid-cols-7 gap-8 w-full">
                         <div class="col-span-2 text-md font-semibold text-black text-right mt-4">
-
                             <a class="btn btn-link text-2xl !text-black hover:!text-brand-active font-bold tracking-tight" target="_blank" :href="`https://crm.cresco.ae/bizproc/processes/104/element/0/${obj.id}/?list_section_id=`">
                                 <span>{{ formatAmount(obj.amount) }}</span>
                                 <span>{{ obj.currency }}</span>
                             </a>
                         </div>
-                        <div class="content-box col-span-3 !text-xs mb-4">
-                            Invoice Details
+                        <div class="content-box col-span-3 mb-4">
+                            <div class="uppercase tracking-wide text-neutral-500 mt-1 mb-3">Invoice Details</div>
                             <div>Number: {{ obj.invoice_number }}</div>
                             <div>Date: {{ formatDate(obj.invoice_date) }}</div>
                             <div>Due Date: {{ formatDate(obj.due_date) }}</div>
@@ -43,20 +42,20 @@
                     <!-- Purpose of Transfer -->
                     <div class="grid grid-cols-7 gap-8 w-full py-4">
                         <div class="col-span-2 text-md font-semibold text-black text-right py-4">Remarks</div>
-                        <div class="content-box col-span-3 pl-8">{{ obj.detail_text }}</div>
+                        <div class="content-box col-span-5 pl-8 py-4">{{ obj.detail_text }}</div>
                     </div>
 
                     <!-- Documents -->
                     <div class="grid grid-cols-7 gap-8 w-full pt-4 pb-0">
                         <div class="col-span-2 text-md font-semibold text-black text-right py-4">Documents</div>
-                        <div v-if="obj.document_list.length" class="col-span-3 pl-8 py-3.5">
+                        <div v-if="obj.document_list.length" class="col-span-5 pl-8 py-4">
                             <a v-for="(documentId, index) in obj.document_list" :key="'swift_' + index"
                                class="secondary-btn mb-1" target="_blank"
                                :href="`https://crm.cresco.ae/bitrix/tools/disk/uf.php?attachedId=${documentId}&action=download&ncc=1`">
                                 Invoice doc {{ index + 1 }}
                             </a>
                         </div>
-                        <div v-else class="col-span-3 pl-8">No Documents</div>
+                        <div v-else class="col-span-5 pl-8 py-4 text-md">No Documents</div>
                     </div>
                 </div>
             </div>
@@ -127,10 +126,5 @@ export default {
 /* Utility class for centering content */
 .flex-center {
     @apply flex items-center justify-center;
-}
-
-/* Common styling for content boxes */
-.content-box {
-    @apply mt-3 text-sm bg-gray-200 p-3 text-black whitespace-pre-line;
 }
 </style>

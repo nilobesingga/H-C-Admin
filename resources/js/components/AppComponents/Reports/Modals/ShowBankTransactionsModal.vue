@@ -19,14 +19,14 @@
                              :id="`accordion_item_${index + 1}`"
                         >
                             <button class="accordion-toggle group bg-white text-black p-4" :data-accordion-toggle="`#accordion_content_${index + 1}`">
-                                <span class="text-base text-neutral-800 font-medium accordion-title">{{ bank.bankName }} - {{ bank.bankCurrency }}</span>
+                                <span class="text-base text-neutral-800 font-semibold accordion-title">{{ bank.bankName }} - {{ bank.bankCurrency }}</span>
                                 <i class="ki-outline ki-plus text-brand-active text-2sm accordion-active:hidden block"></i>
                                 <i class="ki-outline ki-minus text-brand-active text-2sm accordion-active:block hidden"></i>
                             </button>
 
                             <div class="accordion-content bg-white" :id="`accordion_content_${index + 1}`" :class="{ hidden: index !== 0 }">
                                 <!-- table -->
-                                <div class="relative flex-grow overflow-auto reports-table-container">
+                                <div class="relative flex-grow overflow-auto reports-table-container max-h-[60vh]">
                                     <table class="w-full c-table table table-border align-middle text-xs table-fixed">
                                         <thead>
                                             <tr class="text-center tracking-tight">
@@ -185,8 +185,3 @@ export default {
     }
 }
 </script>
-
-
-<style scoped>
-
-</style>

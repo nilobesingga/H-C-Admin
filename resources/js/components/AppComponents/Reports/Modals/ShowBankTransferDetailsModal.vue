@@ -31,20 +31,20 @@
                             <div class="mb-4 text-sm text-neutral-500 font-normal">{{ formatDate(obj.transfer_date) }}</div>
                             <span class="px-3 py-1 text-xs rounded-full font-semibold" :class="obj.status_text === 'Completed' ? 'text-emerald-600 bg-emerald-500/10' : 'text-neutral-600 bg-neutral-500/10'">{{ obj.status_text }}</span>
                         </div>
-                        <div class="content-box col-span-3 !text-xs mb-4">{{ obj.preview_text }}</div>
+                        <div class="content-box col-span-3 mb-4 mt-1">{{ obj.preview_text }}</div>
                         <div class="content-box col-span-2 !text-xs text-right !pr-0"><a class="secondary-btn" target="_blank" :href="bankTransferLink">View Bank Transfer</a></div>
                     </div>
 
                     <!-- Purpose of Transfer -->
                     <div class="grid grid-cols-7 gap-8 w-full py-4">
                         <div class="col-span-2 text-md font-semibold text-black text-right py-4">Purpose of Transfer</div>
-                        <div class="content-box col-span-3 pl-8">{{ obj.detail_text }}</div>
+                        <div class="content-box col-span-5 pl-8">{{ obj.detail_text }}</div>
                     </div>
 
                     <!-- Documents -->
                     <div class="grid grid-cols-7 gap-8 w-full pt-4 pb-0">
                         <div class="col-span-2 text-md font-semibold text-black text-right py-4">Documents</div>
-                        <div v-if="obj.swift_copy_array.length || obj.transfer_documents.length" class="col-span-3 pl-8 py-3.5">
+                        <div v-if="obj.swift_copy_array.length || obj.transfer_documents.length" class="col-span-5 pl-8 py-4">
                             <a v-for="(documentId, index) in obj.swift_copy_array" :key="'swift_' + index"
                                class="secondary-btn mb-1" target="_blank"
                                :href="`https://crm.cresco.ae/bitrix/tools/disk/uf.php?attachedId=${documentId}&action=download&ncc=1`">
@@ -56,7 +56,7 @@
                                 Transfer doc {{ index + 1 }}
                             </a>
                         </div>
-                        <div v-else class="col-span-3 pl-8">No Documents</div>
+                        <div v-else class="col-span-5 pl-8 py-4">No Documents</div>
                     </div>
 
                     <!-- Project -->
@@ -133,10 +133,3 @@ export default {
     }
 }
 </script>
-
-<style scoped>
-/* Common styling for content boxes */
-.content-box {
-    @apply text-sm px-8 py-4 text-black whitespace-pre-line;
-}
-</style>

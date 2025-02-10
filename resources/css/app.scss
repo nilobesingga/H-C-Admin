@@ -155,7 +155,9 @@
     .modal-footer .btn-primary{
         @apply rounded-none px-5 text-lg
     }
-
+.content-box {
+    @apply text-sm px-8 py-4 text-black whitespace-pre-line;
+}
 .form-label{
     @apply text-xs uppercase font-light text-neutral-700 tracking-wide
 }
