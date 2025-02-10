@@ -1,8 +1,8 @@
 <template>
-    <div class="modal" data-modal="true" data-modal-backdrop-static="true" id="show_bank_transfer_details_modal">
+    <div class="modal" data-modal="true" data-modal-backdrop-static="true" id="view_purchase_invoice_details_modal">
         <div class="modal-content top-[5%] lg:max-w-[1000px] max-h-[80vh]">
             <div class="modal-header">
-                <h3 class="modal-title capitalize text-xl font-bold tracking-tight">Bank Transfer Details</h3>
+                <h3 class="modal-title capitalize text-xl font-bold tracking-tight">Purchase Invoice Details</h3>
                 <button class="btn btn-xs btn-icon btn-light" data-modal-dismiss="true" @click="$emit('closeModal')">
                     <i class="ki-outline ki-cross"></i>
                 </button>
@@ -24,45 +24,39 @@
                     <!-- Bank Details -->
                     <div class="grid grid-cols-7 gap-8 w-full">
                         <div class="col-span-2 text-md font-semibold text-black text-right mt-4">
-                            <a class="btn btn-link text-2xl !text-black hover:!text-brand-active font-bold tracking-tight" target="_blank" :href="`https://crm.cresco.ae/services/lists/99/element/0/${obj.id}/?list_section_id=`">
+
+                            <a class="btn btn-link text-2xl !text-black hover:!text-brand-active font-bold tracking-tight" target="_blank" :href="`https://crm.cresco.ae/bizproc/processes/104/element/0/${obj.id}/?list_section_id=`">
                                 <span>{{ formatAmount(obj.amount) }}</span>
                                 <span>{{ obj.currency }}</span>
                             </a>
-                            <div class="mb-4 text-sm text-neutral-500 font-normal">{{ formatDate(obj.transfer_date) }}</div>
-                            <span class="px-3 py-1 text-xs rounded-full font-semibold" :class="obj.status_text === 'Completed' ? 'text-emerald-600 bg-emerald-500/10' : 'text-neutral-600 bg-neutral-500/10'">{{ obj.status_text }}</span>
                         </div>
-                        <div class="content-box col-span-3 !text-xs mb-4">{{ obj.preview_text }}</div>
-                        <div class="content-box col-span-2 !text-xs text-right !pr-0"><a class="secondary-btn" target="_blank" :href="bankTransferLink">View Bank Transfer</a></div>
+                        <div class="content-box col-span-3 !text-xs mb-4">
+                            Invoice Details
+                            <div>Number: {{ obj.invoice_number }}</div>
+                            <div>Date: {{ formatDate(obj.invoice_date) }}</div>
+                            <div>Due Date: {{ formatDate(obj.due_date) }}</div>
+                            <div>Payment Schedule Date: {{ formatDate(obj.payment_schedule_date) }}</div>
+                        </div>
+                        <div class="content-box col-span-2 !text-xs text-right !pr-0"><a class="secondary-btn" target="_blank" :href="purchaseInvoiceLink">View Purchase Invoice</a></div>
                     </div>
 
                     <!-- Purpose of Transfer -->
                     <div class="grid grid-cols-7 gap-8 w-full py-4">
-                        <div class="col-span-2 text-md font-semibold text-black text-right py-4">Purpose of Transfer</div>
+                        <div class="col-span-2 text-md font-semibold text-black text-right py-4">Remarks</div>
                         <div class="content-box col-span-3 pl-8">{{ obj.detail_text }}</div>
                     </div>
 
                     <!-- Documents -->
                     <div class="grid grid-cols-7 gap-8 w-full pt-4 pb-0">
                         <div class="col-span-2 text-md font-semibold text-black text-right py-4">Documents</div>
-                        <div v-if="obj.swift_copy_array.length || obj.transfer_documents.length" class="col-span-3 pl-8 py-3.5">
-                            <a v-for="(documentId, index) in obj.swift_copy_array" :key="'swift_' + index"
+                        <div v-if="obj.document_list.length" class="col-span-3 pl-8 py-3.5">
+                            <a v-for="(documentId, index) in obj.document_list" :key="'swift_' + index"
                                class="secondary-btn mb-1" target="_blank"
                                :href="`https://crm.cresco.ae/bitrix/tools/disk/uf.php?attachedId=${documentId}&action=download&ncc=1`">
-                                Swift doc {{ index + 1 }}
-                            </a>
-                            <a v-for="(documentId, index) in obj.transfer_documents" :key="'transfer_' + index"
-                               class="secondary-btn mb-1" target="_blank"
-                               :href="`https://crm.cresco.ae/bitrix/tools/disk/uf.php?attachedId=${documentId}&action=download&ncc=1`">
-                                Transfer doc {{ index + 1 }}
+                                Invoice doc {{ index + 1 }}
                             </a>
                         </div>
                         <div v-else class="col-span-3 pl-8">No Documents</div>
-                    </div>
-
-                    <!-- Project -->
-                    <div v-if="obj.project_name" class="grid grid-cols-7 mt-4 gap-8 w-full pt-4">
-                        <div class="col-span-2 text-md font-semibold text-black text-right py-4">Project</div>
-                        <div class="col-span-3 pl-8 py-4"><a class="btn btn-link !text-black hover:!text-brand-active" target="_blank" :href="getBitrixProjectLink(obj)">{{ obj.project_name }}</a></div>
                     </div>
                 </div>
             </div>
@@ -74,14 +68,13 @@
 import qs from 'qs';
 import {DateTime} from "luxon";
 export default {
-    name: "show-bank-transfer-details-modal",
+    name: "view-purchase-invoice-details-modal",
     props: ['obj_id'],
     data(){
         return {
             loading: false,
             obj: {
-                swift_copy_array: [],
-                transfer_documents: []
+                document_list: []
             },
         }
     },
@@ -93,19 +86,15 @@ export default {
             const endpoint = 'crm.company.reports_v2';
             try {
                 const requestData = {
-                    action: "getBankTransferById",
+                    action: "getPurchaseInvoiceById",
                     id: this.obj_id
                 }
                 const response = await this.callBitrixAPI(endpoint, bitrixUserId, bitrixWebhookToken, requestData);
                 if (response.result){
                     this.obj = response.result
-                    this.obj.swift_copy_array = [];
-                    this.obj.transfer_documents = [];
-                    if (this.obj.swift_copy){
-                        this.obj.swift_copy_array = this.obj.swift_copy ? this.obj.swift_copy.split(",") : [];
-                    }
+                    this.obj.document_list = [];
                     if (this.obj.transfer_documents_id) {
-                        this.obj.transfer_documents = this.obj.transfer_documents_id ? this.obj.transfer_documents_id.split(",") : [];
+                        this.obj.document_list = this.obj.transfer_documents_id ? this.obj.transfer_documents_id.split(",") : [];
                     }
                     this.loading = false
                 }
@@ -115,15 +104,14 @@ export default {
         },
     },
     computed: {
-        bankTransferLink() {
-            if (!this.obj.date_create) return "#";
-
-            const date = DateTime.fromFormat(this.obj.date_create, "yyyy-MM-dd HH:mm:ss");
+        purchaseInvoiceLink() {
+            if (!this.obj.payment_schedule_date) return "#";
+            const date = DateTime.fromFormat(this.obj.payment_schedule_date, "yyyy-MM-dd");
             if (date.isValid) {
                 const formattedDate = date.toFormat("dd.MM.yyyy");
-                return `${window.location.origin}/reports/bank-transfers?id=${this.obj.id}&date=${formattedDate}`;
+                return `${window.location.origin}/reports/purchase-invoices?id=${this.obj.id}&date=${formattedDate}`;
             } else {
-                console.error("Invalid Date:", this.obj.date_create);
+                console.error("Invalid Date:", this.obj.payment_schedule_date);
                 return "#";
             }
         }
@@ -134,9 +122,15 @@ export default {
 }
 </script>
 
+
 <style scoped>
+/* Utility class for centering content */
+.flex-center {
+    @apply flex items-center justify-center;
+}
+
 /* Common styling for content boxes */
 .content-box {
-    @apply text-sm px-8 py-4 text-black whitespace-pre-line;
+    @apply mt-3 text-sm bg-gray-200 p-3 text-black whitespace-pre-line;
 }
 </style>
