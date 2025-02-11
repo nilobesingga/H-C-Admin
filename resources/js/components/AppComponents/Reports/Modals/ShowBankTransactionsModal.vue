@@ -65,8 +65,15 @@
                                                 </tr>
                                             </template>
                                             <template v-else>
-                                                <tr class="table-no-data-available">
-                                                    <td class="text-center text-md text-red-400">No data available</td>
+                                                <tr class="table-no-data-available h-full">
+                                                    <td class="text-center text-red-400 !border-none h-full">
+                                                        <div class="flex flex-col h-full w-full items-center justify-center py-4">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-8 mb-2">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636" />
+                                                            </svg>
+                                                            No data available
+                                                        </div>
+                                                    </td>
                                                 </tr>
                                             </template>
                                             <tr class="transition-all duration-300 text-neutral-800">

@@ -76,8 +76,8 @@
 
             </div>
             <!-- table -->
-            <div class="relative flex-grow overflow-auto reports-table-container shadow-md border border-brand">
-                <table class="w-full c-table table table-border align-middle text-xs table-fixed">
+            <div class="relative flex-grow overflow-auto reports-table-container shadow-md border border-brand h-full">
+                <table class="w-full c-table table table-border align-middle text-xs table-fixed" :class="filteredData.length === 0 ? 'h-full' : ''">
                     <thead>
                     <tr class="text-center tracking-tight">
                             <th class="sticky top-0 w-10">#</th>
@@ -93,7 +93,7 @@
                             <th class="sticky top-0 w-[110px] text-left">Sage Reference</th>
                         </tr>
                     </thead>
-                    <tbody class="text-center text-xs tracking-tight">
+                    <tbody class="text-center text-xs tracking-tight h-full">
                         <tr v-for="(obj, index) in filteredData" :key="index" class="transition-all duration-300 text-neutral-800">
                             <td>{{ index + 1 }}</td>
                             <td><a target="_blank" class="btn btn-link !text-neutral-800 hover:!text-brand-active" :href="`https://crm.cresco.ae/crm/invoice/show/${obj.id}/`">{{ obj.id }}</a></td>
@@ -131,8 +131,15 @@
                                 <div v-for="(amount, currency) in groupedByCurrency">{{ formatAmount(amount) }} <span class="font-bold text-black">{{ currency }} </span></div>
                             </td>
                         </tr>
-                        <tr class="table-no-data-available" v-if="filteredData.length === 0">
-                            <td class="text-center  text-md text-red-400">No data available</td>
+                        <tr class="table-no-data-available h-full" v-if="filteredData.length === 0">
+                            <td class="text-center text-md text-red-400 !border-none h-full">
+                                <div class="flex flex-col h-full w-full items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-10 mb-4">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636" />
+                                    </svg>
+                                    No data available
+                                </div>
+                            </td>
                         </tr>
                     </tbody>
                 </table>

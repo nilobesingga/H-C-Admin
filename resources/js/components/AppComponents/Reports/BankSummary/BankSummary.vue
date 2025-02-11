@@ -157,7 +157,12 @@
                     </tbody>
                 </table>
                 <div v-else>
-                    <div class="text-center text-md text-red-400">No data available</div>
+                    <div class="flex flex-col h-full w-full items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-10 mb-4">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636" />
+                        </svg>
+                        No data available
+                    </div>
                 </div>
                 <div v-if="loading" class="data-loading absolute inset-0 bg-neutral-100 flex items-center justify-center z-100 pointer-events-none">
                     <div class="flex items-center gap-2 px-4 py-2 font-medium leading-none text-sm text-brand-active">

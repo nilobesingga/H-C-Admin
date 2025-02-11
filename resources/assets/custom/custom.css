@@ -82,21 +82,25 @@
 
 /* *********************************************** Admin ************************************************************** */
 .admin  .table-container {
-    height: calc(100vh - (var(--tw-header-height) + var(--tw-navbar-height) + 150px)) !important;
+    height: calc(100vh - (var(--tw-header-height) + 140px)) !important;
     margin-bottom: 1rem !important;
 }
+
 .admin  .table.table-main thead td,
 .admin  .table.table-main thead th,
 .admin  .table.table-main tfoot td,
 .admin  .table.table-main tfoot th {
-    background-color: #15437a !important;
-    color: white !important;
-    /*padding: 5px 10px !important;*/
+    background-color: #004080 !important;
+    color: #FFF !important;
     z-index: 1 !important;
+    padding: 7px 8px !important;
+    border:1px solid #1e62a8 !important;
+    font-weight: 600!important;
 }
 .admin  .table.table-main tbody tr td,
 .admin  .table.table-main tbody tr th {
-    padding: 5px 10px !important;
+    padding: 8px 8px !important;
+    border:1px solid #e7e7e7;
 }
 .admin  .table.table-main th:first-child {
     border-start-start-radius: unset !important;
@@ -104,7 +108,43 @@
 .admin  .table.table-main th:last-child {
     border-start-end-radius: unset !important;
 }
-
+.admin  .table.table-main tr:nth-child(even) {
+    background-color: #ececec;
+}
+/* Apply background color to odd rows */
+.admin .table.table-main tr:nth-child(odd) {
+    background-color: #F5F5F5;
+}
+.admin .table.table-main tr:hover {
+    background: #FFF !important;
+}
+.admin .nav-active,
+.admin .nav-active:focus,
+.admin .nav-active:active,
+.admin .nav-active:hover,
+.admin .nav-link:focus{
+    background: #004080!important;
+}
+.admin .nav-link.nav-active:hover{
+    background: #004080!important;
+    border-color: transparent!important;
+}
+.admin .nav-link:hover{
+    border-color: #01A4F7!important;
+}
+.admin .bg-tec {
+    background: #004080;
+}
+.admin .bg-tec-active {
+    background: #01A4F7;
+}
+.admin .border-tec-active {
+    border-color: #01A4F7;
+}
+.admin .main-btn:focus,
+.admin .main-btn:active{
+    box-shadow: 0 10px 15px -3px rgba(1, 164, 247, 0.3) !important;
+}
 
 /* *********************************************** Global ************************************************************** */
 .swal2-container .swal2-html-container {

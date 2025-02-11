@@ -86,7 +86,7 @@
             <!-- content area -->
             <div class="relative flex-grow overflow-auto">
                 <!-- Loading Indicator -->
-                <div v-if="loading" class="data-loading absolute inset-0 bg-neutral-100 bg-opacity-50 flex items-center justify-center z-100 pointer-events-none">
+                <div v-if="loading" class="data-loading absolute inset-0 bg-neutral-100 flex items-center justify-center z-100 pointer-events-none">
                     <div class="flex items-center gap-2 px-4 py-2 font-medium leading-none text-sm text-brand-active">
                         <svg class="animate-spin -ml-1 h-5 w-5 text-brand-active" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"></circle>
@@ -110,10 +110,10 @@
                         </div>
 
                         <!-- Week Data -->
-                        <div v-if="week.data.length" class="flex flex-col gap-2 overflow-y-auto h-full border-t border-transparent pt-4 group-hover:border-black">
+                        <div v-if="week.data.length" class="flex flex-col gap-2 overflow-y-auto h-full border-t border-neutral-200 pt-4 group-hover:border-black">
                             <div v-for="(item, itemIndex) in week.data" :key="itemIndex">
                                 <!-- cash requests -->
-                                <div class="group-hover:border-neutral-300" :class="['card', (item.is_budget_only === '1937' ? 'budget-only' : 'cash-request')]" v-if="item.request_type === 'cash_request'">
+                                <div :class="['card', (item.is_budget_only === '1937' ? 'budget-only' : 'cash-request')]" v-if="item.request_type === 'cash_request'">
                                     <div class="card-title text-left flex w-full flex-col">
                                         <a class="btn btn-link !text-black hover:!text-brand-active text-lg" target="_blank" :href="getBitrixUrlByBlockIdAndId('105', item.id)">
                                             {{ formatAmount(item.amount) }} {{ item.currency }}
@@ -153,7 +153,7 @@
                                         <span class="text-neutral-800">{{ item.requested_by_name }}</span>
                                     </div>
                                     <div class="text-left mt-2">
-                                        <small :class="['badge text-xs', isOverdue(item.payment_date) ? 'badge-danger' : 'badge-success']">Due: {{ formatDate(item.due_date) }}</small>
+                                        <small :class="['badge text-xs', isOverdue(item.due_date) ? 'badge-danger' : 'badge-success']">Due: {{ formatDate(item.due_date) }}</small>
                                         <small v-if="item.sage_status && item.sage_status === '1863'" class="badge badge-info text-xs font-bold ml-1">Booked In Sage</small>
                                         <small v-else class="badge badge-warning text-xs font-bold ml-1">NOT Booked In Sage</small>
                                         <small v-if="item.status_id === '1864'" class="badge badge-warning text-xs font-bold ml-1 ">Partially Paid</small>
@@ -161,7 +161,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div v-else class="text-center text-red-400 mt-4">No data available</div>
+                        <div v-else class="text-center text-red-400 mt-4 flex justify-center items-center h-full">No data available</div>
                     </div>
                 </div>
             </div>
@@ -458,8 +458,8 @@ export default {
 /* Column Styles */
 .expense-planner-columns > div {
     /* background: linear-gradient(135deg, #fffafa, #b2b6bf); /* Subtle gradient background */
-    background: #f0f0f0;
-    border: 1px solid transparent; /* Light gray border */
+    background: #fff;
+    border: 1px solid #e5e5e5; /* Light gray border */
     border-radius: 0; /* Rounded corners */
     padding: 20px 0 0;
     transition: all 0.3s ease; /* Smooth hover effect */
@@ -473,42 +473,45 @@ export default {
 
 /* Card Styles */
 .card {
-    padding: 12px 16px;
+    padding: 16px 16px;
     margin: 0 16px 4px;
     border-radius: 0;
     transition: all 0.2s ease-in-out;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0); /* Subtle card shadow */
-    border: 2px solid transparent;
+    box-shadow: none;
+    border:none;
+    border-left: 2px solid transparent;
 }
 
+/*
 .card:hover {
-    box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.12); /* Stronger shadow on hover */
+    box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.12);  Stronger shadow on hover
 }
-
+*/
 /* Cash Request Card */
 .card.cash-request {
-    background-color: #ffffff; /* White background for cash requests */
+    background-color: #f7f7f7; /* White background for cash requests */
+    border-left: 3px solid #cbcfda;
 }
 .card.cash-request:hover {
-    border: 2px solid #cbcfda;
+    border-left: 3px solid #777;
 }
 
 /* Budget Only Card */
 .card.budget-only {
-    background-color: rgb(255, 248, 229); /* White background for cash requests */
-    border: 2px solid rgb(239, 228, 210); /* Subtle border */
+    background-color: rgb(255, 246, 227); /* White background for cash requests */
+    border-left: 3px solid rgb(255, 217, 151); /* Subtle border */
 }
 .card.budget-only:hover {
-    border: 2px solid rgb(239, 210, 160);
+    border-left: 3px solid rgb(231, 187, 109);
 }
 
 /* Purchase Invoice Card */
 .card.purchase-invoice {
-    background-color: rgb(240, 249, 255); /* Light blue background */
-    border: 2px solid rgb(218, 231, 241); /* Matching border */
+    background-color: rgb(232, 247, 255); /* Light blue background */
+    border-left: 3px solid rgb(196, 229, 255); /* Matching border */
 }
 .card.purchase-invoice:hover {
-    border: 2px solid rgb(188, 210, 227);
+    border-left: 3px solid rgb(148, 199, 239);
 }
 
 /* Card Content */

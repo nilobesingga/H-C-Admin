@@ -47,19 +47,21 @@
             <div class="menu" data-menu="true">
                 <div class="menu-item" data-menu-item-offset="0px, -38px" data-menu-item-placement="bottom-end" data-menu-item-placement-rtl="bottom-start" data-menu-item-toggle="dropdown" data-menu-item-trigger="click|lg:click">
                     <div class="menu-toggle btn btn-icon rounded-full">
-                        <img alt="" class="size-8 rounded-full justify-center border border-black shrink-0" src="{{ Auth::user()->profile->bitrix_profile_photo ?? '' }}">
+                        <img alt="" class="size-8 rounded-full transition-all duration-300 justify-center border border-black shrink-0 ring-1 ring-transparent hover:border-white hover:ring-brand-active shadow-lg hover:shadow-brand-shadow" src="{{ Auth::user()->profile->bitrix_profile_photo ?? '' }}">
                     </div>
                     <div class="menu-dropdown menu-default rounded-none backdrop-blur light:border-black w-screen max-w-[250px]">
-                        <div class="flex items-center justify-between px-5 py-1.5 gap-1.5">
-                            <div class="flex items-center gap-2">
-                                <img alt="" class="size-9 rounded-full border-2 border-black shadow-lg" src="{{ Auth::user()->profile->bitrix_profile_photo ?? '' }}" />
-                                <div class="flex flex-col gap-1.5">
+                        <div class="flex items-center justify-between px-5 py-1.5 gap-1.5 relative">
+                            <div class="flex flex-col gap-2">
+                                <div>
+                                    <img alt="" class="w-12 h-12 inline-block rounded-full ring-2 ring-brand-active border border-white shadow-lg shadow-brand-shadow" src="{{ Auth::user()->profile->bitrix_profile_photo ?? '' }}" />
+                                </div>
+                                <div class="flex flex-col gap-1.5 mt-4">
                                     <span class="text-sm text-black font-semibold leading-none">{{ Auth::user()->profile->bitrix_name ?? '' }}</span>
                                     <span class="text-xs text-neutral-600 leading-none">{{ Auth::user()->email }}</span>
                                 </div>
                             </div>
                             @if(Auth::user()->is_admin)
-                                <span class="badge badge-xs badge-outline mb-4">Admin</span>
+                                <span class="absolute top-1 right-3 badge badge-xs !shadow-md !shadow-tec-active/30 !bg-tec-active/80 !text-white !border-tec-active badge-outline">Admin</span>
                             @endif
                         </div>
                         <div class="menu-separator"></div>
@@ -73,7 +75,7 @@
                                 </div>
                             @endif
                             <div class="menu-item px-4 py-1.5">
-                                <a class="btn btn-light btn-cresco" href="{{ route('logout') }}">
+                                <a class="btn btn-light btn-cresco !border-black !text-black focus:!border-brand-active" href="{{ route('logout') }}">
                                     Log out
                                 </a>
                             </div>

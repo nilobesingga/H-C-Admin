@@ -155,6 +155,12 @@
 .c-table tr:hover {
     background: #FFF!important;
 }
+.app table.c-table tbody tr.table-no-data-available,
+.app table.c-table tbody tr.table-no-data-available:hover,
+.admin table.table-main tbody tr.table-no-data-available,
+.admin table.table-main tbody tr.table-no-data-available:hover{
+    background: transparent!important;
+}
 .menu-dropdown{
     background: rgba(255,255,255, .7);
 }

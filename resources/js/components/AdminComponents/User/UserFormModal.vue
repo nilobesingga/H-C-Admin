@@ -1,49 +1,45 @@
 <template>
     <div class="modal" data-modal="true" data-modal-backdrop-static="true" id="user_form_modal">
-        <div class="modal-content top-[5%] lg:max-w-[1500px]">
+        <div class="modal-content top-[5%] lg:max-w-[800px]">
             <div class="modal-header">
-                <h3 class="modal-title capitalize">{{ modal_type }} User</h3>
-                <button class="btn btn-xs btn-icon btn-light" data-modal-dismiss="true" @click="$emit('closeModal')">
+                <h3 class="modal-title capitalize text-xl font-bold tracking-tight">{{ modal_type }} User</h3>
+                <button class="btn btn-xs btn-icon btn-light focus:!border-tec-active" data-modal-dismiss="true" @click="$emit('closeModal')">
                     <i class="ki-outline ki-cross" ></i>
                 </button>
             </div>
             <div class="modal-body">
-                <div class="flex flex-col items-center mb-5">
-                    <img class="rounded-full border-2 max-h-[70px] max-w-full" data-modal-toggle="#modal_profile" :src="obj ? obj.profile.bitrix_profile_photo : null">
-                    <div class="flex items-center gap-1.5">
-                        <div class="text-lg leading-5 font-semibold text-gray-900">
+                <div class="flex items-center mb-5 gap-5 my-4">
+                    <img class="rounded-full border-2 max-h-[70px] max-w-full ring-2 ring-tec-active border-white shadow-lg shadow-tec-active/30" data-modal-toggle="#modal_profile" :src="obj ? obj.profile.bitrix_profile_photo : null">
+                    <div class="flex flex-col justify-center">
+                        <div class="text-lg font-bold text-neutral-900 tracking-tight">
                             {{ obj ? obj.profile.bitrix_name : null }} {{ obj ? obj.profile.bitrix_last_name : null }}
                         </div>
-                    </div>
-                    <div class="flex flex-wrap justify-center gap-1 lg:gap-4.5 text-sm">
-                        <div class="flex gap-1.25 items-center">
-                            <i class="ki-filled ki-sms text-gray-500 text-sm"></i>
-                            <a class="text-gray-600 font-medium hover:text-primary" :href="obj ? obj.email : null">{{ obj ? obj.email : null }}</a>
-                        </div>
+                        <a class="text-neutral-500 text-sm hover:text-tec-active transition-all duration-300" :href="obj ? obj.email : null">{{ obj ? obj.email : null }}</a>
                     </div>
                 </div>
-                <div class="grid grid-cols-1 xl:grid-cols-3 gap-5 lg:gap-7.5">
+
+                <div class="flex gap-3 pt-3 pb-3">
                     <!-- Modules and Permissions Table -->
-                    <div class="col-span-2">
-                        <div class="flex flex-col gap-5 lg:gap-7.5">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h3 class="card-title">Modules and Permissions</h3>
+                    <div class="w-3/5 flex">
+                        <div class="flex flex-col gap-5 grow">
+                            <div class="card rounded-none !shadow-sm bg-neutral-100 !border-neutral-200 hover:!border-tec-active transition-all duration-300 grow">
+                                <div class="px-5 py-3 bg-white">
+                                    <h3 class="card-title !text-neutral-800">Modules and Permissions</h3>
                                 </div>
-                                <div class="card-table scrollable-x-auto">
-                                    <table class="table">
+                                <div class="scrollable-x-auto">
+                                    <table class="w-full">
                                         <thead>
-                                            <tr >
-                                                <th class="text-left bg-cresco_blue text-white font-normal min-w-[300px]">Module</th>
-                                                <th class="min-w-24 text-gray-700 font-normal text-center">View Only</th>
-                                                <th class="min-w-24 text-gray-700 font-normal text-center">Full Access</th>
+                                            <tr class="bg-neutral-50 text-neutral-800 text-xs text-left tracking-tight border-b border-neutral-200/50">
+                                                <th class="font-semibold py-2 pl-5">Module</th>
+                                                <th class="font-semibold">View Only</th>
+                                                <th class="font-semibold">Full Access</th>
                                             </tr>
                                         </thead>
-                                        <tbody class="text-gray-900 font-medium">
+                                        <tbody class="text-left text-xs tracking-tight">
                                             <template v-for="module in form_data.modules" :key="module.id">
                                                 <!-- Parent Modules  -->
-                                                <tr class="bg-gray-200">
-                                                    <td>
+                                                <tr class="transition-all duration-300 text-neutral-800 bg-neutral-100 hover:!bg-white">
+                                                    <td class="pl-5 py-2">
                                                         <div class="flex flex-col gap-2.5">
                                                             <label class="checkbox-group">
                                                                 <input
@@ -53,38 +49,37 @@
                                                                     :checked="isParentChecked(module)"
                                                                     @change="toggleParentModule(module, $event)"
                                                                 >
-                                                                <span class="checkbox-label text-black font-bold">{{ module.name }}</span>
+                                                                <span class="checkbox-label text-black font-semibold hover:text-tec-active transition-all duration-300">{{ module.name }}</span>
                                                             </label>
                                                         </div>
                                                     </td>
                                                     <td class="">
-                                                        <label class="checkbox-group justify-center">
+                                                        <label class="checkbox-group">
                                                             <input
                                                                 type="checkbox"
                                                                 class="checkbox checkbox-sm"
                                                                 :checked="hasParentPermission(module, 'view_only')"
                                                                 @change="setParentPermission(module, 'view_only', $event)"
                                                             >
-                                                            <span class="checkbox-label">All</span>
+                                                            <span class="checkbox-label text-black font-semibold hover:text-tec-active transition-all duration-300">All</span>
                                                         </label>
-
                                                     </td>
                                                     <td>
-                                                        <label class="checkbox-group justify-center">
+                                                        <label class="checkbox-group">
                                                             <input
                                                                 type="checkbox"
                                                                 class="checkbox checkbox-sm"
                                                                 :checked="hasParentPermission(module, 'full_access')"
                                                                 @change="setParentPermission(module, 'full_access', $event)"
                                                             >
-                                                            <span class="checkbox-label">All</span>
+                                                            <span class="checkbox-label text-black font-semibold hover:text-tec-active transition-all duration-300">All</span>
                                                         </label>
                                                     </td>
                                                 </tr>
                                                 <!-- Child Modules -->
                                                 <template v-for="child in module.children" :key="child.id">
-                                                    <tr>
-                                                        <td>
+                                                    <tr class="transition-all duration-300 text-neutral-800 bg-neutral-100 hover:!bg-white">
+                                                        <td class="pl-2 py-2">
                                                             <div class="pl-5">
                                                                 <label class="checkbox-group">
                                                                     <input
@@ -94,11 +89,11 @@
                                                                         :checked="isModuleChecked(child.id)"
                                                                         @change="toggleChildModule(child, module, $event)"
                                                                     >
-                                                                    <span class="checkbox-label">{{ child.name }}</span>
+                                                                    <span class="checkbox-label hover:text-tec-active transition-all duration-300">{{ child.name }}</span>
                                                                 </label>
                                                             </div>
                                                         </td>
-                                                        <td class="text-center">
+                                                        <td class="text-left pl-2">
                                                             <input
                                                                 type="checkbox"
                                                                 class="checkbox checkbox-sm"
@@ -107,7 +102,7 @@
                                                                 @change="setPermission(child.id, 'view_only', $event)"
                                                             >
                                                         </td>
-                                                        <td class="text-center">
+                                                        <td class="text-left pl-2">
                                                             <input
                                                                 type="checkbox"
                                                                 class="checkbox checkbox-sm"
@@ -120,7 +115,7 @@
                                                     <!-- Grand Child Modules -->
                                                     <tr v-for="grandChild in child.children" :key="grandChild.id">
                                                         <td>
-                                                            <div class="pl-10">
+                                                            <div class="pl-5">
                                                                 <label class="checkbox-group">
                                                                     <input
                                                                         class="checkbox checkbox-sm"
@@ -161,13 +156,13 @@
                         </div>
                     </div>
                     <!-- Categories -->
-                    <div class="col-span-1">
-                        <div class="flex flex-col gap-5 lg:gap-7.5">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h3 class="card-title">Categories</h3>
+                    <div class="w-2/5">
+                        <div class="flex flex-col gap-5">
+                            <div class="card rounded-none !shadow-sm !border-neutral-200 hover:!border-tec-active transition-all duration-300">
+                                <div class="px-5 py-3">
+                                    <h3 class="card-title !text-neutral-800">Categories</h3>
                                 </div>
-                                <div class="card-body flex flex-col gap-2.5">
+                                <div class="flex flex-col gap-2.5 pl-5 pb-2 bg-neutral-100 pt-2">
                                     <label class="checkbox-group">
                                         <input
                                             class="checkbox checkbox-sm"
@@ -177,7 +172,7 @@
                                         >
                                         <span class="checkbox-label">All</span>
                                     </label>
-                                    <div class="flex flex-col gap-2.5 ml-5" v-for="category in form_data.categories" :key="category.id">
+                                    <div class="flex flex-col gap-0 ml-2" v-for="category in form_data.categories" :key="category.id">
                                         <label class="checkbox-group">
                                             <input
                                                 class="checkbox checkbox-sm"
@@ -186,7 +181,7 @@
                                                 :value="category.id"
                                                 v-model="form.selected_category_ids"
                                             >
-                                            <span class="checkbox-label">{{ category.name }}</span>
+                                            <span class="checkbox-label hover:text-tec-active transition-all duration-300">{{ category.name }}</span>
                                         </label>
                                     </div>
                                 </div>
@@ -197,15 +192,15 @@
             </div>
             <div class="modal-footer justify-end">
                 <div class="flex gap-4">
-                    <button class="btn btn-light" data-modal-dismiss="true" @click="$emit('closeModal')">
+                    <button class="secondary-btn !text-md font-semibold !border-2 focus:!border-tec-active !px-10" data-modal-dismiss="true" @click="$emit('closeModal')">
                         Cancel
                     </button>
                     <button
-                        class="btn btn-primary"
+                        class="main-btn focus:!border-tec-active focus:!shadow-tec-active/30"
                         @click="save"
                         :disabled="crud_loading"
                     >
-                        Submit
+                        Update
                     </button>
                 </div>
             </div>
