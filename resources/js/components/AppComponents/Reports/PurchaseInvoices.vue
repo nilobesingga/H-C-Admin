@@ -169,7 +169,7 @@
                             </td>
                         </tr>
                         <tr v-show="filteredData.length > 0">
-                            <td colspan="7" class="font-bold text-center text-sm text-black">Total per currency</td>
+                            <td colspan="8" class="font-bold text-center text-sm text-black">Total per currency</td>
                             <td colspan="1" class="text-right text-neutral-800">
                                 <div v-for="(amount, currency) in groupedByCurrency">{{ formatAmount(amount) }} <span class="font-bold text-black">{{ currency }} </span></div>
                             </td>
