@@ -49,7 +49,7 @@
 
                             <a class="nav-link {{ request()->routeIs('admin.settings.bitrix-sage-mapping') ? 'nav-active' : '' }}"
                                href="{{ route('admin.settings.bitrix-sage-mapping') }}" tabindex="0">
-                                Bitrix Sage Mapping
+                                Cetrix Sage Mapping
                             </a>
                         </div>
                     </div>
