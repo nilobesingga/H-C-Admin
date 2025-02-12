@@ -70,12 +70,12 @@
                                 <div class="menu-item mb-0.5 px-1.5">
                                     <div class="menu-link hover:!bg-black/5 !rounded-none">
                                         <span class="menu-icon"><i class="ki-outline ki-security-user !text-brand-active"></i></span>
-                                        <a class="menu-title" href="{{ route('admin.settings.main') }}">Administration</a>
+                                        <a class="menu-title !text-neutral-800" href="{{ route('admin.settings.main') }}">Administration</a>
                                     </div>
                                 </div>
                             @endif
                             <div class="menu-item px-4 py-1.5">
-                                <a class="btn btn-light btn-cresco !border-black !text-black focus:!border-brand-active" href="{{ route('logout') }}">
+                                <a class="btn btn-light btn-cresco !bg-white !border-black !text-black focus:!border-brand-active" href="{{ route('logout') }}">
                                     Log out
                                 </a>
                             </div>
