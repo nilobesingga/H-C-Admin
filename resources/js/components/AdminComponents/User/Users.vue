@@ -1,104 +1,99 @@
 <template>
-    <div class="container-fluid">
+    <div class="container-fluid px-3">
         <!-- Page Header -->
-        <div class="pb-6">
+        <div class="py-7">
             <div class="flex items-center justify-between">
                 <!-- Title -->
-                <div class="flex flex-col justify-start w-full max-w-sm text-black font-black">
-                    <div>{{ page_data.title }}</div>
+                <div class="flex flex-col justify-start w-full max-w-sm text-black font-bold text-3xl tracking-tight">
+                    {{ page_data.title }}
                 </div>
+
                 <!-- Filters -->
                 <div class="flex items-center gap-4 flex-wrap w-full justify-end">
-                    <div class="flex max-w-full min-w-[10rem]">
-                        <select v-model="filters.bitrix_active" name="bitrix_active" class="select select-sm max-w-full truncate" @change="getData(false)">
+                    <div class="flex max-w-full min-w-[8rem]">
+                        <select v-model="filters.bitrix_active" name="bitrix_active" class="select select-input" @change="getData(false)">
                             <option value="">All</option>
                             <option value="1">Active</option>
                             <option value="0">In-Active</option>
                         </select>
                     </div>
-                    <div class="flex">
-                        <div class="relative">
-                            <i class="ki-filled ki-magnifier leading-none text-md text-gray-500 absolute top-1/2 start-0 -translate-y-1/2 ms-3"></i>
-                            <input class="input input-sm ps-8 text-black bg-inherit min-w-[20rem]" placeholder="Search" type="text" v-model="filters.search">
+                    <div class="flex min-w-96">
+                        <div class="relative w-full">
+                            <i class="ki-outline ki-magnifier leading-none text-md text-black absolute top-1/2 left-3 transform -translate-y-1/2"></i>
+                            <input
+                                class="input input-sm text-input !ps-8"
+                                placeholder="Search"
+                                type="text"
+                                v-model="filters.search"
+                            />
                         </div>
                     </div>
                     <div class="flex">
                         <button
-                            class="btn btn-sm btn-outline btn-primary"
+                            class="main-btn !bg-white !border !py-2 !px-5 !min-w-[120px] !text-sm focus:!border-tec-active"
                             :disabled="loading"
                             @click="getData(true)"
                         >
-                            <i class="ki-filled ki-arrows-circle"></i>
-                            <span>Sync Users</span>
+                            Sync Users
                         </button>
                     </div>
                 </div>
             </div>
         </div>
         <!-- Content -->
-        <div class="relative flex-grow overflow-auto table-container">
+        <div class="relative flex-grow overflow-auto table-container shadow-md border border-tec">
             <!-- Table -->
             <table class="w-full table table-main table-border align-middle text-xs table-fixed">
                 <thead>
-                    <tr class="bg-black text-gray-900 font-medium text-center">
-                        <th class="sticky top-0 w-10">#</th>
-                        <th class="sticky top-0 w-[300px] text-left">Name</th>
-                        <th class="sticky top-0 w-[100px]">Bitrix User Id</th>
-                        <th class="sticky top-0 w-[150px]">Bitrix Webhook Token</th>
-                        <th class="sticky top-0 w-[100px]">Access URL</th>
-                        <th class="sticky top-0 w-[300px] text-left">Modules</th>
-                        <th class="sticky top-0 w-[200px] text-left">Categories</th>
-<!--                        <th class="sticky top-0 w-[150px]">Status</th>-->
-                        <th class="sticky top-0 w-10"></th>
+                    <tr class="text-left tracking-tight">
+                        <th class="sticky top-0 w-10 text-center">#</th>
+                        <th class="sticky top-0 w-[200px] text-left">Name</th>
+                        <th class="sticky top-0 w-[70px] text-center">Bitrix User Id</th>
+                        <th class="sticky top-0 w-[100px] text-center">Bitrix Webhook Token</th>
+                        <th class="sticky top-0 w-[70px] text-center">Access URL</th>
+                        <th class="sticky top-0 w-[200px]">Modules</th>
+                        <th class="sticky top-0 w-[300px]">Categories</th>
+                        <th class="sticky top-0 w-[40px] text-center">Action</th>
                     </tr>
                 </thead>
-                <tbody class="text-center text-xs text-gray-700">
-                    <tr v-for="(obj, index) in data" :key="index" class="odd:bg-white even:bg-slate-100">
+                <tbody class="text-center text-xs tracking-tight">
+                    <tr v-for="(obj, index) in data" :key="index" class="group transition-all duration-300 text-neutral-800">
                         <td>{{ ++index }}</td>
                         <td class="text-left">
                             <a :href="`https://crm.cresco.ae/company/personal/user/${obj.bitrix_user_id}/`" target="_blank" class="hover:text-primary-active">
                                 <div class="flex items-center justify-between py-1.5 gap-1.5">
                                     <div class="flex items-center gap-2">
-                                        <img alt="" class="rounded-full size-9 shrink-0" :src="obj.profile ? obj.profile.bitrix_profile_photo : null">
+                                        <img alt="" class="rounded-full transition-all duration-300 border border-white shadow-lg ring-1 ring-black group-hover:!ring-tec-active group-hover:!shadow-tec-active/30 size-9 shrink-0" :src="obj.profile ? obj.profile.bitrix_profile_photo : null">
                                         <div class="flex flex-col">
                                             <div class="text-sm font-semibold text-gray-900  mb-px">{{ obj.profile ? obj.profile.bitrix_name : null }}</div>
-                                            <span class="text-xs font-normal text-gray-600">{{ obj.email }}</span>
+                                            <span class="text-xs font-normal text-gray-600 group-hover:!text-tec-active">{{ obj.email }}</span>
                                         </div>
                                     </div>
-                                    <span v-if="obj.is_admin" class="badge badge-xs badge-primary badge-outline">Admin</span>
+                                    <span v-if="obj.is_admin" class="badge badge-xs !shadow-md !shadow-tec-active/30 !bg-tec-active/80 !text-white !border-tec-active badge-outline">Admin</span>
                                 </div>
                             </a>
                         </td>
                         <td>{{ obj.bitrix_user_id }}</td>
                         <td>{{ obj.bitrix_webhook_token }}</td>
-                        <td><a :href="`${appUrl}/login/${obj.access_token}`" class="btn btn-link" target="_blank">Authorize</a></td>
+                        <td><a :href="`${appUrl}/login/${obj.access_token}`" class="btn btn-link transition-all duration-300 !text-neutral-800 hover:!text-tec-active" target="_blank">Authorize</a></td>
 <!--                        <td>-->
 <!--                            <div><span class="badge badge-primary badge-sm">{{ obj.status }}</span></div>-->
 <!--                            <div>{{ formatDateTime12Hours(obj.last_login) }}</div>-->
 <!--                        </td>-->
                         <td class="text-left">
-                            <span class="badge badge-sm badge-primary ml-1 mb-1" v-for="(category, index) in obj.modules" :key="index">{{ category.name }}</span>
+                            <span class="group-hover:!bg-tec-active/10 mr-1 mb-1 !text-neutral-800 badge badge-sm bg-transparent transition-all duration-300" v-for="(category, index) in obj.modules" :key="index">{{ category.name }}</span>
                         </td>
                         <td class="text-left">
-                            <span class="badge badge-sm badge-success ml-1 mb-1" v-for="(category, index) in obj.categories" :key="index">{{ category.name }}</span>
+                            <span class="group-hover:!bg-tec-active/30 mr-1 mb-1 !text-neutral-800 badge badge-sm bg-transparent transition-all duration-300" v-for="(category, index) in obj.categories" :key="index">{{ category.name }}</span>
                         </td>
                         <td class="text-end">
-                            <div class="menu inline-flex" data-menu="true">
-                                <div class="menu-item menu-item-dropdown" data-menu-item-offset="0, 10px" data-menu-item-placement="bottom-end" data-menu-item-placement-rtl="bottom-start" data-menu-item-toggle="dropdown" data-menu-item-trigger="click|lg:click">
-                                    <button class="menu-toggle btn btn-sm btn-icon btn-light btn-clear">
-                                        <i class="ki-filled ki-dots-vertical">
-                                        </i>
-                                    </button>
-                                    <div class="menu-dropdown menu-default w-full max-w-[175px]" data-menu-dismiss="true">
-                                        <div class="menu-item">
-                                            <span class="menu-link" data-modal-toggle="#user_form_modal" @click="openModal('edit', obj.id)">
-                                                <span class="menu-icon"><i class="ki-filled ki-pencil"></i></span>
-                                                <span class="menu-title">Edit</span>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            <button
+                                @click="openModal('edit', obj.id)"
+                                data-modal-toggle="#user_form_modal"
+                                class="secondary-btn mb-1 block w-full focus:!border-tec-active"
+                            >
+                                Edit
+                            </button>
                         </td>
                     </tr>
                     <tr class="table-no-data-available" v-if="data.length === 0">

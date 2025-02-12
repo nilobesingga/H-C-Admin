@@ -1,53 +1,51 @@
 <template>
     <div
         v-if="showNetworkErrorModal"
-        class="fixed inset-0 flex items-start justify-center bg-black bg-opacity-70 z-[1050] pointer-events-none"
+        class="fixed inset-0 flex items-start justify-center bg-black bg-opacity-70 z-[1050] pointer-events-none backdrop-blur-md"
         @click="preventInteraction">
         <div
-            class="bg-white rounded-lg shadow-lg w-[1000px] mx-auto mt-10 pointer-events-auto"
+            class="w-[700px] mx-auto mt-24 pointer-events-auto rounded-none ring-8 ring-red-500/30 border-2 border-black shadow-2xl bg-red-50"
             @click.stop> <!-- Prevent clicks from propagating outside the modal -->
             <!-- Modal Header -->
-            <div class="flex justify-between items-center p-4 border-b border-gray-200">
-                <h3 class="text-lg font-semibold text-red-600 flex items-center">
-                    <i class="bi bi-wifi-off mr-2 text-xl"></i>Network Error
+            <div class="px-8 py-5 bg-white ">
+                <h3 class="modal-title capitalize text-red-900 text-xl font-bold tracking-tight">
+                    Network Error
                 </h3>
             </div>
             <!-- Modal Body -->
-            <div class="p-4">
-                <div class="flex flex-col gap-4">
-                    <div class="w-full">
-                        <div class="alert alert-danger bg-red-100 border-l-4 border-red-500 text-red-700 p-4">
-                            <p class="font-bold">
-                                Follow the steps below to troubleshoot:
-                            </p>
-                            <ol class="list-decimal list-inside text-sm">
-                                <li>
-                                    Click <a class="text-blue-500 underline" target="_blank" :href="sageUrl">here</a> to verify if you have access.
-                                </li>
-                                <li>
-                                    If the link above shows "Connection not secure or connection is not private," click show
-                                    details and then proceed to the site.
-                                </li>
-                                <li>Reload the reports page after allowing access in the previous step.</li>
-                                <li>
-                                    If the issue persists, try to turn your VPN or Wi-Fi on/off and refresh the reports
-                                    page.
-                                </li>
-                                <li>
-                                    If the issue persists, try to open the reports page in incognito mode or private window
-                                    (Shift+Command+N).
-                                </li>
-                                <li>If the issue persists, contact IT.</li>
-                            </ol>
-                        </div>
+            <div class="px-8 py-5">
+                <div class="flex flex-col gap-4 w-full">
+                    <div class="text-red-700">
+                        <p class="font-bold text-red-900 mb-4">
+                            Follow the steps below to troubleshoot:
+                        </p>
+                        <ol class="list-decimal list-outside text-sm pl-4 space-y-4 marker:text-red-900 marker:font-bold">
+                            <li>
+                                Click <a class="text-black font-bold underline" target="_blank" :href="sageUrl">here</a> to verify if you have access.
+                            </li>
+                            <li>
+                                If the link above shows "Connection not secure or connection is not private," click show
+                                details and then proceed to the site.
+                            </li>
+                            <li>Reload the reports page after allowing access in the previous step.</li>
+                            <li>
+                                If the issue persists, try to turn your VPN or Wi-Fi on/off and refresh the reports
+                                page.
+                            </li>
+                            <li>
+                                If the issue persists, try to open the reports page in incognito mode or private window
+                                (Shift+Command+N).
+                            </li>
+                            <li>If the issue persists, contact IT.</li>
+                        </ol>
                     </div>
                 </div>
             </div>
             <!-- Modal Footer -->
-            <div class="flex justify-end p-4 border-t border-gray-200">
+            <div class="flex justify-end p-8 pt-0">
                 <button
                     @click="handleRefresh"
-                    class="btn btn-primary px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white transition duration-200"
+                    class="main-btn"
                 >
                     Refresh
                 </button>

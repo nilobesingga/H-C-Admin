@@ -277,6 +277,12 @@ export default {
                     light: 'var(--tw-brand-light)',
                     clarity: 'var(--tw-brand-clarity)',
                     inverse: 'var(--tw-brand-inverse)',
+                    shadow: '#ffdfdc',
+                },
+                tec: {
+                    DEFAULT: '#004080',
+                    active: '#01A4F7',
+
                 },
                 coal: {
                     100: '#15171C',
