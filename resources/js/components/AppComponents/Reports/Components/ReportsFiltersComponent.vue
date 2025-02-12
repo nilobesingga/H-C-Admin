@@ -2,7 +2,7 @@
     <div class="pb-4 pt-4">
         <div class="flex items-center justify-between">
             <!-- Date Range Picker Text on the Left -->
-            <div class="flex flex-col justify-start w-1/2 text-black font-bold text-3xl tracking-tight">
+            <div class="flex flex-col justify-start w-1/2 text-black font-bold text-2xl tracking-tight">
                 {{ dateRangePickerText }}
             </div>
 
@@ -152,8 +152,8 @@ export default {
             if (!this.dateRange[0] || !this.dateRange[1]) {
                 return "No date selected";
             }
-            const formattedStart = DateTime.fromISO(this.dateRange[0]).toFormat("d MMMM yyyy");
-            const formattedEnd = DateTime.fromISO(this.dateRange[1]).toFormat("d MMMM yyyy");
+            const formattedStart = DateTime.fromISO(this.dateRange[0]).toFormat("d MMM yyyy");
+            const formattedEnd = DateTime.fromISO(this.dateRange[1]).toFormat("d MMM yyyy");
             return `${formattedStart} - ${formattedEnd}`;
         },
         currency: {

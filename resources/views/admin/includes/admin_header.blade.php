@@ -27,22 +27,26 @@
                                 Overview
                             </a>
 
-                            <a class="nav-link {{ request()->routeIs('admin.settings.countries') ? 'nav-active' : '' }}"
-                               href="{{ route('admin.settings.countries') }}" tabindex="0">
-                                Countries
-                            </a>
-                            <a class="nav-link {{ request()->routeIs('admin.settings.categories') ? 'nav-active' : '' }}"
-                               href="{{ route('admin.settings.categories') }}" tabindex="0">
-                                Categories
-                            </a>
                             <a class="nav-link {{ request()->routeIs('admin.settings.users') ? 'nav-active' : '' }}"
                                href="{{ route('admin.settings.users') }}" tabindex="0">
                                 Users
                             </a>
+
+                            <a class="nav-link {{ request()->routeIs('admin.settings.categories') ? 'nav-active' : '' }}"
+                               href="{{ route('admin.settings.categories') }}" tabindex="0">
+                                Categories
+                            </a>
+
                             <a class="nav-link {{ request()->routeIs('admin.settings.modules') ? 'nav-active' : '' }}"
                                href="{{ route('admin.settings.modules') }}" tabindex="0">
                                 Modules
                             </a>
+
+                            <a class="nav-link {{ request()->routeIs('admin.settings.countries') ? 'nav-active' : '' }}"
+                               href="{{ route('admin.settings.countries') }}" tabindex="0">
+                                Countries
+                            </a>
+
                             <a class="nav-link {{ request()->routeIs('admin.settings.bitrix-sage-mapping') ? 'nav-active' : '' }}"
                                href="{{ route('admin.settings.bitrix-sage-mapping') }}" tabindex="0">
                                 Bitrix Sage Mapping
