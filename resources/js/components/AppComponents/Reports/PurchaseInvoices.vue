@@ -76,18 +76,18 @@
                         <tr class="text-center tracking-tight">
                             <th class="sticky top-0 w-10">#</th>
                             <th class="sticky top-0 w-[60px]">Id</th>
-                            <th class="sticky top-0 w-[90px]">Invoice Date</th>
-                            <th class="sticky top-0 w-[90px]">Due Date</th>
-                            <th class="sticky top-0 w-[90px]" data-tooltip="#Payment_Schedule_tooltip">
+                            <th class="sticky top-0 w-[150px] text-left">Receiver</th>
+                            <th class="sticky top-0 w-[100px]">Invoice Date</th>
+                            <th class="sticky top-0 w-[100px]">Due Date</th>
+                            <th class="sticky top-0 w-[100px]" data-tooltip="#Payment_Schedule_tooltip">
                                 Schedule <i class="ki-outline ki-information-2"></i>
                                 <div class="tooltip transition-opacity duration-300" id="Payment_Schedule_tooltip">Payment Schedule</div>
                             </th>
                             <th class="sticky top-0 w-[130px]">SAGE Status</th>
-                            <th class="sticky top-0 w-[125px]">Status</th>
+                            <th class="sticky top-0 w-[100px]">Status</th>
                             <th class="sticky top-0 w-[125px] text-right">Invoice Amount</th>
                             <th class="sticky top-0 w-[125px] text-left">Invoice Number</th>
                             <th class="sticky top-0 w-[150px] text-left">Project</th>
-                            <th class="sticky top-0 w-[150px] text-left">Receiver</th>
                             <th class="sticky top-0 w-[80px]" data-tooltip="#charge_to_client_tooltip">
                                 Charge <i class="ki-outline ki-information-2"></i>
                                 <div class="tooltip transition-opacity duration-300" id="charge_to_client_tooltip">Charge to Client</div>
@@ -104,6 +104,7 @@
                         <tr v-for="(obj, index) in filteredData" :key="index" class="transition-all duration-300 text-neutral-800">
                             <td>{{ ++index }}</td>
                             <td><a class="btn btn-link !text-neutral-800 hover:!text-brand-active" target="_blank" :href="'https://crm.cresco.ae/bizproc/processes/104/element/0/' + obj.id  + '/?list_section_id='">{{ obj.id }}</a></td>
+                            <td class="text-left">{{ obj.supplier_name }}</td>
                             <td>{{ formatDate(obj.invoice_date) }}</td>
                             <td><div :class="[isBitrixStatusWarning(obj) ? 'badge badge-warning' : '']">{{ formatDate(obj.due_date) }}</div></td>
                             <td><span v-if="obj.payment_schedule_date" class="font-bold text-black">{{ formatDate(obj.payment_schedule_date)}}</span></td>
@@ -123,7 +124,6 @@
                             <td class="text-right">{{ formatAmount(obj.amount) }} <strong class="font-bold text-black">{{ obj.currency }}</strong></td>
                             <td class="text-left">{{ obj.invoice_number }}</td>
                             <td class="text-left"><a class="btn btn-link !text-xs !text-neutral-800 hover:!text-brand-active" target="_blank" :href="getBitrixProjectLink(obj)">{{ obj.project_name }}</a></td>
-                            <td class="text-left">{{ obj.supplier_name }}</td>
                             <td>{{ getChargeExtraToClientValue(obj.charge_extra_to_client, page_data.identifier) }}</td>
                             <td class="text-left whitespace-normal break-words group/request">
                                 <div class="font-bold text-black">{{ obj.requested_by_name }}</div>
