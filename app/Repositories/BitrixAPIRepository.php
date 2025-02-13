@@ -22,6 +22,10 @@ class BitrixAPIRepository
 
         $this->client = new Client([
             'base_uri' => $this->baseUrl,
+            'verify' => false,
+            'curl' => [
+                CURLOPT_SSLVERSION => CURL_SSLVERSION_TLSv1_2,
+            ],
         ]);
     }
     private function buildUrl($endPoint)
