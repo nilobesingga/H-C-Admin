@@ -52,7 +52,7 @@ export default {
         return {
             dateRange: this.initializeStoredValue("dateRange", [DateTime.now().toISODate(), DateTime.now().toISODate()]),
             period: this.initializeStoredValue("period", "last_60_days_plusplus"),
-            currencies: ["AED", "USD", "EUR", "GBD", "CHF", "PHP", "SCR"],
+            currencies: ["AED", "USD", "EUR", "GBP", "CHF", "PHP", "SCR"],
             periods: [
                 { key: "this_week", value: "This week" },
                 { key: "last_week", value: "Last week" },

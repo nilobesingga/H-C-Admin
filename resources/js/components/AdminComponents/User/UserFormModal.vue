@@ -1,6 +1,6 @@
 <template>
     <div class="modal" data-modal="true" data-modal-backdrop-static="true" id="user_form_modal">
-        <div class="modal-content top-[5%] lg:max-w-[800px]">
+        <div class="modal-content top-[5%] lg:max-w-[1500px]">
             <div class="modal-header">
                 <h3 class="modal-title capitalize text-xl font-bold tracking-tight">{{ modal_type }} User</h3>
                 <button class="btn btn-xs btn-icon btn-light focus:!border-tec-active" data-modal-dismiss="true" @click="$emit('closeModal')">
@@ -8,7 +8,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <div class="flex items-center mb-5 gap-5 my-4">
+                <div class="flex items-center gap-5">
                     <img class="rounded-full border-2 max-h-[70px] max-w-full ring-2 ring-tec-active border-white shadow-lg shadow-tec-active/30" data-modal-toggle="#modal_profile" :src="obj ? obj.profile.bitrix_profile_photo : null">
                     <div class="flex flex-col justify-center">
                         <div class="text-lg font-bold text-neutral-900 tracking-tight">
@@ -53,33 +53,63 @@
                                                             </label>
                                                         </div>
                                                     </td>
-                                                    <td class="">
-                                                        <label class="checkbox-group">
+
+                                                    <!-- Check if Parent Module has children -->
+                                                    <template v-if="module.children.length">
+                                                        <td>
+                                                            <label class="checkbox-group">
+                                                                <input
+                                                                    type="checkbox"
+                                                                    class="checkbox checkbox-sm"
+                                                                    :checked="hasParentPermission(module, 'view_only')"
+                                                                    @change="setParentPermission(module, 'view_only', $event)"
+                                                                >
+                                                                <span class="checkbox-label text-black font-semibold hover:text-tec-active transition-all duration-300">All</span>
+                                                            </label>
+                                                        </td>
+                                                        <td>
+                                                            <label class="checkbox-group">
+                                                                <input
+                                                                    type="checkbox"
+                                                                    class="checkbox checkbox-sm"
+                                                                    :checked="hasParentPermission(module, 'full_access')"
+                                                                    @change="setParentPermission(module, 'full_access', $event)"
+                                                                >
+                                                                <span class="checkbox-label text-black font-semibold hover:text-tec-active transition-all duration-300">All</span>
+                                                            </label>
+                                                        </td>
+                                                    </template>
+
+                                                    <!-- If Parent has NO children, treat as module itself -->
+                                                    <template v-else>
+                                                        <td class="text-left pl-2">
                                                             <input
                                                                 type="checkbox"
                                                                 class="checkbox checkbox-sm"
-                                                                :checked="hasParentPermission(module, 'view_only')"
-                                                                @change="setParentPermission(module, 'view_only', $event)"
+                                                                :checked="hasPermission(module.id, 'view_only')"
+                                                                @change="setPermission(module.id, 'view_only', $event)"
                                                             >
-                                                            <span class="checkbox-label text-black font-semibold hover:text-tec-active transition-all duration-300">All</span>
-                                                        </label>
-                                                    </td>
-                                                    <td>
-                                                        <label class="checkbox-group">
+                                                        </td>
+                                                        <td class="text-left pl-2">
                                                             <input
                                                                 type="checkbox"
                                                                 class="checkbox checkbox-sm"
-                                                                :checked="hasParentPermission(module, 'full_access')"
-                                                                @change="setParentPermission(module, 'full_access', $event)"
+                                                                :checked="hasPermission(module.id, 'full_access')"
+                                                                @change="setPermission(module.id, 'full_access', $event)"
                                                             >
-                                                            <span class="checkbox-label text-black font-semibold hover:text-tec-active transition-all duration-300">All</span>
-                                                        </label>
+                                                        </td>
+                                                    </template>
+                                                </tr>
+                                                <!-- Add separator after each parent module -->
+                                                <tr>
+                                                    <td colspan="3">
+                                                        <hr class="border">
                                                     </td>
                                                 </tr>
                                                 <!-- Child Modules -->
                                                 <template v-for="child in module.children" :key="child.id">
                                                     <tr class="transition-all duration-300 text-neutral-800 bg-neutral-100 hover:!bg-white">
-                                                        <td class="pl-2 py-2">
+                                                        <td class="pl-6 py-2">
                                                             <div class="pl-5">
                                                                 <label class="checkbox-group">
                                                                     <input
@@ -200,7 +230,7 @@
                         @click="save"
                         :disabled="crud_loading"
                     >
-                        Update
+                        Save
                     </button>
                 </div>
             </div>
@@ -263,18 +293,31 @@ export default {
         },
         toggleParentModule(module, event) {
             const isChecked = event.target.checked;
-            if (isChecked) {
+
+            if (module.children.length) {
+                // If it has children, toggle all children
                 module.children.forEach((child) => {
-                    if (!this.isModuleChecked(child.id)) {
-                        this.form.selected_modules.push({ module_id: child.id, permission: 'view_only' });
+                    if (isChecked) {
+                        if (!this.isModuleChecked(child.id)) {
+                            this.form.selected_modules.push({ module_id: child.id, permission: 'view_only' });
+                        }
+                    } else {
+                        this.form.selected_modules = this.form.selected_modules.filter(
+                            (item) => item.module_id !== child.id
+                        );
                     }
                 });
             } else {
-                module.children.forEach((child) => {
+                // If it has no children, toggle the module itself
+                if (isChecked) {
+                    if (!this.isModuleChecked(module.id)) {
+                        this.form.selected_modules.push({ module_id: module.id, permission: 'view_only' });
+                    }
+                } else {
                     this.form.selected_modules = this.form.selected_modules.filter(
-                        (item) => item.module_id !== child.id
+                        (item) => item.module_id !== module.id
                     );
-                });
+                }
             }
 
             // Clean up any redundant modules
@@ -309,10 +352,23 @@ export default {
             );
         },
         isModuleChecked(moduleId) {
+            // return this.form.selected_modules.some((item) => item.module_id === moduleId);
+            if (!this.form.selected_modules || this.form.selected_modules.length === 0) {
+                return false;
+            }
             return this.form.selected_modules.some((item) => item.module_id === moduleId);
         },
         isParentChecked(module) {
-            return module.children.every((child) => this.isModuleChecked(child.id));
+            // return module.children.every((child) => this.isModuleChecked(child.id));
+            if (!this.form.selected_modules || this.form.selected_modules.length === 0) {
+                return false;
+            }
+
+            if (module.children.length) {
+                return module.children.every((child) => this.isModuleChecked(child.id));
+            } else {
+                return this.isModuleChecked(module.id);
+            }
         },
         cleanUpModules() {
             // Remove modules from selected_modules if they have no permissions
@@ -320,26 +376,29 @@ export default {
         },
         setParentPermission(module, permission, event) {
             const isChecked = event.target.checked;
-            if (isChecked) {
+
+            if (module.children.length) {
+                // If Parent has children, apply permission to all children
                 module.children.forEach((child) => {
-                    // Remove any existing permissions for this child
                     this.form.selected_modules = this.form.selected_modules.filter(
                         (item) => item.module_id !== child.id
                     );
 
-                    // Add the selected permission
-                    this.form.selected_modules.push({ module_id: child.id, permission });
+                    if (isChecked) {
+                        this.form.selected_modules.push({ module_id: child.id, permission });
+                    }
                 });
             } else {
-                // Remove the selected permission from all children
-                module.children.forEach((child) => {
-                    this.form.selected_modules = this.form.selected_modules.filter(
-                        (item) => item.module_id !== child.id || item.permission !== permission
-                    );
-                });
+                // If Parent has no children, apply permission to itself
+                this.form.selected_modules = this.form.selected_modules.filter(
+                    (item) => item.module_id !== module.id
+                );
+
+                if (isChecked) {
+                    this.form.selected_modules.push({ module_id: module.id, permission });
+                }
             }
 
-            // Clean up modules if no permissions remain
             this.cleanUpModules();
         },
         hasParentPermission(module, permission) {
