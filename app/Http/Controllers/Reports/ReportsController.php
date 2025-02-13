@@ -7,6 +7,7 @@ use App\Models\Bitrix\BitrixList;
 use App\Models\Bitrix\BitrixListsSageCompanyMapping;
 use App\Models\User;
 use App\Models\UserModulePermission;
+use App\Repositories\BitrixAPIRepository;
 use App\Services\UserServices;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -239,11 +240,20 @@ class ReportsController extends Controller
         $bitrixList = BitrixList::select('id', 'name', 'bitrix_iblock_type', 'bitrix_iblock_id')
             ->whereId(7)->first();
 
+        // cheque register warning counts.
+        $bitrixAPI = app(\App\Repositories\BitrixAPIRepository::class);
+        $chequeRegisterWarningCounts = $bitrixAPI->call('crm.company.reports_v2', [
+            'action' => "getChequeRegisterWarningCounts",
+            'startDate' => getDateOFLast60Days(),
+            'endDate' => getLastDateOfMonthAfterThreeYears(),
+            'categories' => $bitrixListCategories->pluck('bitrix_category_id'),
+        ]);
+
         $page = (object)[
             'permission' => $modulePermission,
             'user' => $this->user,
+            'warning_counts' => isset($chequeRegisterWarningCounts['result']) && is_array($chequeRegisterWarningCounts['result']) ? $chequeRegisterWarningCounts['result'] : null
         ];
-
 
         $section = request()->get('section');
 

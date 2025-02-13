@@ -213,6 +213,7 @@ export default {
         async getData() {
             this.loading = true;
             try {
+                // await this.getWarningsCount();
                 await this.getCompanies();
                 await this.getBanks();
                 this.calculateBankTotals();
@@ -229,6 +230,27 @@ export default {
                     console.error("Error fetching banks:", error);
                 });
         },
+        // async getWarningsCount(startDate = null, endDate = null){
+        //     let dateRange = JSON.parse(localStorage.getItem('dateRange'));
+        //     this.loading = true;
+        //     this.data = [];
+        //     const bitrixUserId = this.page_data.user.bitrix_user_id ? this.page_data.user.bitrix_user_id : null;
+        //     const bitrixWebhookToken = this.page_data.user.bitrix_webhook_token ? this.page_data.user.bitrix_webhook_token : null;
+        //     const endpoint = 'crm.company.reports_v2';
+        //     const requestData = {
+        //         startDate: startDate ? startDate : dateRange[0],
+        //         endDate: endDate ? endDate : dateRange[1],
+        //         action: "getChequeRegisterWarningCounts",
+        //         categories: JSON.stringify(this.page_data.bitrix_list_cheque_register_categories.map((obj) => obj.bitrix_category_id)),
+        //     }
+        //     try {
+        //         const response = await this.callBitrixAPI(endpoint, bitrixUserId, bitrixWebhookToken, requestData);
+        //         console.log(response)
+        //         // this.data = response.result;
+        //     } catch (error) {
+        //         console.log(error)
+        //     }
+        // },
         getCompanies(){
             const dateRange = JSON.parse(localStorage.getItem('dateRange'));
             const fromdate = DateTime.fromISO(dateRange[0]).toFormat('dd/MM/yyyy');
