@@ -79,7 +79,7 @@ export default {
                 icon: "success",
                 text: text,
                 showConfirmButton: false,
-                timer: 2000
+                timer: 3000
             });
         },
         infoToast(text) {

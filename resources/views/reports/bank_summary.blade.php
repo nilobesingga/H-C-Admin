@@ -7,10 +7,20 @@
                 <div class="scrollable-x-auto flex items-center">
                     <div class="content-center">
                         <div class="flex gap-4 w-full items-center text-gray-400" data-tabs="true">
-                            <a class="btn btn-primary btn-xs text-sm btn-clear rounded-none transition-all duration-300 {{ request()->get('section') === 'overview' ? 'active' : '' }}" href="{{ route('reports.bank-summary', ['section' => 'overview']) }}">Overview</a> |
-                            <a class="btn btn-primary btn-xs text-sm btn-clear rounded-none transition-all duration-300 {{ request()->get('section') === 'cheque-register-outgoing' ? 'active' : '' }}" href="{{ route('reports.bank-summary', ['section' => 'cheque-register-outgoing']) }}">Cheque Register - Outgoing</a> |
-                            <a class="btn btn-primary btn-xs text-sm btn-clear rounded-none transition-all duration-300 {{ request()->get('section') === 'cheque-register-incoming' ? 'active' : '' }}" href="{{ route('reports.bank-summary', ['section' => 'cheque-register-incoming']) }}">Cheque Register - Incoming</a> |
-                            <a class="btn btn-primary btn-xs text-sm btn-clear rounded-none transition-all duration-300 {{ request()->get('section') === 'cash-by-currency' ? 'active' : '' }}" href="{{ route('reports.bank-summary', ['section' => 'cash-by-currency']) }}">Cash By Currency</a>
+                            <a class="btn btn-primary btn-xs text-sm btn-clear rounded-none transition-all duration-300 {{ request()->get('section') === 'overview' ? 'active' : '' }}" href="{{ route('reports.bank-summary', ['section' => 'overview']) }}">
+                                Overview
+                            </a> |
+                            <a class="btn btn-primary btn-xs text-sm btn-clear rounded-none transition-all duration-300 {{ request()->get('section') === 'cheque-register-outgoing' ? 'active' : '' }}" href="{{ route('reports.bank-summary', ['section' => 'cheque-register-outgoing']) }}">
+                                Cheque Register - Outgoing
+                                <span class="badge badge-warning !bg-yellow-300 font-bold shadow-lg shadow-yellow-300/50">{{ $page->warning_counts['outgoing_warnings'] }}</span>
+                            </a> |
+                            <a class="btn btn-primary btn-xs text-sm btn-clear rounded-none transition-all duration-300 {{ request()->get('section') === 'cheque-register-incoming' ? 'active' : '' }}" href="{{ route('reports.bank-summary', ['section' => 'cheque-register-incoming']) }}">
+                                Cheque Register - Incoming
+                                <span class="badge badge-warning !bg-yellow-300 font-bold shadow-lg shadow-yellow-300/50">{{ $page->warning_counts['incoming_warnings'] }}</span>
+                            </a> |
+                            <a class="btn btn-primary btn-xs text-sm btn-clear rounded-none transition-all duration-300 {{ request()->get('section') === 'cash-by-currency' ? 'active' : '' }}" href="{{ route('reports.bank-summary', ['section' => 'cash-by-currency']) }}">
+                                Cash By Currency
+                            </a>
                         </div>
                     </div>
                 </div>

@@ -67,10 +67,16 @@
                         <span class="absolute top-1 right-1 translate-x-1/2 -translate-y-1/2 shadow-md shadow-yellow-300 bg-yellow-500 text-white text-xs font-bold rounded-full min-h-5 min-w-5 flex items-center justify-center">{{ warningCount }}</span>
                     </button>
                 </div>
+                <!-- All Overdue Invoices -->
+                <div class="flex flex-shrink-0 ml-5">
+                    <label class="form-label flex items-center gap-2.5">
+                        <input class="checkbox checkbox-sm" name="check" type="checkbox" value="1" v-model="filters.is_all_overdue" @change="getData" />All Overdue
+                    </label>
+                </div>
             </div>
             <!-- table -->
-            <div class="relative flex-grow overflow-auto reports-table-container shadow-md border border-brand">
-                <table class="w-full c-table table table-border align-middle text-xs table-fixed">
+            <div class="relative flex-grow overflow-auto reports-table-container shadow-md border border-brand h-full">
+                <table class="w-full c-table table table-border align-middle text-xs table-fixed" :class="filteredData.length === 0 ? 'h-full' : ''">
                     <thead>
                         <tr class="text-center tracking-tight">
                             <th class="sticky top-0 w-[30px]">#</th>
@@ -91,7 +97,7 @@
                             <th class="sticky top-0 w-[60px]">Created On</th>
                         </tr>
                     </thead>
-                    <tbody class="text-center text-xs tracking-tight">
+                    <tbody class="text-center text-xs tracking-tight h-full">
                         <tr v-for="(obj, index) in filteredData" :key="index" class="transition-all duration-300 text-neutral-800">
                             <td>{{ ++index }}</td>
                             <td><a class="btn btn-link !text-neutral-800 hover:!text-brand-active" target="_blank" :href="`https://crm.cresco.ae/crm/quote/show/${obj.id}/`">{{ obj.id }}</a></td>
@@ -122,8 +128,15 @@
                                 <div v-for="(amount, currency) in groupedByCurrency">{{ formatAmount(amount) }} <span class="font-bold text-black">{{ currency }} </span></div>
                             </td>
                         </tr>
-                        <tr class="table-no-data-available" v-if="filteredData.length === 0">
-                            <td class="text-center text-md text-red-400">No data available</td>
+                        <tr class="table-no-data-available h-full" v-if="filteredData.length === 0">
+                            <td class="text-center text-md text-red-400 !border-none h-full">
+                                <div class="flex flex-col h-full w-full items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-10 mb-4">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636" />
+                                    </svg>
+                                    No data available
+                                </div>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -174,6 +187,7 @@ export default {
                 charge_to_account: "",
                 search: "",
                 is_warning: false,
+                is_all_overdue: false,
             },
             page_filters: [
                 {
@@ -248,7 +262,8 @@ export default {
                 endDate: dateRange[1],
                 action: "getProformaInvoices",
                 categories: JSON.stringify(this.filters.category_id === "" ? this.page_data.bitrix_list_categories.map((obj) => obj.bitrix_category_id) : [this.filters.category_id]),
-                sage_companies: JSON.stringify(this.filters.sage_company_id === "" ? this.page_data.bitrix_list_sage_companies.map((obj) => obj.bitrix_sage_company_id) : [this.filters.sage_company_id])
+                sage_companies: JSON.stringify(this.filters.sage_company_id === "" ? this.page_data.bitrix_list_sage_companies.map((obj) => obj.bitrix_sage_company_id) : [this.filters.sage_company_id]),
+                is_all_overdue: this.filters.is_all_overdue
             }
             try {
                 const response = await this.callBitrixAPI(endpoint, bitrixUserId, bitrixWebhookToken, requestData);
@@ -294,7 +309,7 @@ export default {
 
                 ].some(field => field?.toLowerCase().includes(searchTerm));
                 // Filter by status
-                const matchesStatus = this.filters.status ? item.status === this.filters.status : true;
+                const matchesStatus = this.filters.status === '' ? (item.status === "DRAFT" || item.status === 'SENT') : item.status === this.filters.status;
                 // Filter by chargeToAccount
                 const matchesChargeToClient = this.filters.charge_to_account ? item.charge_to_running_account_id === this.filters.charge_to_account : true;
                 // Filter by warning

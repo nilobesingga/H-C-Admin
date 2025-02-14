@@ -1,9 +1,9 @@
 <template>
     <div class="modal" data-modal="true" data-modal-backdrop-static="true" id="bitrix_sage_mapping_form_modal">
-        <div class="modal-content top-[5%] lg:max-w-[1000px]">
+        <div class="modal-content top-[5%] lg:max-w-[800px]">
             <div class="modal-header">
-                <h3 class="modal-title capitalize">{{ modal_type }} Bitrix Sage Mapping</h3>
-                <button class="btn btn-xs btn-icon btn-light" data-modal-dismiss="true" @click="$emit('closeModal')">
+                <h3 class="modal-title capitalize text-xl font-bold tracking-tight">{{ modal_type }} Bitrix Sage Mapping</h3>
+                <button class="btn btn-xs btn-icon btn-light focus:!border-tec-active" data-modal-dismiss="true" @click="$emit('closeModal')">
                     <i class="ki-outline ki-cross" ></i>
                 </button>
             </div>
@@ -24,12 +24,11 @@
                             <div class="w-1/2">
                                 <div class="mb-4 w-full gap-2.5">
                                     <label class="form-label flex items-center gap-1 text-sm mb-1" for="category_id">Category
-                                        <span class="text-danger">*</span>
+                                        <span class="text-danger">* <span class="form-text-error" v-if="v$.form.category_id.$error">Please fill out this field</span></span>
                                     </label>
-                                    <select class="select select-sm max-w-full truncate" id="category_id" v-model="form.category_id">
+                                    <select class="select select-input max-w-full truncate" id="category_id" v-model="form.category_id" :class="v$.form.category_id.$error ? '!border-red-500' : ''">
                                         <option v-for="category in categories" :key="category.id" :value="category.id">{{ category.name }}</option>
                                     </select>
-                                    <p class="is-invalid-text" v-if="v$.form.category_id.$error">Please fill out this field.</p>
                                 </div>
                                 <div class="mb-4 w-full gap-2.5">
                                     <label class="form-label flex items-center gap-1 text-sm mb-1" for="sage_company_code">Sage Company Code</label>
@@ -47,12 +46,11 @@
                             <div class="w-1/2">
                                 <div class="mb-4 w-full gap-2.5">
                                     <label class="form-label flex items-center gap-1 text-sm mb-1" for="bitrix_list_id">Bitrix List
-                                        <span class="text-danger">*</span>
+                                        <span class="text-danger">* <span class="form-text-error" v-if="v$.form.bitrix_list_id.$error">Please fill out this field</span></span>
                                     </label>
-                                    <select class="select select-sm max-w-full truncate" v-model="form.bitrix_list_id" id="bitrix_list_id">
+                                    <select class="select select-input max-w-full truncate" v-model="form.bitrix_list_id" id="bitrix_list_id" :class="v$.form.bitrix_list_id.$error ? '!border-red-500' : ''">
                                         <option v-for="bitrix_list in bitrix_lists" :key="bitrix_list.id" :value="bitrix_list.id">{{ bitrix_list.name }}</option>
                                     </select>
-                                    <p class="is-invalid-text" v-if="v$.form.bitrix_list_id.$error">Please fill out this field.</p>
                                 </div>
                                 <div class="mb-4 w-full gap-2.5">
                                     <label class="form-label flex items-center gap-1 text-sm mb-1" for="bitrix_sage_company_id">Bitrix Sage Company Id</label>
@@ -68,14 +66,17 @@
                 </div>
                 <div class="modal-footer justify-end">
                     <div class="flex gap-4">
-                        <button class="btn btn-light btn-sm" data-modal-dismiss="true" @click="$emit('closeModal')">Cancel</button>
+                        <button class="secondary-btn !text-md font-semibold !border-2 focus:!border-tec-active !px-10" data-modal-dismiss="true" @click="$emit('closeModal')">
+                            Cancel
+                        </button>
+
                         <button
-                            class="btn btn-primary btn-sm justify-center"
+                            class="main-btn focus:!border-tec-active focus:!shadow-tec-active/30"
                             type="submit"
                             @click="submit"
                             :disabled="loading || crud_loading"
                         >
-                            <svg v-if="crud_loading" class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <svg v-if="crud_loading" class="animate-spin h-5 w-5 text-tec-active" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>

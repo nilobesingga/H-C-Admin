@@ -157,7 +157,12 @@
                     </tbody>
                 </table>
                 <div v-else>
-                    <div class="text-center text-md text-red-400">No data available</div>
+                    <div class="flex flex-col h-full w-full items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-10 mb-4">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636" />
+                        </svg>
+                        No data available
+                    </div>
                 </div>
                 <div v-if="loading" class="data-loading absolute inset-0 bg-neutral-100 flex items-center justify-center z-100 pointer-events-none">
                     <div class="flex items-center gap-2 px-4 py-2 font-medium leading-none text-sm text-brand-active">
@@ -208,6 +213,7 @@ export default {
         async getData() {
             this.loading = true;
             try {
+                // await this.getWarningsCount();
                 await this.getCompanies();
                 await this.getBanks();
                 this.calculateBankTotals();
@@ -224,6 +230,27 @@ export default {
                     console.error("Error fetching banks:", error);
                 });
         },
+        // async getWarningsCount(startDate = null, endDate = null){
+        //     let dateRange = JSON.parse(localStorage.getItem('dateRange'));
+        //     this.loading = true;
+        //     this.data = [];
+        //     const bitrixUserId = this.page_data.user.bitrix_user_id ? this.page_data.user.bitrix_user_id : null;
+        //     const bitrixWebhookToken = this.page_data.user.bitrix_webhook_token ? this.page_data.user.bitrix_webhook_token : null;
+        //     const endpoint = 'crm.company.reports_v2';
+        //     const requestData = {
+        //         startDate: startDate ? startDate : dateRange[0],
+        //         endDate: endDate ? endDate : dateRange[1],
+        //         action: "getChequeRegisterWarningCounts",
+        //         categories: JSON.stringify(this.page_data.bitrix_list_cheque_register_categories.map((obj) => obj.bitrix_category_id)),
+        //     }
+        //     try {
+        //         const response = await this.callBitrixAPI(endpoint, bitrixUserId, bitrixWebhookToken, requestData);
+        //         console.log(response)
+        //         // this.data = response.result;
+        //     } catch (error) {
+        //         console.log(error)
+        //     }
+        // },
         getCompanies(){
             const dateRange = JSON.parse(localStorage.getItem('dateRange'));
             const fromdate = DateTime.fromISO(dateRange[0]).toFormat('dd/MM/yyyy');

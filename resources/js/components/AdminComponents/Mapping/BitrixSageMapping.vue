@@ -1,17 +1,18 @@
 <template>
-    <div class="container-fluid">
+    <div class="container-fluid px-3">
         <!-- Page Header -->
-        <div class="pb-6">
+        <div class="py-7">
             <div class="flex items-center justify-between">
                 <!-- Title -->
-                <div class="flex flex-col justify-start w-full max-w-sm text-black font-black">
-                    <div>{{ page_data.title }}</div>
+                <div class="flex flex-col justify-start w-full max-w-sm text-black font-bold text-3xl tracking-tight">
+                    {{ page_data.title }}
                 </div>
+
                 <!-- Filters -->
                 <div class="flex items-center gap-4 flex-wrap w-full justify-end">
-                    <div class="flex max-w-full min-w-[10rem]">
+                    <div class="flex max-w-full min-w-[12rem]">
                         <select
-                            class="select select-sm max-w-full truncate"
+                            class="select select-input"
                             v-model="filters.bitrix_list_id"
                             @change="getData"
                         >
@@ -21,9 +22,9 @@
                             </option>
                         </select>
                     </div>
-                    <div class="flex max-w-full min-w-[10rem]">
+                    <div class="flex max-w-full min-w-[12rem]">
                         <select
-                            class="select select-sm max-w-full truncate"
+                            class="select select-input"
                             v-model="filters.category_id"
                             @change="getData"
                         >
@@ -35,24 +36,23 @@
                     </div>
                     <div class="flex">
                         <button
-                            class="btn btn-sm btn-outline btn-primary"
+                            class="main-btn !bg-white !border !py-2 !px-5 !min-w-[120px] !text-sm focus:!border-tec-active"
                             :disabled="loading"
                             @click="openModal('add')"
                             data-modal-toggle="#bitrix_sage_mapping_form_modal"
                         >
-                            <i class="ki-filled ki-plus-squared"></i>
-                            <span>Add Mapping</span>
+                            Add Mapping
                         </button>
                     </div>
                 </div>
             </div>
         </div>
         <!-- table -->
-        <div class="relative flex-grow overflow-auto table-container">
+        <div class="relative flex-grow overflow-auto table-container shadow-md border border-tec h-full">
             <!-- Table -->
-            <table class="w-full table table-main table-border align-middle text-xs table-fixed">
+            <table class="w-full table table-main table-border align-middle text-xs table-fixed h-full">
                 <thead>
-                    <tr class="bg-black text-gray-900 font-medium text-center">
+                    <tr class="text-left tracking-tight">
                         <th class="sticky top-0 w-10">#</th>
                         <th class="sticky top-0 w-[80px] text-left">Bitrix List Name</th>
                         <th class="sticky top-0 w-[80px] text-left">Category Name</th>
@@ -64,8 +64,8 @@
                         <th class="sticky top-0 w-10"></th>
                     </tr>
                 </thead>
-                <tbody class="text-center text-xs text-gray-700">
-                    <tr v-for="(obj, index) in data" :key="index" class="odd:bg-white even:bg-slate-100 hover:bg-gray-300">
+                <tbody class="text-center text-xs tracking-tight h-full">
+                    <tr v-for="(obj, index) in data" :key="index" class="group transition-all duration-300 text-neutral-800">
                         <td>{{ ++index }}</td>
                         <td class="text-black text-left">{{ obj.bitrix_list }}</td>
                         <td class="text-black text-left">{{ obj.category }}</td>
@@ -93,8 +93,15 @@
                             </div>
                         </td>
                     </tr>
-                    <tr class="table-no-data-available" v-if="data.length === 0">
-                        <td class="text-center text-red-400">No data available</td>
+                    <tr class="table-no-data-available h-full" v-if="data.length === 0">
+                        <td class="text-center text-md text-red-400 !border-none h-full">
+                            <div class="flex flex-col h-full w-full items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-10 mb-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636" />
+                                </svg>
+                                No data available
+                            </div>
+                        </td>
                     </tr>
                 </tbody>
             </table>

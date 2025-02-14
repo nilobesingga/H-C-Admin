@@ -2,7 +2,7 @@
     <div class="pb-4 pt-4">
         <div class="flex items-center justify-between">
             <!-- Date Range Picker Text on the Left -->
-            <div class="flex flex-col justify-start w-1/2 text-black font-bold text-3xl tracking-tight">
+            <div class="flex flex-col justify-start w-1/2 text-black font-bold text-2xl tracking-tight">
                 {{ dateRangePickerText }}
             </div>
 
@@ -24,7 +24,7 @@
                         :multi-calendars="{ solo: true }"
                         placeholder="Select Date"
                         :enable-time-picker="false"
-                        format="dd-MM-yyyy"
+                        format="dd MMM yyyy"
                         :clearable="false"
                         class="rounded-none"
                     />
@@ -52,7 +52,7 @@ export default {
         return {
             dateRange: this.initializeStoredValue("dateRange", [DateTime.now().toISODate(), DateTime.now().toISODate()]),
             period: this.initializeStoredValue("period", "last_60_days_plusplus"),
-            currencies: ["AED", "USD", "EUR", "GBD", "CHF", "PHP", "SCR"],
+            currencies: ["AED", "USD", "EUR", "GBP", "CHF", "PHP", "SCR"],
             periods: [
                 { key: "this_week", value: "This week" },
                 { key: "last_week", value: "Last week" },
@@ -152,8 +152,8 @@ export default {
             if (!this.dateRange[0] || !this.dateRange[1]) {
                 return "No date selected";
             }
-            const formattedStart = DateTime.fromISO(this.dateRange[0]).toFormat("d MMMM yyyy");
-            const formattedEnd = DateTime.fromISO(this.dateRange[1]).toFormat("d MMMM yyyy");
+            const formattedStart = DateTime.fromISO(this.dateRange[0]).toFormat("d MMM yyyy");
+            const formattedEnd = DateTime.fromISO(this.dateRange[1]).toFormat("d MMM yyyy");
             return `${formattedStart} - ${formattedEnd}`;
         },
         currency: {

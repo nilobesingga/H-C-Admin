@@ -8,49 +8,48 @@
     <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport"/>
     <meta content="" name="description"/>
     <title>CRESCO - @yield('pageTitle')</title>
-    <link rel="icon" href="{{ asset('storage/images/logos/CRESCO_faviicon.ico') }}" sizes="32x32"/>
+    <link rel="icon" href="{{ asset('storage/images/logos/CRESCOtec_icon.png') }}" sizes="32x32"/>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
     @vite('resources/css/app.scss')
 </head>
-<body class="antialiased flex h-full text-base text-gray-700 [--tw-page-bg:#f1f5f9] [--tw-page-bg-dark:var(--tw-coal-200)] [--tw-content-bg:var(--tw-light)] [--tw-content-bg-dark:var(--tw-coal-500)] [--tw-content-scrollbar-color:#e8e8e8] [--tw-header-height:58px] [--tw-sidebar-width:58px] [--tw-navbar-height:56px] bg-[--tw-page-bg] dark:bg-[--tw-page-bg-dark] lg:overflow-hidden">
-<script>
-    window.env = @json($env);
-    const defaultThemeMode = 'light';
-    let themeMode;
+<body class="antialiased flex h-full text-base text-neutral-700 [--tw-header-height:54px] [--tw-sidebar-width:200px] [--tw-header-bg:var(--tw-light)] [--tw-header-bg-dark:var(--tw-coal-500)] bg-light dark:bg-coal-500">
+    <script>
+        window.env = @json($env);
+        const defaultThemeMode = 'light';
+        let themeMode;
 
-    if (document.documentElement) {
-        if (localStorage.getItem('theme')) {
-            themeMode = localStorage.getItem('theme');
-        } else if (document.documentElement.hasAttribute('data-theme-mode')) {
-            themeMode = document.documentElement.getAttribute('data-theme-mode');
-        } else {
-            themeMode = defaultThemeMode;
+        if (document.documentElement) {
+            if (localStorage.getItem('theme')) {
+                themeMode = localStorage.getItem('theme');
+            } else if (document.documentElement.hasAttribute('data-theme-mode')) {
+                themeMode = document.documentElement.getAttribute('data-theme-mode');
+            } else {
+                themeMode = defaultThemeMode;
+            }
+
+            if (themeMode === 'system') {
+                themeMode = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+
+            document.documentElement.classList.add(themeMode);
         }
+    </script>
 
-        if (themeMode === 'system') {
-            themeMode = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-        }
-
-        document.documentElement.classList.add(themeMode);
-    }
-</script>
-<div id="app" class="flex grow admin">
-    @include('admin.includes.admin_header')
-    <div class="flex flex-col lg:flex-row grow pt-[--tw-header-height]">
-        @include('admin.includes.admin_sidebar')
-        @include('admin.includes.admin_navbar')
-        <div class="flex grow rounded-b-xl bg-[--tw-content-bg] dark:bg-[--tw-content-bg-dark] border-x border-b border-gray-400 dark:border-gray-200 lg:mt-[--tw-navbar-height] mx-5 lg:ms-[--tw-sidebar-width] mb-5">
-            <div class="flex flex-col grow lg:scrollable-y lg:[scrollbar-width:auto] lg:light:[--tw-scrollbar-thumb-color:var(--tw-content-scrollbar-color)] pt-7 lg:[&_.container-fluid]:pe-4" id="scrollable_content">
-                <main class="grow" role="content">
-                    @yield('content')
-                </main>
-                {{-- @include('includes.AdminComponents.admin_footer')--}}
+    <div id="app" class="flex grow admin">
+        <div class="flex grow flex-col">
+            @include('admin.includes.admin_header')
+{{--            @include('admin.includes.admin_sidebar')--}}
+            @include('admin.includes.admin_navbar')
+            <div class="container-fluid w-full flex px-0 bg-neutral-100 page-bg bg-top bg-cover bg-no-repeat bg-fixed">
+                    <main class="grow" role="content">
+                        @yield('content')
+                    </main>
+                    {{-- @include('includes.AdminComponents.admin_footer')--}}
             </div>
         </div>
     </div>
-</div>
 
-@vite(['resources/js/app.js', 'resources/assets/custom/custom.js'])
+    @vite(['resources/js/app.js', 'resources/assets/custom/custom.js'])
 
 </body>
 </html>
