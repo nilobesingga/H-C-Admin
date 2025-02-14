@@ -24,7 +24,7 @@
                         :multi-calendars="{ solo: true }"
                         placeholder="Select Date"
                         :enable-time-picker="false"
-                        format="dd-MM-yyyy"
+                        format="dd MMM yyyy"
                         :clearable="false"
                         class="rounded-none"
                     />

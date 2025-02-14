@@ -67,6 +67,12 @@
                         <span class="absolute top-1 right-1 translate-x-1/2 -translate-y-1/2 shadow-md shadow-yellow-300 bg-yellow-500 text-white text-xs font-bold rounded-full min-h-5 min-w-5 flex items-center justify-center">{{ warningCount }}</span>
                     </button>
                 </div>
+                <!-- All Overdue Invoices -->
+                <div class="flex flex-shrink-0 ml-5">
+                    <label class="form-label flex items-center gap-2.5">
+                        <input class="checkbox checkbox-sm" name="check" type="checkbox" value="1" v-model="filters.is_all_overdue" @change="getData" />All Overdue
+                    </label>
+                </div>
             </div>
             <!-- table -->
             <div class="relative flex-grow overflow-auto reports-table-container shadow-md border border-brand h-full">
@@ -181,6 +187,7 @@ export default {
                 charge_to_account: "",
                 search: "",
                 is_warning: false,
+                is_all_overdue: false,
             },
             page_filters: [
                 {
@@ -255,7 +262,8 @@ export default {
                 endDate: dateRange[1],
                 action: "getProformaInvoices",
                 categories: JSON.stringify(this.filters.category_id === "" ? this.page_data.bitrix_list_categories.map((obj) => obj.bitrix_category_id) : [this.filters.category_id]),
-                sage_companies: JSON.stringify(this.filters.sage_company_id === "" ? this.page_data.bitrix_list_sage_companies.map((obj) => obj.bitrix_sage_company_id) : [this.filters.sage_company_id])
+                sage_companies: JSON.stringify(this.filters.sage_company_id === "" ? this.page_data.bitrix_list_sage_companies.map((obj) => obj.bitrix_sage_company_id) : [this.filters.sage_company_id]),
+                is_all_overdue: this.filters.is_all_overdue
             }
             try {
                 const response = await this.callBitrixAPI(endpoint, bitrixUserId, bitrixWebhookToken, requestData);
@@ -301,7 +309,7 @@ export default {
 
                 ].some(field => field?.toLowerCase().includes(searchTerm));
                 // Filter by status
-                const matchesStatus = this.filters.status ? item.status === this.filters.status : true;
+                const matchesStatus = this.filters.status === '' ? (item.status === "DRAFT" || item.status === 'SENT') : item.status === this.filters.status;
                 // Filter by chargeToAccount
                 const matchesChargeToClient = this.filters.charge_to_account ? item.charge_to_running_account_id === this.filters.charge_to_account : true;
                 // Filter by warning
