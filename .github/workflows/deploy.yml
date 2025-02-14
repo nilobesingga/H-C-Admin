@@ -1,0 +1,30 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup SSH Key
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key
+          chmod 600 private_key
+          ssh-add private_key
+
+      - name: Deploy to Production Server
+        run: |
+          ssh -o StrictHostKeyChecking=no root@10.0.1.61 << 'EOF'
+          cd /root/CRESCO/projects/cresco-v2/production
+          git pull origin master
+          chmod +x deploy.sh
+          ./deploy.sh
+          EOF
+
