@@ -1,4 +1,4 @@
-name: Deploy to Production
+name: "cresco-v2 Production Workflow"
 
 on:
   push:
@@ -10,21 +10,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+    - name: Checkout Repository
+      uses: actions/checkout@v4
 
-      - name: Setup SSH Key
-        run: |
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > private_key
-          chmod 600 private_key
-          ssh-add private_key
-
-      - name: Deploy to Production Server
-        run: |
-          ssh -o StrictHostKeyChecking=no root@10.0.1.61 << 'EOF'
-          cd /root/CRESCO/projects/cresco-v2/production
-          git pull origin master
-          chmod +x deploy.sh
-          ./deploy.sh
-          EOF
+    - name: Setup SSH and Deploy
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        SERVER_IP: "10.0.1.61"
+        SERVER_USER: "root"
+      run: |
+        mkdir -p ~/.ssh
+        echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP "cd /root/CRESCO/projects/cresco-v2/production && git pull origin master && /bin/bash deploy.sh"
 
