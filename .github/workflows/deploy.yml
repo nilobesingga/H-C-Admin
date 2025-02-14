@@ -1,4 +1,4 @@
-name: cresco-v2 Production Workflow
+name: "CRESCO-V2 Production Workflow"
 
 on:
   push:
@@ -7,13 +7,14 @@ on:
 
 jobs:
   deploy:
+    name: Deploy to Production Server
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
-      - name: Deploy to Production Server
+      - name: Deploy via SSH
         uses: appleboy/ssh-action@v0.1.6
         with:
           host: 10.0.1.61
