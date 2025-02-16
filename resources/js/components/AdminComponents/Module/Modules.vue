@@ -97,12 +97,10 @@
 
 <script>
 import draggable from 'vuedraggable'
-import ModuleFormModal from "./ModuleFormModal.vue";
 export default {
     name: "modules",
     props: ['page_data'],
     components: {
-        ModuleFormModal,
         draggable,
     },
     data() {

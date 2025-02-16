@@ -109,59 +109,132 @@
                             <div class="mt-1 text-xs text-neutral-700">{{ getWeeklyTotalWithCurrencyConversion(week.data) }}</div>
                         </div>
 
-                        <!-- Week Data -->
-                        <div v-if="week.data.length" class="flex flex-col gap-2 overflow-y-auto h-full border-t border-neutral-200 pt-4 group-hover:border-black">
-                            <div v-for="(item, itemIndex) in week.data" :key="itemIndex">
-                                <!-- cash requests -->
-                                <div :class="['card', (item.is_budget_only === '1937' ? 'budget-only' : 'cash-request')]" v-if="item.request_type === 'cash_request'">
-                                    <div class="card-title text-left flex w-full flex-col">
-                                        <a class="btn btn-link !text-black hover:!text-brand-active text-lg" target="_blank" :href="getBitrixUrlByBlockIdAndId('105', item.id)">
-                                            {{ formatAmount(item.amount) }} {{ item.currency }}
-                                        </a>
-                                        <sub class="text-xs text-neutral-600 mb-2 -mt-1" v-if="item.currency !== 'USD'">({{ formatAmount(item.exchange_amount) }} USD)</sub>
-                                    </div>
-                                    <a class="btn btn-link text-left !text-neutral-800" target="_blank" :href="getBitrixProjectLink(item)">{{ item.project_name }}</a>
-                                    <div class="text-neutral-700 text-left">{{ item.detail_text }}</div>
-                                    <div class="text-left text-xs text-neutral-700 mt-4">
-                                        <span>Requested By: </span>
-                                        <span class="text-neutral-800">{{ item.requested_by_name }}</span>
-                                    </div>
-                                    <div class="text-left text-xs text-neutral-700">
-                                        <span>Pay By: </span>
-                                        <span class="text-neutral-800">{{ getPaymentMode(item.payment_mode_id) }}</span>
-                                    </div>
-                                    <div class="text-left mt-2">
-                                        <small :class="['badge text-xs', isOverdue(item.payment_date) ? 'badge-danger' : 'badge-success']">Due: {{ formatDate(item.payment_date) }}</small>
-                                        <small class="badge badge-warning text-xs ml-1" v-if="item.is_budget_only === '1937'">Budget Only</small>
-                                    </div>
-                                </div>
-                                <!-- purchase invoices -->
-                                <div class="card purchase-invoice" v-if="item.request_type === 'purchase_invoice'">
-                                    <div class="card-title text-left flex">
-                                        <a class="btn btn-link !text-black hover:!text-brand-active " target="_blank" :href="getBitrixUrlByBlockIdAndId(item.request_type === 'cash_request' ? '104' : '104', item.id)">
-                                            <div class="text-lg">
-                                                <span v-if="item.remaining_balance">{{ formatAmount(item.remaining_balance) }}</span>
-                                                <span v-else>{{ formatAmount(item.amount) }}</span>
-                                                {{ item.currency }}
+                        <!-- Full Access -->
+                        <div v-if="page_data.permission === 'full_access'" class="h-full">
+                            <draggable
+                                tag="template"
+                                group="data"
+                                :list="week.data"
+                                item-key="id"
+                                class="flex flex-col gap-2 overflow-y-auto h-full border-t border-neutral-200 pt-4 group-hover:border-black"
+                                @change="onDragUpdateColumn($event, week)"
+                                :animation="200"
+                            >
+                                <template #item="{ element: item, index: itemIndex }">
+                                    <div :key="itemIndex">
+                                        <!-- cash requests -->
+                                        <div :class="['card', (item.is_budget_only === '1937' ? 'budget-only' : 'cash-request')]" v-if="item.request_type === 'cash_request'">
+                                            <div class="card-title text-left flex w-full flex-col">
+                                                <a class="btn btn-link !text-black hover:!text-brand-active text-lg" target="_blank" :href="getBitrixUrlByBlockIdAndId('105', item.id)">
+                                                    {{ formatAmount(item.amount) }} {{ item.currency }}
+                                                </a>
+                                                <sub class="text-xs text-neutral-600 mb-2 -mt-1" v-if="item.currency !== 'USD'">({{ formatAmount(item.exchange_amount) }} USD)</sub>
                                             </div>
-                                        </a>
+                                            <a class="btn btn-link text-left !text-neutral-800" target="_blank" :href="getBitrixProjectLink(item)">{{ item.project_name }}</a>
+                                            <div class="text-neutral-700 text-left">{{ item.detail_text }}</div>
+                                            <div class="text-left text-xs text-neutral-700 mt-4">
+                                                <span>Requested By: </span>
+                                                <span class="text-neutral-800">{{ item.requested_by_name }}</span>
+                                            </div>
+                                            <div class="text-left text-xs text-neutral-700">
+                                                <span>Pay By: </span>
+                                                <span class="text-neutral-800">{{ getPaymentMode(item.payment_mode_id) }}</span>
+                                            </div>
+                                            <div class="text-left mt-2">
+                                                <small :class="['badge text-xs', isOverdue(item.payment_date) ? 'badge-danger' : 'badge-success']">Due: {{ formatDate(item.payment_date) }}</small>
+                                                <small class="badge badge-warning text-xs ml-1" v-if="item.is_budget_only === '1937'">Budget Only</small>
+                                            </div>
+                                        </div>
+                                        <!-- purchase invoices -->
+                                        <div class="card purchase-invoice" v-if="item.request_type === 'purchase_invoice'">
+                                            <div class="card-title text-left flex">
+                                                <a class="btn btn-link !text-black hover:!text-brand-active " target="_blank" :href="getBitrixUrlByBlockIdAndId(item.request_type === 'cash_request' ? '104' : '104', item.id)">
+                                                    <div class="text-lg">
+                                                        <span v-if="item.remaining_balance">{{ formatAmount(item.remaining_balance) }}</span>
+                                                        <span v-else>{{ formatAmount(item.amount) }}</span>
+                                                        {{ item.currency }}
+                                                    </div>
+                                                </a>
+                                            </div>
+                                            <a class="btn btn-link text-left !text-neutral-800" target="_blank" :href="getBitrixProjectLink(item)">{{ item.project_name }}</a>
+                                            <div class="text-neutral-700 text-left mt-2">{{ item.detail_text }}</div>
+                                            <div class="text-left text-xs text-neutral-700 mt-4">
+                                                <span>Requested By: </span>
+                                                <span class="text-neutral-800">{{ item.requested_by_name }}</span>
+                                            </div>
+                                            <div class="text-left mt-2">
+                                                <small :class="['badge text-xs', isOverdue(item.due_date) ? 'badge-danger' : 'badge-success']">Due: {{ formatDate(item.due_date) }}</small>
+                                                <small v-if="item.sage_status && item.sage_status === '1863'" class="badge badge-info text-xs font-bold ml-1">Booked In Sage</small>
+                                                <small v-else class="badge badge-warning text-xs font-bold ml-1">NOT Booked In Sage</small>
+                                                <small v-if="item.status_id === '1864'" class="badge badge-warning text-xs font-bold ml-1 ">Partially Paid</small>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <a class="btn btn-link text-left !text-neutral-800" target="_blank" :href="getBitrixProjectLink(item)">{{ item.project_name }}</a>
-                                    <div class="text-neutral-700 text-left mt-2">{{ item.detail_text }}</div>
-                                    <div class="text-left text-xs text-neutral-700 mt-4">
-                                        <span>Requested By: </span>
-                                        <span class="text-neutral-800">{{ item.requested_by_name }}</span>
+                                </template>
+                                <!-- Empty column is still draggable -->
+                                <template #footer>
+                                    <div v-if="week.data.length === 0" class="text-center text-red-400 mt-4 flex justify-center items-center">
+                                        No data available
                                     </div>
-                                    <div class="text-left mt-2">
-                                        <small :class="['badge text-xs', isOverdue(item.due_date) ? 'badge-danger' : 'badge-success']">Due: {{ formatDate(item.due_date) }}</small>
-                                        <small v-if="item.sage_status && item.sage_status === '1863'" class="badge badge-info text-xs font-bold ml-1">Booked In Sage</small>
-                                        <small v-else class="badge badge-warning text-xs font-bold ml-1">NOT Booked In Sage</small>
-                                        <small v-if="item.status_id === '1864'" class="badge badge-warning text-xs font-bold ml-1 ">Partially Paid</small>
+                                </template>
+                            </draggable>
+                        </div>
+                        <!-- View Only -->
+                        <div v-if="page_data.permission === 'view_only'">
+                            <!-- Week Data -->
+                            <div v-if="week.data.length" class="flex flex-col gap-2 overflow-y-auto h-full border-t border-neutral-200 pt-4 group-hover:border-black">
+                                <div v-for="(item, itemIndex) in week.data" :key="itemIndex">
+                                    <!-- cash requests -->
+                                    <div :class="['card', (item.is_budget_only === '1937' ? 'budget-only' : 'cash-request')]" v-if="item.request_type === 'cash_request'">
+                                        <div class="card-title text-left flex w-full flex-col">
+                                            <a class="btn btn-link !text-black hover:!text-brand-active text-lg" target="_blank" :href="getBitrixUrlByBlockIdAndId('105', item.id)">
+                                                {{ formatAmount(item.amount) }} {{ item.currency }}
+                                            </a>
+                                            <sub class="text-xs text-neutral-600 mb-2 -mt-1" v-if="item.currency !== 'USD'">({{ formatAmount(item.exchange_amount) }} USD)</sub>
+                                        </div>
+                                        <a class="btn btn-link text-left !text-neutral-800" target="_blank" :href="getBitrixProjectLink(item)">{{ item.project_name }}</a>
+                                        <div class="text-neutral-700 text-left">{{ item.detail_text }}</div>
+                                        <div class="text-left text-xs text-neutral-700 mt-4">
+                                            <span>Requested By: </span>
+                                            <span class="text-neutral-800">{{ item.requested_by_name }}</span>
+                                        </div>
+                                        <div class="text-left text-xs text-neutral-700">
+                                            <span>Pay By: </span>
+                                            <span class="text-neutral-800">{{ getPaymentMode(item.payment_mode_id) }}</span>
+                                        </div>
+                                        <div class="text-left mt-2">
+                                            <small :class="['badge text-xs', isOverdue(item.payment_date) ? 'badge-danger' : 'badge-success']">Due: {{ formatDate(item.payment_date) }}</small>
+                                            <small class="badge badge-warning text-xs ml-1" v-if="item.is_budget_only === '1937'">Budget Only</small>
+                                        </div>
+                                    </div>
+                                    <!-- purchase invoices -->
+                                    <div class="card purchase-invoice" v-if="item.request_type === 'purchase_invoice'">
+                                        <div class="card-title text-left flex">
+                                            <a class="btn btn-link !text-black hover:!text-brand-active " target="_blank" :href="getBitrixUrlByBlockIdAndId(item.request_type === 'cash_request' ? '104' : '104', item.id)">
+                                                <div class="text-lg">
+                                                    <span v-if="item.remaining_balance">{{ formatAmount(item.remaining_balance) }}</span>
+                                                    <span v-else>{{ formatAmount(item.amount) }}</span>
+                                                    {{ item.currency }}
+                                                </div>
+                                            </a>
+                                        </div>
+                                        <a class="btn btn-link text-left !text-neutral-800" target="_blank" :href="getBitrixProjectLink(item)">{{ item.project_name }}</a>
+                                        <div class="text-neutral-700 text-left mt-2">{{ item.detail_text }}</div>
+                                        <div class="text-left text-xs text-neutral-700 mt-4">
+                                            <span>Requested By: </span>
+                                            <span class="text-neutral-800">{{ item.requested_by_name }}</span>
+                                        </div>
+                                        <div class="text-left mt-2">
+                                            <small :class="['badge text-xs', isOverdue(item.due_date) ? 'badge-danger' : 'badge-success']">Due: {{ formatDate(item.due_date) }}</small>
+                                            <small v-if="item.sage_status && item.sage_status === '1863'" class="badge badge-info text-xs font-bold ml-1">Booked In Sage</small>
+                                            <small v-else class="badge badge-warning text-xs font-bold ml-1">NOT Booked In Sage</small>
+                                            <small v-if="item.status_id === '1864'" class="badge badge-warning text-xs font-bold ml-1 ">Partially Paid</small>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
+                            <div v-else class="text-center text-red-400 mt-4 flex justify-center items-center h-full">No data available</div>
                         </div>
-                        <div v-else class="text-center text-red-400 mt-4 flex justify-center items-center h-full">No data available</div>
                     </div>
                 </div>
             </div>
@@ -169,13 +242,18 @@
     </div>
 </template>
 
-
 <script>
 import {DateTime} from "luxon";
 import _ from "lodash";
+import qs from 'qs';
+import draggable from 'vuedraggable'
+
 export default {
     name: "expense-planner",
     props: ['page_data'],
+    components: {
+        draggable,
+    },
     data(){
         return {
             data: [],
@@ -385,6 +463,195 @@ export default {
             this.week_off_set += direction;
             this.getData();
         },
+        onDragUpdateColumn(event, week) {
+            if (event.added && event.added.element){
+                if (event.added && event.added.element.request_type === 'cash_request') {
+                    this.updateCashRequestFundReleaseDate(event.added.element, week)
+                } else if (event.added && event.added.element.request_type === 'purchase_invoice') {
+                    this.updatePurchaseInvoicePaymentSchedule(event.added.element, week)
+                }
+            }
+        },
+        async updateCashRequestFundReleaseDate(item, newWeek){
+            try {
+                let itemId = item.id;
+                const bitrixUserId = this.page_data.user.bitrix_user_id ? this.page_data.user.bitrix_user_id : null;
+                const bitrixWebhookToken = this.page_data.user.bitrix_webhook_token ? this.page_data.user.bitrix_webhook_token : null;
+                const endpoint = 'lists.element.update';
+                const requestData = qs.stringify({
+                    IBLOCK_TYPE_ID: 'bitrix_processes',
+                    IBLOCK_ID: '105',
+                    ELEMENT_ID: item.id,
+                    fields: {
+                        'NAME': item.name,
+                        'DETAIL_TEXT': item.detail_text,
+                        // Company
+                        'PROPERTY_938': item.company_id,
+                        // SAGE Company
+                        'PROPERTY_951': item.sage_company_id,
+                        // VATable
+                        'PROPERTY_1236': item.vatable_id,
+                        // Amount (including VAT)
+                        'PROPERTY_939': item.cash_amount,
+                        // Awaiting for Exchange Rate
+                        'PROPERTY_1249': item.awaiting_for_exchange_rate_id,
+                        // Cash Pool
+                        'PROPERTY_1231': item.cash_pool_id,
+                        // Cash Release Location
+                        'PROPERTY_954': item.cash_release_location_id,
+                        // Invoice Number
+                        'PROPERTY_1241': item.invoice_number,
+                        // Payment Date
+                        'PROPERTY_940': item.payment_date,
+                        // Payment Mode
+                        'PROPERTY_1088': item.payment_mode_id,
+                        // Budget only
+                        'PROPERTY_1160': item.budget_only_id,
+                        // Charge extra to client
+                        'PROPERTY_1215': item.charge_extra_to_client_id,
+                        // Charge To Running Account
+                        'PROPERTY_1243': item.charge_to_running_account_id,
+                        // Accountant
+                        'PROPERTY_941': item.accountant_id,
+                        // Project
+                        'PROPERTY_942': item.project_id,
+                        // Supplier
+                        'PROPERTY_1234': item.supplier_id,
+                        // Link to CRM
+                        'PROPERTY_1214': item.linked_contact_id,
+                        // Pay To Running Account
+                        'PROPERTY_1251': item.pay_to_running_account_id,
+                        // Doc for Bank
+                        'PROPERTY_1247': item.doc_for_bank,
+                        // Other Documents
+                        'PROPERTY_1210': item.other_documents,
+                        // Requested By
+                        'CREATED_BY': item.created_by,
+                        // Amount Given
+                        'PROPERTY_944': item.amount_given,
+                        // Company Link
+                        'PROPERTY_945': item.company_link_id,
+                        // Funds Available Date
+                        'PROPERTY_946': DateTime.fromFormat(newWeek.start_date, "dd MMM yyyy").toSQLDate(),
+                        // Cash Release Receipt
+                        'PROPERTY_1059': item.cash_release_receipt_id,
+                        // Receipt
+                        'PROPERTY_948': { itemId: [item.receipt_id] },
+                        // Receipt Preview Link
+                        'PROPERTY_949': item.receipt_preview_link,
+                        // Amount Returned
+                        'PROPERTY_950': item.amount_returned,
+                        // Status
+                        'PROPERTY_943': item.status_id,
+                        //  Bank Transfer Id
+                        'PROPERTY_1222': item.bitrix_bank_transfer_id,
+                        //  Modified By
+                        'MODIFIED_BY': this.page_data.user.bitrix_user_id,
+                        //  Released By
+                        'PROPERTY_1071': item.released_by,
+                        //  Release Date
+                        'PROPERTY_1073': item.released_date,
+                        //  Offer Generated
+                        'PROPERTY_1224': item.has_offer_generated,
+                    }
+                });
+
+                const response = await this.callBitrixAPI(endpoint, bitrixUserId, bitrixWebhookToken, requestData);
+                if(response){
+                    this.successToast('Fund released date updated successfully')
+                    item.week_date = DateTime.fromFormat(newWeek.start_date, "dd MMM yyyy").toISODate();
+                }
+            } catch (error) {
+                this.errorToast('Error updating fund release date')
+            }
+        },
+        async updatePurchaseInvoicePaymentSchedule(item, newWeek){
+            try {
+                let itemId = item.id;
+                const bitrixUserId = this.page_data.user.bitrix_user_id ? this.page_data.user.bitrix_user_id : null;
+                const bitrixWebhookToken = this.page_data.user.bitrix_webhook_token ? this.page_data.user.bitrix_webhook_token : null;
+                const endpoint = 'lists.element.update';
+                const requestData = qs.stringify({
+                    IBLOCK_TYPE_ID: 'bitrix_processes',
+                    IBLOCK_ID: '104',
+                    ELEMENT_ID: item.id,
+                    fields: {
+                        'NAME': item.name,
+                        'DETAIL_TEXT': item.detail_text,
+                        // Company
+                        'PROPERTY_925': item.company_id,
+                        // SAGE Company
+                        'PROPERTY_933': item.sage_company_id,
+                        // Invoice Date
+                        'PROPERTY_926': item.invoice_date,
+                        // Invoice Number
+                        'PROPERTY_953': item.invoice_number,
+                        // Due Date
+                        'PROPERTY_934': item.due_date,
+                        // VATable
+                        'PROPERTY_1171': item.vatable_id,
+                        // Total Invoice Amount (including VAT)
+                        'PROPERTY_927': item.invoice_amount,
+                        // Charge extra to client
+                        'PROPERTY_1219': item.charge_extra_to_client,
+                        // Charge To Running Account
+                        'PROPERTY_1242': item.charge_to_running_account_id,
+                        // Remaining Balance
+                        'PROPERTY_1180': item.remaining_balance,
+                        // Supplier
+                        'PROPERTY_928': item.supplier_id,
+                        // Project
+                        'PROPERTY_929': item.project_id,
+                        // Link to Contact
+                        'PROPERTY_1230': item.linked_to_contact,
+                        // Pay To Running Account
+                        'PROPERTY_1250': item.pay_to_running_account_id,
+                        // Invoice Document
+                        'PROPERTY_930': {itemId: [item.invoice_document_id]},
+                        // Doc for Bank
+                        'PROPERTY_1246': {itemId: [item.doc_for_bank]},
+                        // Other Documents
+                        'PROPERTY_1208': {itemId: [item.other_documents]},
+                        // Accountant
+                        'PROPERTY_935': item.accountant_id,
+                        // Preview URL
+                        'PROPERTY_936': item.preview_url,
+                        // Company Link
+                        'PROPERTY_937': item.company_link,
+                        // Transfer Document
+                        'PROPERTY_952': {itemId: [item.transfer_document_id]},
+                        // Payment Schedule Date
+                        'PROPERTY_955': DateTime.fromFormat(newWeek.start_date, "dd MMM yyyy").toSQLDate(),
+                        // SAGE Status
+                        'PROPERTY_1081': item.sage_status,
+                        // SAGE Batch Id
+                        'PROPERTY_1170': item.sage_batch_id,
+                        // Sage Bank Transfer
+                        'PROPERTY_1258': item.sage_bank_transfer,
+                        // Payment Reference Id
+                        'PROPERTY_1184': item.payment_reference_id,
+                        // Payment Date
+                        'PROPERTY_1185': item.sage_payment_date,
+                        // Bank Transfer Id
+                        'PROPERTY_1195': item.bitrix_bank_transfer_id,
+                        // Status
+                        'PROPERTY_932': item.status_id,
+                        // CREATED_BY
+                        'CREATED_BY': item.created_by,
+                        //  Modified By
+                        'MODIFIED_BY': this.page_data.user.bitrix_user_id,
+                    }
+                });
+
+                const response = await this.callBitrixAPI(endpoint, bitrixUserId, bitrixWebhookToken, requestData);
+                if(response){
+                    this.successToast('Purchase Invoice payment schedule date updated successfully')
+                    item.week_date = DateTime.fromFormat(newWeek.start_date, "dd MMM yyyy").toISODate();
+                }
+            } catch (error) {
+                this.errorToast('Error updating Purchase Invoice payment schedule date')
+            }
+        }
     },
     computed:{
         filteredData() {
