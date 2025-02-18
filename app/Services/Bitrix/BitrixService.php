@@ -4,13 +4,13 @@ namespace App\Services\Bitrix;
 
 use App\Models\Bitrix\UserProfile;
 use App\Models\User;
-use App\Repositories\BitrixAPIRepository;
+use App\Repositories\BitrixApiRepository;
 use Illuminate\Support\Facades\DB;
 
 class BitrixService
 {
     protected $bitrixRepo;
-    public function __construct(BitrixAPIRepository $bitrixRepo)
+    public function __construct(BitrixApiRepository $bitrixRepo)
     {
         $this->bitrixRepo = $bitrixRepo;
     }

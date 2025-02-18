@@ -8,7 +8,7 @@ use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
-class BitrixAPIRepository
+class BitrixApiRepository
 {
     protected $client;
     protected $baseUrl;
