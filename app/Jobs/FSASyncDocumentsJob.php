@@ -63,8 +63,9 @@ class FSASyncDocumentsJob implements ShouldQueue
                             Log::info('getting company relationships for company id: ' . $companyId);
                             // Relationships
                             $relationships = $documentSyncService->getCompanyRelationships($companyId);
+                            $contacts = $relationships['contacts'];
                             $companyRegisterData = $documentSyncService->prepareCompanyRegisterData($company, $companyData, $relationships);
-                            $documentManager->downloadCompanyDocuments($company, $documents, $companyRegisterData);
+                            $documentManager->downloadCompanyDocuments($company, $documents, $companyRegisterData, $contacts, $documentSyncService->contactDocumentFields());
                             // Founders
                             $founders = $documentSyncService->makeFounderData($company, $relationships);
                             if($founders){
