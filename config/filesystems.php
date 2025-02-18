@@ -57,6 +57,16 @@ return [
             'throw' => false,
         ],
 
+        'fsa' => [
+            'driver' => 'sftp',
+            'host' => '10.0.1.16',
+            'username' => 'FSA',
+            'password' => 'divided4MELINDA_tidal',
+            'root' => '/FSA/',
+            'port' => 22,
+            'timeout' => 30,
+        ],
+
     ],
 
     /*
