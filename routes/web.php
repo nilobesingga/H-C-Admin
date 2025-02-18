@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\Settings\AdminSettingsController;
 use App\Http\Controllers\Admin\Settings\AdminUserController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DocumentSyncController;
 use App\Http\Controllers\Reports\ReportsController;
 use App\Http\Middleware\IsAdminMiddleware;
 use Illuminate\Support\Facades\Route;
@@ -36,6 +37,10 @@ Route::middleware(['auth'])->group(function(){
             Route::get('/expense-planner', [ReportsController::class, 'getExpensePlanner'])->name('expense-planner');
         });
     });
+
+    // Sync FSA / DS2
+    Route::get('/sync/FSA/documents', [DocumentSyncController::class, 'syncFSADocuments'])->name('sync.FSA.documents');
+    Route::get('/sync/FSA/documents/progress', [DocumentSyncController::class, 'getSyncFSADocumentsProgress'])->name('sync.FSA.documents.progress');
 
     //########################################### ADMIN ###############################################################
 

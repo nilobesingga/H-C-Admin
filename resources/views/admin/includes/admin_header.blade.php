@@ -57,6 +57,9 @@
             </div>
         </div>
         <!-- End of Nav -->
+        <div>
+            <sync-f-s-a-documents-component />
+        </div>
 
         <!-- Topbar -->
         <div class="flex items-center gap-2 lg:gap-3.5">
