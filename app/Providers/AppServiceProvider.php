@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use App\Repositories\BitrixAPIRepository;
+use App\Repositories\BitrixApiRepository;
 use App\Services\Bitrix\BitrixCredentialResolver;
 use Illuminate\Auth\Middleware\RedirectIfAuthenticated;
 use Illuminate\Support\Facades\View;
@@ -16,8 +16,8 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         // Bind the repository with credential resolution
-        $this->app->bind(BitrixAPIRepository::class, function ($app, $params = []) {
-            return new BitrixAPIRepository(
+        $this->app->bind(BitrixApiRepository::class, function ($app, $params = []) {
+            return new BitrixApiRepository(
                 $app->make(BitrixCredentialResolver::class),
                 $params['user_id'] ?? null
             );

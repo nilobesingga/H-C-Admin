@@ -8,7 +8,7 @@ use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
-class BitrixAPIRepository
+class BitrixApiRepository
 {
     protected $client;
     protected $baseUrl;
@@ -161,8 +161,12 @@ class BitrixAPIRepository
     }
     public function getOrganizationType($typeId)
     {
+//        OLD
+//        $response = $this->call('crm.company.userfield.get', [
+//            'id' => 258
+//        ]);
         $response = $this->call('crm.company.userfield.get', [
-            'id' => 258
+            'id' => 1111
         ]);
 
         if ($response){

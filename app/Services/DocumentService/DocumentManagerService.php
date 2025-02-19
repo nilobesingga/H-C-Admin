@@ -49,6 +49,21 @@ class DocumentManagerService
     }
     protected function downloadAndSaveDocument($companyName, $documents)
     {
+        // Normalize company name (remove special characters, trim spaces)
+        $normalizedCompanyName = preg_replace('/[^A-Za-z0-9 _-]/', '', $companyName);
+        $normalizedCompanyName = trim($normalizedCompanyName);
+
+        // Ensure folder exists before downloading documents
+        if (!Storage::disk('fsa')->exists($normalizedCompanyName)) {
+            try {
+                Storage::disk('fsa')->makeDirectory($normalizedCompanyName);
+                Log::info("Created folder: {$normalizedCompanyName}");
+            } catch (\Exception $e) {
+                Log::error("Failed to create folder: {$normalizedCompanyName}. Error: " . $e->getMessage());
+                return;
+            }
+        }
+
         // Initialize cURL session
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -58,22 +73,21 @@ class DocumentManagerService
 
         foreach ($documents as $document) {
             // Check if $document is an array and has 'showUrl' key
-            if (is_array($document) && isset($document['showUrl'])) {
-                $url = 'https://crm.cresco.ae/' . $document['showUrl'];
-            } else {
-                Log::error("Invalid document data: expected array with 'showUrl', got: " . var_export($document, true));
-                continue;  // Skip this iteration if $document is not valid
+            if (!is_array($document) || !isset($document['showUrl'])) {
+                Log::error("Invalid document data: " . var_export($document, true));
+                continue;
             }
 
+            $url = 'https://crm.cresco.ae/' . $document['showUrl'];
             curl_setopt($ch, CURLOPT_URL, $url);
 
             // Execute cURL request
             $response = curl_exec($ch);
-
             if ($response === false) {
                 Log::error("Failed to download document: {$document['showUrl']}");
                 continue;
             }
+
             $headerSize = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
             $headers = substr($response, 0, $headerSize);
             $body = substr($response, $headerSize);
@@ -85,11 +99,11 @@ class DocumentManagerService
                 $newFileName = pathinfo($fileName, PATHINFO_FILENAME) . "_{$date}." . pathinfo($fileName, PATHINFO_EXTENSION);
 
                 // Save the file directly to the NAS via FTP
-                Storage::disk('fsa')->put("{$companyName}/{$newFileName}", $body);
+                Storage::disk('fsa')->put("{$normalizedCompanyName}/{$newFileName}", $body);
 
-                Log::info("Document saved successfully: {$companyName}/{$newFileName}");
+                Log::info("Document saved successfully: {$normalizedCompanyName}/{$newFileName}");
             } else {
-                Log::error("Failed to retrieve content. HTTP code: $httpCode");
+                Log::error("Failed to retrieve document. HTTP Code: $httpCode for {$document['showUrl']}");
             }
         }
         curl_close($ch);
@@ -163,21 +177,51 @@ class DocumentManagerService
             }
         }
     }
-
     protected function saveCompanyRegister($companyName, $companyRegisterData)
     {
         try {
-            $pdf = WPDF::loadView('compliance.register', $companyRegisterData);
-            $pdfContent = $pdf->setOrientation('landscape')->output();
-            $remoteFilePath = "{$companyName}/{$companyName} - Register.pdf";
+            // Normalize company name (remove special characters, trim spaces)
+            $normalizedCompanyName = preg_replace('/[^A-Za-z0-9 _-]/', '', $companyName);
+            $normalizedCompanyName = trim($normalizedCompanyName);
+
+            // Ensure folder exists
+            if (!Storage::disk('fsa')->exists($normalizedCompanyName)) {
+                try {
+                    Storage::disk('fsa')->makeDirectory($normalizedCompanyName);
+                    Log::info("Created folder: {$normalizedCompanyName}");
+                } catch (\Exception $e) {
+                    Log::error("Failed to create folder: {$normalizedCompanyName}. Error: " . $e->getMessage());
+                    return;
+                }
+            }
+
+            // Convert seal image to base64
+            $sealPath = public_path('img/HC-Seal_blue.png');
+            if (file_exists($sealPath)) {
+                $sealBase64 = base64_encode(file_get_contents($sealPath));
+                $sealMimeType = mime_content_type($sealPath);
+                $companyRegisterData['sealImage'] = "data:$sealMimeType;base64,$sealBase64";
+            } else {
+                Log::error("Seal image not found at $sealPath");
+                $companyRegisterData['sealImage'] = null;
+            }
+
+            // Generate the PDF
+            $pdf = WPDF::loadView('compliance.register', $companyRegisterData)
+                ->setOption('enable-local-file-access', true)
+                ->setOrientation('landscape');
+
+            $pdfContent = $pdf->output();
+            $remoteFilePath = "{$normalizedCompanyName}/{$normalizedCompanyName} - Register.pdf";
 
             Storage::disk('fsa')->put($remoteFilePath, $pdfContent);
             Log::info("Company register PDF saved for {$companyName}");
         } catch (\Exception $e){
-            Log::error("Error while saving Company Register {$companyName} " . $e->getMessage());
+            Log::error("Error while saving Company Register {$companyName}: " . $e->getMessage());
         }
-
     }
+
+
     private function extractFileName($headers, $url)
     {
         if (preg_match('/filename="([^"]+)"/', $headers, $matches)) {
