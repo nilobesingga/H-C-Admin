@@ -42,6 +42,11 @@
         </div>
         <!-- End of Logo -->
 
+        @if(env('APP_ENV') != 'production')
+            <div class="flex items-center ml-auto">
+                <span class="badge badge-sm badge-pill badge-primary">{{ env('APP_ENV') }}</span>
+            </div>
+        @endif
         <!-- Topbar -->
         <div class="flex items-center gap-2 lg:gap-3.5">
             <div class="menu" data-menu="true">

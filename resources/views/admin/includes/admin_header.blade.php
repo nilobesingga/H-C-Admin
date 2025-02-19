@@ -57,9 +57,16 @@
             </div>
         </div>
         <!-- End of Nav -->
-        <div>
+        <div class="flex items-center">
             <sync-f-s-a-documents-component />
         </div>
+
+        @if(env('APP_ENV') != 'production')
+            <div class="flex items-center ml-auto">
+                <span class="badge badge-sm badge-pill badge-primary">{{ env('APP_ENV') }}</span>
+            </div>
+        @endif
+
 
         <!-- Topbar -->
         <div class="flex items-center gap-2 lg:gap-3.5">
