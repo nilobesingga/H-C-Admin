@@ -45,6 +45,6 @@ class complianceHeader extends Component
      */
     public function render()
     {
-        return view('compliance.compliance-header');
+        return view('compliance.compliance_header');
     }
 }
