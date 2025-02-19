@@ -10,13 +10,29 @@
                             <a class="btn btn-primary btn-xs text-sm btn-clear rounded-none transition-all duration-300 {{ request()->get('section') === 'overview' ? 'active' : '' }}" href="{{ route('reports.bank-summary', ['section' => 'overview']) }}">
                                 Overview
                             </a> |
-                            <a class="btn btn-primary btn-xs text-sm btn-clear rounded-none transition-all duration-300 {{ request()->get('section') === 'cheque-register-outgoing' ? 'active' : '' }}" href="{{ route('reports.bank-summary', ['section' => 'cheque-register-outgoing']) }}">
+                            <a class="btn btn-primary btn-xs text-sm btn-clear rounded-none transition-all duration-300 {{ request()->get('section') === 'cheque-register-outgoing' ? 'active' : '' }}"
+                               href="{{ route('reports.bank-summary', ['section' => 'cheque-register-outgoing']) }}"
+                            >
                                 Cheque Register - Outgoing
-                                <span class="badge badge-warning !bg-yellow-300 font-bold shadow-lg shadow-yellow-300/50">{{ $page->warning_counts['outgoing_warnings'] }}</span>
+{{--                                @if($page->warning_counts['outgoing_warnings'] > 0)--}}
+{{--                                    <span class="badge badge-warning !bg-yellow-300 font-bold shadow-lg shadow-yellow-300/50">--}}
+{{--                                        <i class="ki-filled ki-information text-yellow-600"></i>--}}
+{{--                                    </span>--}}
+{{--                                @endif--}}
+
+{{--                                <span class="badge badge-warning !bg-yellow-300 font-bold shadow-lg shadow-yellow-300/50">{{ $page->warning_counts['outgoing_warnings'] }}</span>--}}
                             </a> |
-                            <a class="btn btn-primary btn-xs text-sm btn-clear rounded-none transition-all duration-300 {{ request()->get('section') === 'cheque-register-incoming' ? 'active' : '' }}" href="{{ route('reports.bank-summary', ['section' => 'cheque-register-incoming']) }}">
+                            <a class="btn btn-primary btn-xs text-sm btn-clear rounded-none transition-all duration-300 {{ request()->get('section') === 'cheque-register-incoming' ? 'active' : '' }}"
+                               href="{{ route('reports.bank-summary', ['section' => 'cheque-register-incoming']) }}"
+                            >
                                 Cheque Register - Incoming
-                                <span class="badge badge-warning !bg-yellow-300 font-bold shadow-lg shadow-yellow-300/50">{{ $page->warning_counts['incoming_warnings'] }}</span>
+{{--                                @if($page->warning_counts['incoming_warnings'] > 0)--}}
+{{--                                    <span class="badge badge-warning !bg-yellow-300 font-bold shadow-lg shadow-yellow-300/50">--}}
+{{--                                        <i class="ki-filled ki-information text-yellow-600"></i>--}}
+{{--                                    </span>--}}
+{{--                                @endif--}}
+
+{{--                                <span class="badge badge-warning !bg-yellow-300 font-bold shadow-lg shadow-yellow-300/50">{{ $page->warning_counts['incoming_warnings'] }}</span>--}}
                             </a> |
                             <a class="btn btn-primary btn-xs text-sm btn-clear rounded-none transition-all duration-300 {{ request()->get('section') === 'cash-by-currency' ? 'active' : '' }}" href="{{ route('reports.bank-summary', ['section' => 'cash-by-currency']) }}">
                                 Cash By Currency
