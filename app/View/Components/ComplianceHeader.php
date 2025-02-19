@@ -4,7 +4,7 @@ namespace App\View\Components;
 
 use Illuminate\View\Component;
 
-class complianceHeader extends Component
+class ComplianceHeader extends Component
 {
     public $companyName;
     public $registryNumber;
@@ -45,6 +45,6 @@ class complianceHeader extends Component
      */
     public function render()
     {
-        return view('compliance.compliance_header');
+        return view('compliance.compliance-header');
     }
 }

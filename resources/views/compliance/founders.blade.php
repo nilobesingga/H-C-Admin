@@ -138,7 +138,7 @@ td{
 <main>
 
     <div  class="container default-font" >
-            <x-compliance_header
+            <x-compliance-header
                 :companyName="$company_name"
                 :registryNumber="$registry_number"
                 :incorporationDate="$incorporation_date"
