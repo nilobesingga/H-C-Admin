@@ -126,7 +126,7 @@
             <!-- DIRECTORS -->
             @if($directors && count($directors) > 0)
                 <div class="container default-font break">
-                    <x-compliance-header
+                    <x-compliance_header
                         :companyName="$company_name"
                         :registryNumber="$registry_number"
                         :incorporationDate="$incorporation_date"
@@ -196,7 +196,7 @@
             <!-- SHAREHOLDERS -->
             @if($shareholders && count($shareholders) > 0)
                 <div class="container default-font break">
-                    <x-compliance-header
+                    <x-compliance_header
                         :companyName="$company_name"
                         :registryNumber="$registry_number"
                         :incorporationDate="$incorporation_date"
@@ -257,7 +257,7 @@
             <!-- UBO -->
             @if($ubos && count($ubos) > 0)
                 <div class="container default-font">
-                    <x-compliance-header
+                    <x-compliance_header
                         :companyName="$company_name"
                         :registryNumber="$registry_number"
                         :incorporationDate="$incorporation_date"
