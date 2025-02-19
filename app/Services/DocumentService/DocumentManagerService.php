@@ -49,17 +49,16 @@ class DocumentManagerService
     }
     protected function downloadAndSaveDocument($companyName, $documents)
     {
-        // Normalize company name (remove special characters, trim spaces)
-        $normalizedCompanyName = preg_replace('/[^A-Za-z0-9 _-]/', '', $companyName);
-        $normalizedCompanyName = trim($normalizedCompanyName);
+        // Use the exact company name as received
+        $folderName = trim($companyName);
 
         // Ensure folder exists before downloading documents
-        if (!Storage::disk('fsa')->exists($normalizedCompanyName)) {
+        if (!Storage::disk('fsa')->exists($folderName)) {
             try {
-                Storage::disk('fsa')->makeDirectory($normalizedCompanyName);
-                Log::info("Created folder: {$normalizedCompanyName}");
+                Storage::disk('fsa')->makeDirectory($folderName);
+                Log::info("Created folder: {$folderName}");
             } catch (\Exception $e) {
-                Log::error("Failed to create folder: {$normalizedCompanyName}. Error: " . $e->getMessage());
+                Log::error("Failed to create folder: {$folderName}. Error: " . $e->getMessage());
                 return;
             }
         }
@@ -99,9 +98,9 @@ class DocumentManagerService
                 $newFileName = pathinfo($fileName, PATHINFO_FILENAME) . "_{$date}." . pathinfo($fileName, PATHINFO_EXTENSION);
 
                 // Save the file directly to the NAS via FTP
-                Storage::disk('fsa')->put("{$normalizedCompanyName}/{$newFileName}", $body);
+                Storage::disk('fsa')->put("{$folderName}/{$newFileName}", $body);
 
-                Log::info("Document saved successfully: {$normalizedCompanyName}/{$newFileName}");
+                Log::info("Document saved successfully: {$folderName}/{$newFileName}");
             } else {
                 Log::error("Failed to retrieve document. HTTP Code: $httpCode for {$document['showUrl']}");
             }
@@ -110,8 +109,10 @@ class DocumentManagerService
     }
     protected function downloadAndSaveComapnyContactDocuments($companyName, $contacts, $contactDocumentFields)
     {
+        $folderName = trim($companyName);
+
         foreach ($contacts as $contact) {
-            $folderName = "{$companyName}/{$contact['NAME']}";
+            $folderName = "{$folderName}/{$contact['NAME']}";
 
             // Ensure folder creation, even if there are no documents
             if (!Storage::disk('fsa')->exists($folderName)) {
@@ -180,17 +181,15 @@ class DocumentManagerService
     protected function saveCompanyRegister($companyName, $companyRegisterData)
     {
         try {
-            // Normalize company name (remove special characters, trim spaces)
-            $normalizedCompanyName = preg_replace('/[^A-Za-z0-9 _-]/', '', $companyName);
-            $normalizedCompanyName = trim($normalizedCompanyName);
+            $folderName = trim($companyName);
 
             // Ensure folder exists
-            if (!Storage::disk('fsa')->exists($normalizedCompanyName)) {
+            if (!Storage::disk('fsa')->exists($folderName)) {
                 try {
-                    Storage::disk('fsa')->makeDirectory($normalizedCompanyName);
-                    Log::info("Created folder: {$normalizedCompanyName}");
+                    Storage::disk('fsa')->makeDirectory($folderName);
+                    Log::info("Created folder: {$folderName}");
                 } catch (\Exception $e) {
-                    Log::error("Failed to create folder: {$normalizedCompanyName}. Error: " . $e->getMessage());
+                    Log::error("Failed to create folder: {$folderName}. Error: " . $e->getMessage());
                     return;
                 }
             }
@@ -212,16 +211,14 @@ class DocumentManagerService
                 ->setOrientation('landscape');
 
             $pdfContent = $pdf->output();
-            $remoteFilePath = "{$normalizedCompanyName}/{$normalizedCompanyName} - Register.pdf";
+            $remoteFilePath = "{$folderName}/{$folderName} - Register.pdf";
 
             Storage::disk('fsa')->put($remoteFilePath, $pdfContent);
-            Log::info("Company register PDF saved for {$companyName}");
+            Log::info("Company register PDF saved for {$folderName}");
         } catch (\Exception $e){
-            Log::error("Error while saving Company Register {$companyName}: " . $e->getMessage());
+            Log::error("Error while saving Company Register {$folderName}: " . $e->getMessage());
         }
     }
-
-
     private function extractFileName($headers, $url)
     {
         if (preg_match('/filename="([^"]+)"/', $headers, $matches)) {
@@ -240,126 +237,114 @@ class DocumentManagerService
     }
     public function downloadFounderDocument($company, $foundersData)
     {
-        $companyName = $company['company_name'];
-//        $baseDir = env('FSA_DOCUMENTS_DIRECTORY') . $companyName;
-//
-//        if (!is_dir($baseDir)) {
-//            mkdir($baseDir, 0777, true);
-//        }
-
+        $folderName = trim($company['company_name']);
         try {
-//            $filePath = $baseDir . "/{$companyName} - Register of Founders.pdf";
-            $remoteFilePath = "{$companyName}/{$companyName} - Register of Founders.pdf";
-            // Check if the file already exists
-//            if (file_exists($filePath)) {
-//                unlink($filePath);
-//            }
-
+            $remoteFilePath = "{$folderName}/{$folderName} - Register of Founders.pdf";
             $pdf = WPDF::loadView('compliance.founders', $foundersData);
             $pdfContent = $pdf->setOrientation('landscape')->output();
 
             Storage::disk('fsa')->put($remoteFilePath, $pdfContent);
 
-            Log::info("Company founders PDF saved for {$companyName}");
+            Log::info("Company founders PDF saved for {$folderName}");
             return true;
         } catch (\Exception $e){
-            Log::error("Error while saving fonder register {$companyName} " . $e->getMessage(),[
+            Log::error("Error while saving fonder register {$folderName} " . $e->getMessage(),[
                 $e->getTrace()
             ]);
         }
     }
     public function downloadBeneficiaryDocument($company, $beneficiariesData)
     {
-        $companyName = $company['company_name'];
+        $folderName = trim($company['company_name']);
 
         try {
-            $remoteFilePath = "{$companyName}/{$companyName} - Register of Beneficiary.pdf";
+            $remoteFilePath = "{$folderName}/{$folderName} - Register of Beneficiary.pdf";
 
             $pdf = WPDF::loadView('compliance.beneficiaries', $beneficiariesData);
             $pdfContent =  $pdf->setOrientation('landscape')->output();
             Storage::disk('fsa')->put($remoteFilePath, $pdfContent);
 
-            Log::info("Company Beneficiaries PDF saved for {$companyName}");
+            Log::info("Company Beneficiaries PDF saved for {$folderName}");
             return true;
         } catch (\Exception $e){
-            Log::error("Error while saving beneficiary register {$companyName} " . $e->getMessage(),[
+            Log::error("Error while saving beneficiary register {$folderName} " . $e->getMessage(),[
                 $e->getTrace()
             ]);
         }
     }
     public function downloadProtectorDocument($company, $protectorsData)
     {
-        $companyName = $company['company_name'];
+        $folderName = trim($company['company_name']);
 
         try {
-            $remoteFilePath = "{$companyName}/{$companyName} - Register of Protectors.pdf";
+            $remoteFilePath = "{$folderName}/{$folderName} - Register of Protectors.pdf";
 
             $pdf = WPDF::loadView('compliance.protectors', $protectorsData);
             $pdfContent = $pdf->setOrientation('landscape')->output();
 
             Storage::disk('fsa')->put($remoteFilePath, $pdfContent);
-            Log::info("Company Protectors PDF saved for {$companyName}");
+            Log::info("Company Protectors PDF saved for {$folderName}");
             return true;
         } catch (\Exception $e){
-            Log::error("Error while saving Protectors register {$companyName} " . $e->getMessage(),[
+            Log::error("Error while saving Protectors register {$folderName} " . $e->getMessage(),[
                 $e->getTrace()
             ]);
         }
     }
     public function downloadCouncilorDocument($company, $councilorsData)
     {
-        $companyName = $company['company_name'];
+        $folderName = trim($company['company_name']);
 
         try {
-            $remoteFilePath = "{$companyName}/{$companyName} - Register of Councilors.pdf";
+            $remoteFilePath = "{$folderName}/{$folderName} - Register of Councilors.pdf";
 
             $pdf = WPDF::loadView('compliance.councilors', $councilorsData);
             $pdfContent = $pdf->setOrientation('landscape')->output();
 
             Storage::disk('fsa')->put($remoteFilePath, $pdfContent);
 
-            Log::info("Company Councilors PDF saved for {$companyName}");
+            Log::info("Company Councilors PDF saved for {$folderName}");
             return true;
         } catch (\Exception $e){
-            Log::error("Error while saving Councilor register {$companyName} " . $e->getMessage(),[
+            Log::error("Error while saving Councilor register {$folderName} " . $e->getMessage(),[
                 $e->getTrace()
             ]);
         }
     }
     public function downloadAuthorizedPersonDocument($company, $authorizedPersonsData)
     {
-        $companyName = $company['company_name'];
+        $folderName = trim($company['company_name']);
 
         try {
-            $remoteFilePath = "{$companyName}/{$companyName} - Register of Authorized Persons.pdf";
+            $remoteFilePath = "{$folderName}/{$folderName} - Register of Authorized Persons.pdf";
 
             $pdf = WPDF::loadView('compliance.authorized_persons', $authorizedPersonsData);
             $pdfContent = $pdf->setOrientation('landscape')->output();
 
             Storage::disk('fsa')->put($remoteFilePath, $pdfContent);
-            Log::info("Company Authorized Persons PDF saved for {$companyName}");
+            Log::info("Company Authorized Persons PDF saved for {$folderName}");
             return true;
         } catch (\Exception $e){
-            Log::error("Error while saving Authorized Persons register {$companyName} " . $e->getMessage(),[
+            Log::error("Error while saving Authorized Persons register {$folderName} " . $e->getMessage(),[
                 $e->getTrace()
             ]);
         }
     }
     public function downloadOfficersDocument($company, $officersData)
     {
-        $companyName = $company['company_name'];
+        $folderName = trim($company['company_name']);
 
         try {
-            $remoteFilePath = "{$companyName}/{$companyName} - Register of Officers.pdf";
+            $remoteFilePath = "{$folderName}/{$folderName} - Register of Officers.pdf";
 
             $pdf = WPDF::loadView('compliance.officers', $officersData);
             $pdfContent = $pdf->setOrientation('landscape')->output();
 
             Storage::disk('fsa')->put($remoteFilePath, $pdfContent);
-            Log::info("Company Officers PDF saved for {$companyName}");
+            Log::info("Company Officers PDF saved for {$folderName}");
             return true;
         } catch (\Exception $e){
-            Log::error("Error while saving Officers register {$companyName} " . $e->getMessage(),[
+            Log::error("Error while saving Officers register {$folderName} " . $e->getMessage(),[
                 $e->getTrace()
             ]);
         }
