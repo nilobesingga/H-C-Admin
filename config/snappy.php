@@ -3,7 +3,7 @@
 return [
     'pdf' => [
         'enabled' => true,
-        'binary'  =>  env('APP_ENV') == "local" ? '/usr/local/bin/wkhtmltopdf': base_path('vendor/h4cc/wkhtmltopdf-amd64/bin/wkhtmltopdf-amd64'),
+        'binary'  =>  env('APP_ENV'),
         'timeout' => 180,
         'enable-local-file-access' => true,
         'options' => array(
