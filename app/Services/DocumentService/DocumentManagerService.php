@@ -114,19 +114,20 @@ class DocumentManagerService
     }
     protected function downloadAndSaveComapnyContactDocuments($companyName, $contacts, $contactDocumentFields)
     {
-        $folderName = $this->getSafeFolderName($companyName);
+        $baseFolderName = $this->getSafeFolderName($companyName); // Store the base folder name
 
         foreach ($contacts as $contact) {
-            $folderName = "{$folderName}/{$contact['NAME']}";
+            // Create a new folder for each contact, without modifying the base folder
+            $contactFolderName = "{$baseFolderName}/{$contact['NAME']}";
 
             // Ensure folder creation, even if there are no documents
-            if (!Storage::disk('fsa')->exists($folderName)) {
+            if (!Storage::disk('fsa')->exists($contactFolderName)) {
                 try {
-                    Storage::disk('fsa')->makeDirectory($folderName);
-                    Log::info("Created folder: {$folderName}");
+                    Storage::disk('fsa')->makeDirectory($contactFolderName);
+                    Log::info("Created folder: {$contactFolderName}");
                 } catch (\Exception $e) {
-                    Log::error("Failed to create folder: {$folderName}. Error: " . $e->getMessage());
-                    return;
+                    Log::error("Failed to create folder: {$contactFolderName}. Error: " . $e->getMessage());
+                    continue; // Use continue instead of return to allow other contacts to process
                 }
             }
 
@@ -180,8 +181,8 @@ class DocumentManagerService
                     $date = $this->extractLastModifiedDate($headers);
                     $newFileName = pathinfo($fileName, PATHINFO_FILENAME) . "_{$date}." . pathinfo($fileName, PATHINFO_EXTENSION);
 
-                    Storage::disk('fsa')->put("{$folderName}/{$newFileName}", $body);
-                    Log::info("Saved document: {$folderName}/{$newFileName}");
+                    Storage::disk('fsa')->put("{$contactFolderName}/{$newFileName}", $body);
+                    Log::info("Saved document: {$contactFolderName}/{$newFileName}");
                 } else {
                     Log::error("Failed to retrieve document. HTTP Code: $httpCode for {$document['showUrl']}");
                 }
