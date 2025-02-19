@@ -47,12 +47,17 @@ class DocumentManagerService
 
         return true;
     }
+    protected function getSafeFolderName($companyName)
+    {
+        // Use regular expression to remove unwanted characters (space, period, comma, etc.) at the end of the string
+        $folderName = rtrim($companyName, " \t\n\r\0\x0B.,;!?");
+
+        return $folderName;
+    }
     protected function downloadAndSaveDocument($companyName, $documents)
     {
-        // Use the exact company name as received
-        $folderName = trim($companyName);
+        $folderName = $this->getSafeFolderName($companyName);
 
-        // Ensure folder exists before downloading documents
         if (!Storage::disk('fsa')->exists($folderName)) {
             try {
                 Storage::disk('fsa')->makeDirectory($folderName);
@@ -109,15 +114,20 @@ class DocumentManagerService
     }
     protected function downloadAndSaveComapnyContactDocuments($companyName, $contacts, $contactDocumentFields)
     {
-        $folderName = trim($companyName);
+        $folderName = $this->getSafeFolderName($companyName);
 
         foreach ($contacts as $contact) {
             $folderName = "{$folderName}/{$contact['NAME']}";
 
             // Ensure folder creation, even if there are no documents
             if (!Storage::disk('fsa')->exists($folderName)) {
-                Storage::disk('fsa')->makeDirectory($folderName);
-                Log::info("Created folder: {$folderName}");
+                try {
+                    Storage::disk('fsa')->makeDirectory($folderName);
+                    Log::info("Created folder: {$folderName}");
+                } catch (\Exception $e) {
+                    Log::error("Failed to create folder: {$folderName}. Error: " . $e->getMessage());
+                    return;
+                }
             }
 
             $filteredDocuments = [];
@@ -181,9 +191,8 @@ class DocumentManagerService
     protected function saveCompanyRegister($companyName, $companyRegisterData)
     {
         try {
-            $folderName = trim($companyName);
+            $folderName = $this->getSafeFolderName($companyName);
 
-            // Ensure folder exists
             if (!Storage::disk('fsa')->exists($folderName)) {
                 try {
                     Storage::disk('fsa')->makeDirectory($folderName);
@@ -237,7 +246,7 @@ class DocumentManagerService
     }
     public function downloadFounderDocument($company, $foundersData)
     {
-        $folderName = trim($company['company_name']);
+        $folderName = $this->getSafeFolderName($company['company_name']);
         try {
             $remoteFilePath = "{$folderName}/{$folderName} - Register of Founders.pdf";
             $pdf = WPDF::loadView('compliance.founders', $foundersData);
@@ -255,7 +264,7 @@ class DocumentManagerService
     }
     public function downloadBeneficiaryDocument($company, $beneficiariesData)
     {
-        $folderName = trim($company['company_name']);
+        $folderName = $this->getSafeFolderName($company['company_name']);
 
         try {
             $remoteFilePath = "{$folderName}/{$folderName} - Register of Beneficiary.pdf";
@@ -274,7 +283,7 @@ class DocumentManagerService
     }
     public function downloadProtectorDocument($company, $protectorsData)
     {
-        $folderName = trim($company['company_name']);
+        $folderName = $this->getSafeFolderName($company['company_name']);
 
         try {
             $remoteFilePath = "{$folderName}/{$folderName} - Register of Protectors.pdf";
@@ -293,7 +302,7 @@ class DocumentManagerService
     }
     public function downloadCouncilorDocument($company, $councilorsData)
     {
-        $folderName = trim($company['company_name']);
+        $folderName = $this->getSafeFolderName($company['company_name']);
 
         try {
             $remoteFilePath = "{$folderName}/{$folderName} - Register of Councilors.pdf";
@@ -313,7 +322,7 @@ class DocumentManagerService
     }
     public function downloadAuthorizedPersonDocument($company, $authorizedPersonsData)
     {
-        $folderName = trim($company['company_name']);
+        $folderName = $this->getSafeFolderName($company['company_name']);
 
         try {
             $remoteFilePath = "{$folderName}/{$folderName} - Register of Authorized Persons.pdf";
@@ -332,7 +341,7 @@ class DocumentManagerService
     }
     public function downloadOfficersDocument($company, $officersData)
     {
-        $folderName = trim($company['company_name']);
+        $folderName = $this->getSafeFolderName($company['company_name']);
 
         try {
             $remoteFilePath = "{$folderName}/{$folderName} - Register of Officers.pdf";
@@ -349,4 +358,5 @@ class DocumentManagerService
             ]);
         }
     }
+
 }
