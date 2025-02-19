@@ -3,7 +3,7 @@
 return [
     'pdf' => [
         'enabled' => true,
-        'binary'  =>  env('APP_ENV'),
+        'binary'  =>  env('WKHTML_IMG_PDF'),
         'timeout' => 180,
         'enable-local-file-access' => true,
         'options' => array(
