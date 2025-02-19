@@ -241,13 +241,13 @@ class ReportsController extends Controller
             ->whereId(7)->first();
 
         // cheque register warning counts.
-        $bitrixAPI = app(\App\Repositories\BitrixApiRepository::class);
-        $chequeRegisterWarningCounts = $bitrixAPI->call('crm.company.reports_v2', [
-            'action' => "getChequeRegisterWarningCounts",
-            'startDate' => getDateOFLast60Days(),
-            'endDate' => getLastDateOfMonthAfterThreeYears(),
-            'categories' => $bitrixListCategories->pluck('bitrix_category_id'),
-        ]);
+//        $bitrixAPI = app(\App\Repositories\BitrixApiRepository::class);
+//        $chequeRegisterWarningCounts = $bitrixAPI->call('crm.company.reports_v2', [
+//            'action' => "getChequeRegisterWarningCounts",
+//            'startDate' => getDateOFLast60Days(),
+//            'endDate' => getLastDateOfMonthAfterThreeYears(),
+//            'categories' => json_encode($bitrixListCategories->pluck('bitrix_category_id')),
+//        ]);
 
         $page = (object)[
             'permission' => $modulePermission,

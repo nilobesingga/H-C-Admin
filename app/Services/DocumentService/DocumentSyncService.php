@@ -3,6 +3,7 @@
 namespace App\Services\DocumentService;
 
 use App\Repositories\BitrixApiRepository;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
 class DocumentSyncService
@@ -543,8 +544,10 @@ class DocumentSyncService
         return [
             'company_name' => $company['company_name'],
             'registry_number' => $company['s_license_no'] ?? 'Not Provided',
-            'incorporation_date' => $company['incorporation_date'] ?? 'Not Provided',
-            "organization_type" => $this->getOrganizationType($company['organization_type']) ?? 'Not Provided',
+            'incorporation_date' => isset($company['incorporation_date'])
+                ? Carbon::parse($company['incorporation_date'])->format('d M Y')
+                : 'Not Provided',
+            "organization_type" => $this->getOrganizationType($company['organization_type_new']) ?? 'Not Provided',
             "authority" => $company['authority'] ?? 'Not Provided',
             "registered_address" => $companyData['UF_CRM_1567591803'] ?? 'No Registered Address',
             'directors' => $relationships['individualDirectors'],
@@ -562,7 +565,7 @@ class DocumentSyncService
             "company_name" => $company['company_name'],
             "registry_number" => $company['s_license_no'] ?? 'Not Provided',
             "incorporation_date" =>  date("d M Y", strtotime($company['incorporation_date'])),
-            "organization_type" => $this->getOrganizationType($company['organization_type']) ?? 'Not Provided',
+            "organization_type" => $this->getOrganizationType($company['organization_type_new']) ?? 'Not Provided',
             "authority" => $company['authority'] ?? 'Not Provided',
             "registered_address" => $companyData['UF_CRM_1567591803'] ?? 'No Registered Address',
             "founders" => $founders,
@@ -577,7 +580,7 @@ class DocumentSyncService
             "company_name" => $company['company_name'],
             "registry_number" => $company['s_license_no'] ?? 'Not Provided',
             "incorporation_date" =>  date("d M Y", strtotime($company['incorporation_date'])),
-            "organization_type" => $this->getOrganizationType($company['organization_type']) ?? 'Not Provided',
+            "organization_type" => $this->getOrganizationType($company['organization_type_new']) ?? 'Not Provided',
             "authority" => $company['authority'] ?? 'Not Provided',
             "registered_address" => $companyData['UF_CRM_1567591803'] ?? 'No Registered Address',
             "beneficiaries" => $beneficiaries,
@@ -592,7 +595,7 @@ class DocumentSyncService
             "company_name" => $company['company_name'],
             "registry_number" => $company['s_license_no'] ?? 'Not Provided',
             "incorporation_date" =>  date("d M Y", strtotime($company['incorporation_date'])),
-            "organization_type" => $this->getOrganizationType($company['organization_type']) ?? 'Not Provided',
+            "organization_type" => $this->getOrganizationType($company['organization_type_new']) ?? 'Not Provided',
             "authority" => $company['authority'] ?? 'Not Provided',
             "registered_address" => $companyData['UF_CRM_1567591803'] ?? 'No Registered Address',
             "protectors" => $protectors,
@@ -607,7 +610,7 @@ class DocumentSyncService
             "company_name" => $company['company_name'],
             "registry_number" => $company['s_license_no'] ?? 'Not Provided',
             "incorporation_date" =>  date("d M Y", strtotime($company['incorporation_date'])),
-            "organization_type" => $this->getOrganizationType($company['organization_type']) ?? 'Not Provided',
+            "organization_type" => $this->getOrganizationType($company['organization_type_new']) ?? 'Not Provided',
             "authority" => $company['authority'] ?? 'Not Provided',
             "registered_address" => $companyData['UF_CRM_1567591803'] ?? 'No Registered Address',
             "councilors" => $councilorsData,
@@ -622,7 +625,7 @@ class DocumentSyncService
             "company_name" => $company['company_name'],
             "registry_number" => $company['s_license_no'] ?? 'Not Provided',
             "incorporation_date" =>  date("d M Y", strtotime($company['incorporation_date'])),
-            "organization_type" => $this->getOrganizationType($company['organization_type']) ?? 'Not Provided',
+            "organization_type" => $this->getOrganizationType($company['organization_type_new']) ?? 'Not Provided',
             "authority" => $company['authority'] ?? 'Not Provided',
             "registered_address" => $companyData['UF_CRM_1567591803'] ?? 'No Registered Address',
             "authorized_persons" => $authorizedPersons,
@@ -637,7 +640,7 @@ class DocumentSyncService
             "company_name" => $company['company_name'],
             "registry_number" => $company['s_license_no'] ?? 'Not Provided',
             "incorporation_date" =>  date("d M Y", strtotime($company['incorporation_date'])),
-            "organization_type" => $this->getOrganizationType($company['organization_type']) ?? 'Not Provided',
+            "organization_type" => $this->getOrganizationType($company['organization_type_new']) ?? 'Not Provided',
             "authority" => $company['authority'] ?? 'Not Provided',
             "registered_address" => $companyData['UF_CRM_1567591803'] ?? 'No Registered Address',
             "authorized_persons" => $officers,

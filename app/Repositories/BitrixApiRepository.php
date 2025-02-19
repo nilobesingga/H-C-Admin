@@ -161,8 +161,12 @@ class BitrixApiRepository
     }
     public function getOrganizationType($typeId)
     {
+//        OLD
+//        $response = $this->call('crm.company.userfield.get', [
+//            'id' => 258
+//        ]);
         $response = $this->call('crm.company.userfield.get', [
-            'id' => 258
+            'id' => 1111
         ]);
 
         if ($response){
