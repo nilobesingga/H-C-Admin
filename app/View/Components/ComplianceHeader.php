@@ -4,7 +4,7 @@ namespace App\View\Components;
 
 use Illuminate\View\Component;
 
-class complianceHeader extends Component
+class ComplianceHeader extends Component
 {
     public $companyName;
     public $registryNumber;
