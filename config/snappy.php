@@ -3,7 +3,7 @@
 return [
     'pdf' => [
         'enabled' => true,
-        'binary'  =>  env('APP_ENV'),
+        'binary'  =>  env('APP_ENV') == "local" ? '/usr/local/bin/wkhtmltopdf': '/usr/bin/wkhtmltopdf',
         'timeout' => 180,
         'enable-local-file-access' => true,
         'options' => array(
