@@ -48,6 +48,7 @@
                     <tr class="text-left tracking-tight">
                         <th class="sticky top-0 w-10 text-center">#</th>
                         <th class="sticky top-0 w-[200px] text-left">Name</th>
+                        <th class="sticky top-0 w-[70px] text-center">User Name</th>
                         <th class="sticky top-0 w-[70px] text-center">Bitrix User Id</th>
                         <th class="sticky top-0 w-[100px] text-center">Bitrix Webhook Token</th>
                         <th class="sticky top-0 w-[70px] text-center">Access URL</th>
@@ -65,7 +66,7 @@
                                     <div class="flex items-center gap-2">
                                         <img alt="" class="rounded-full transition-all duration-300 border border-white shadow-lg ring-1 ring-black group-hover:!ring-tec-active group-hover:!shadow-tec-active/30 size-9 shrink-0" :src="obj.profile ? obj.profile.bitrix_profile_photo : null">
                                         <div class="flex flex-col">
-                                            <div class="text-sm font-semibold text-gray-900  mb-px">{{ obj.profile ? obj.profile.bitrix_name : null }}</div>
+                                            <div class="text-sm font-semibold text-gray-900  mb-px">{{ obj.profile ? obj.profile.bitrix_name : null }} {{ obj.profile ? obj.profile.bitrix_last_name : null }}</div>
                                             <span class="text-xs font-normal text-gray-600 group-hover:!text-tec-active">{{ obj.email }}</span>
                                         </div>
                                     </div>
@@ -73,6 +74,7 @@
                                 </div>
                             </a>
                         </td>
+                        <td>{{ obj.user_name }}</td>
                         <td>{{ obj.bitrix_user_id }}</td>
                         <td>{{ obj.bitrix_webhook_token }}</td>
                         <td><a :href="`${appUrl}/login/${obj.access_token}`" class="btn btn-link transition-all duration-300 !text-neutral-800 hover:!text-tec-active" target="_blank">Authorize</a></td>
