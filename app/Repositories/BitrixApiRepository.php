@@ -50,20 +50,32 @@ class BitrixApiRepository
 
     public function getAllBitrixUsers()
     {
-        $users = [];
-        $start = 0;
+        try {
+            $response = $this->call('crm.company.reports_v2', [
+                'action' => 'getUsers'
+            ]);
 
-        do {
-            $response = $this->call('user.get', ['start' => $start]);
-
-            if (isset($response['result']) && is_array($response['result'])) {
-                $users = array_merge($users, $response['result']);
+            if ($response &&  isset($response['result'])){
+                return $response['result'] ?? [];
             }
 
-            $start = $response['next'] ?? null;
-        } while ($start !== null);
-
-        return $users;
+        } catch (\Exception $e) {
+            Log::error("BitrixApiRepository: getAllBitrixUsers() | Error fetching all bitrix users: " . $e->getMessage());
+        }
+//        $users = [];
+//        $start = 0;
+//
+//        do {
+//            $response = $this->call('user.get', ['start' => $start]);
+//
+//            if (isset($response['result']) && is_array($response['result'])) {
+//                $users = array_merge($users, $response['result']);
+//            }
+//
+//            $start = $response['next'] ?? null;
+//        } while ($start !== null);
+//
+//        return $users;
     }
     public function getHostedCompanies()
     {

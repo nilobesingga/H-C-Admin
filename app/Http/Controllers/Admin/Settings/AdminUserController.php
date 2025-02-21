@@ -41,15 +41,26 @@ class AdminUserController extends Controller
 
             $filters = request('filters');
 
-            $query = User::with('profile', 'categories', 'modules');
+            $query = User::with('profile', 'categories', 'modules')
+                ->orderByRaw('LOWER(user_name) ASC');
+
+            if (isset($filters['bitrix_active'])) {
+                $query->where('bitrix_active', $filters['bitrix_active']);
+            }
 
             // Apply search filter
             if (!empty($filters['search'])) {
-                $query->where('email', 'LIKE', '%'. $filters['search'] . "%");
-            }
+                $search = strtolower($filters['search']);
 
-            if ($filters['bitrix_active'] != null){
-                $query->where('bitrix_active', $filters['bitrix_active']);
+                $query->where(function ($q) use ($search) {
+                    $q->whereRaw('LOWER(email) LIKE ?', ["%$search%"])
+                        ->orWhereRaw('LOWER(user_name) LIKE ?', ["%$search%"])
+                        ->orWhereHas('profile', function ($q) use ($search) {
+                            $q->whereRaw('LOWER(bitrix_name) LIKE ?', ["%$search%"])
+                                ->orWhereRaw('LOWER(bitrix_last_name) LIKE ?', ["%$search%"])
+                                ->orWhereRaw('LOWER(bitrix_second_name) LIKE ?', ["%$search%"]);
+                        });
+                });
             }
 
             return $query->get();
@@ -57,7 +68,6 @@ class AdminUserController extends Controller
         } catch (\Exception $e){
             return response()->json(['message' => $e->getMessage()], 500);
         }
-
     }
     public function save(Request $request, $userId)
     {

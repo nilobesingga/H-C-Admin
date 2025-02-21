@@ -27,6 +27,7 @@ class User extends Authenticatable
         'bitrix_parent_id',
         'bitrix_webhook_token',
         'email',
+        'user_name',
         'bitrix_active',
         'password',
         'access_token',

@@ -5,6 +5,7 @@ namespace App\Services\Bitrix;
 use App\Models\Bitrix\UserProfile;
 use App\Models\User;
 use App\Repositories\BitrixApiRepository;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class BitrixService
@@ -25,13 +26,14 @@ class BitrixService
                 $userExists = User::where('bitrix_user_id', $bitrixUser['ID'])->exists();
                 // Prepare user data with conditional fields
                 $userData = [
-                    'bitrix_active' => $bitrixUser['ACTIVE'],
+                    'bitrix_active' => $bitrixUser['ACTIVE'] === 'Y' ? 1 : 0,
                     'updated_by' => 0,
                 ];
                 // Add fields only for new users
                 if (!$userExists) {
                     $userData = array_merge($userData, [
                         'email' => $bitrixUser['EMAIL'],
+                        'user_name' => $bitrixUser['LOGIN'],
                         'password' => bcrypt('123456789'),
                         'access_token' => md5($bitrixUser['ID'] . $bitrixUser['EMAIL']),
                         'is_default_password' => true,
@@ -79,7 +81,7 @@ class BitrixService
                         'bitrix_district' => $bitrixUser['UF_DISTRICT'] ?? null,
                         'bitrix_phone_inner' => $bitrixUser['UF_PHONE_INNER'] ?? null,
                         'bitrix_user_type' => $bitrixUser['USER_TYPE'] ?? null,
-                        'updated_by' => 0,
+                        'updated_by' => Auth::id(),
                     ]
                 );
             });
