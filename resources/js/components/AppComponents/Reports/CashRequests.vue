@@ -133,7 +133,7 @@
                                 </a>
 
                                 <button
-                                    v-if="obj.status_id == bitrixCashRequestStatus.cashReleased || obj.status_id == bitrixCashRequestStatus.partialCashRelease"
+                                    v-if="obj.status_id == 1655 || obj.status_id == 1687"
                                     @click="downloadCashReleaseReceipt(obj)"
                                     class="secondary-btn mb-1 block w-full"
                                 >
@@ -303,16 +303,7 @@ export default {
                 },
             ],
             totalAsPerReportingCurrency: 0,
-            status_filter_ids : [1651, 1652, 1653, 1655, 1659, 1687],
-            bitrixCashRequestStatus: {
-                pending: 1651,
-                approved: 1652,
-                declined: 1653,
-                cashReleased: 1655,
-                completed: 1656,
-                cancelled: 1659,
-                partialCashRelease: 1687
-            },
+            active_status_filter_ids : [1651, 1652, 1653, 1655, 1659, 1687],
             selected_obj: null,
             is_show_bank_transfer_details_modal: false,
             is_create_bank_transfer_form_modal: false,
@@ -343,7 +334,7 @@ export default {
                     if (filter.key === "status"){
                         // Filter values based on allowed IDs
                         filter.values = Object.entries(response.result.L.DISPLAY_VALUES_FORM)
-                            .filter(([key]) => this.status_filter_ids.includes(parseInt(key))) // Keep only allowed IDs
+                            .filter(([key]) => this.active_status_filter_ids.includes(parseInt(key))) // Keep only allowed IDs
                             .reduce((obj, [key, value]) => {
                                 obj[key] = value;
                                 return obj;
@@ -435,6 +426,44 @@ export default {
             this.is_create_bank_transfer_form_modal = false;
             this.selected_obj = null
             this.removeModalBackdrop();
+        },
+        downloadCashReleaseReceipt(item){
+            var fileName = `${item.amount_given} | ${item.currency} - ${item.requested_by_name} - Cash Request Receipt.pdf`;
+
+            axios({
+                url: `/cash-request/download-released-receipt`,
+                method: 'POST',
+                responseType: 'arraybuffer',
+                data: {
+                    'requestId': item.id,
+                    'requestCreateDate': DateTime.fromSQL(item.date_create).toFormat('dd LLL yyyy'),
+                    'requestPaymentDate': DateTime.fromISO(item.payment_date).toFormat('dd LLL yyyy'),
+                    'releaseDate': DateTime.fromISO(item.released_date).toFormat('dd LLL yyyy'),
+                    'requestedBy': item.requested_by_name,
+                    'releasedBy': item.released_by, //can be any employee not just accountant
+                    'project': item.project_name,
+                    'company': item.company_name,
+                    'remarks': item.detail_text,
+                    'amountReceived': item.amount_given,
+                    'currency': item.currency,
+                    'cashReleaseType': item.status_id == 1687 ? 2 : 1, // Partial cash released
+                    'balance': item.amount
+                },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/pdf'
+                },
+            }).then(response => {
+                const url = window.URL.createObjectURL(new Blob([response.data]));
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', fileName);
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+            }).catch(error => {
+                this.errorToast(error.response.data.message)
+            })
         },
     },
     computed:{

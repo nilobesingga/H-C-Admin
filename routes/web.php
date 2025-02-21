@@ -38,6 +38,9 @@ Route::middleware(['auth'])->group(function(){
         });
     });
 
+    // Download Cash Release Receipt
+    Route::post('/cash-request/download-released-receipt', [ReportsController::class, 'downloadCashReleasedReceipt']);
+
     // Sync FSA / DS2
     Route::get('/sync/FSA/documents', [DocumentSyncController::class, 'syncFSADocuments'])->name('sync.FSA.documents');
     Route::get('/sync/FSA/documents/progress', [DocumentSyncController::class, 'getSyncFSADocumentsProgress'])->name('sync.FSA.documents.progress');

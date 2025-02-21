@@ -5,16 +5,17 @@ namespace App\Http\Controllers\Reports;
 use App\Http\Controllers\Controller;
 use App\Models\Bitrix\BitrixList;
 use App\Models\Bitrix\BitrixListsSageCompanyMapping;
-use App\Models\User;
 use App\Models\UserModulePermission;
-use App\Repositories\BitrixApiRepository;
 use App\Services\UserServices;
+use App\Traits\ApiResponser;
+use \Barryvdh\Snappy\Facades\SnappyPdf as PDF;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class ReportsController extends Controller
 {
+    use ApiResponser;
     protected $userService;
     protected $user;
     protected $userCategoryIds;
@@ -347,5 +348,45 @@ class ReportsController extends Controller
             'bitrix_list_cash_requests_categories' => $bitrixListCashRequestCategories
         ];
         return view('reports.expense_planner', compact('page'));
+    }
+    public function downloadCashReleasedReceipt(Request $request)
+    {
+        try {
+            $logoPath = public_path('img/CRESCO_Holding.png');
+            $logo = null;
+
+            if (file_exists($logoPath)) {
+                $sealBase64 = base64_encode(file_get_contents($logoPath));
+                $sealMimeType = mime_content_type($logoPath);
+                $logo = "data:$sealMimeType;base64,$sealBase64";
+            }
+
+            $data = [
+                'logo' =>   $logo ,
+                'requestId' => $request['requestId'] != '' ? $request['requestId'] : 'empty',
+                'requestCreateDate' => $request['requestCreateDate'] != '' ? $request['requestCreateDate'] : 'empty',
+                'requestPaymentDate' => $request['requestPaymentDate'] != '' ? $request['requestPaymentDate'] : 'empty',
+                'releaseDate' => $request['releaseDate'] != '' ? $request['releaseDate'] : 'empty',
+                'requestedBy' => $request['requestedBy'] != '' ? $request['requestedBy'] : 'empty',
+                'releasedBy' => $request['releasedBy'] != '' ? $request['releasedBy'] : 'empty',
+                'project' => $request['project'] != '' ? $request['project'] : 'No project specified',
+                'company' =>  $request['company'] != '' ? $request['company'] : 'No company specified',
+                'remarks' => $request['remarks'] != '' ? $request['remarks'] : 'No remarks',
+                'amountReceived' => $request['amountReceived'] != '' ? $request['amountReceived'] : '0',
+                'currency' => $request['currency'] != '' ? $request['currency'] : '',
+                'cashReleaseType'  => $request['cashReleaseType'] != '' ? $request['cashReleaseType'] : 1,
+                'balance'  => $request['balance'] != '' ? $request['balance'] : '',
+                'paymentMode' => $request['paymentMode'] != '' ? $request['paymentMode'] : 'Cash',
+            ];
+
+            $templateName = 'templates/cash_release_receipt_template';
+
+            $pdf = PDF::loadView($templateName, $data)
+                ->setOption('enable-local-file-access', true);
+            return $pdf->download('receipt.pdf');
+
+        } catch (\Exception $e){
+            return $this->errorResponse('Error while downloading cash release receipt', $e->getMessage());
+        }
     }
 }
