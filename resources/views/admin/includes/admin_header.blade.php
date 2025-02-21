@@ -82,7 +82,7 @@
                                     <img alt="" class="w-12 h-12 inline-block rounded-full ring-2 ring-tec-active border border-white shadow-lg shadow-tec-active/30" src="{{ Auth::user()->profile->bitrix_profile_photo ?? '' }}" />
                                 </div>
                                 <div class="flex flex-col gap-1.5 mt-4">
-                                    <span class="text-sm text-black font-semibold leading-none">{{ Auth::user()->profile->bitrix_name ?? '' }}</span>
+                                    <span class="text-sm text-black font-semibold leading-none">{{ Auth::user()->profile->bitrix_name ?? '' }} {{ Auth::user()->profile->bitrix_last_name ?? '' }}</span>
                                     <span class="text-xs text-neutral-600 leading-none">{{ Auth::user()->email }}</span>
                                 </div>
                             </div>
