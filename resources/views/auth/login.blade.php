@@ -9,8 +9,11 @@
                     <img class="w-48 mb-3" src="{{ asset('storage/images/logos/CRESCO-logo.png') }}"/>
                 </div>
                 <div class="flex flex-col gap-1">
+                    @if(env('APP_ENV') != 'production')
+                        <span class="badge badge-sm badge-pill badge-primary mb-4">{{ env('APP_ENV') }}</span>
+                    @endif
                     {{-- <label class="form-label font-normal text-gray-900">Email</label> --}}
-                    <input name="email" type="email" class="input input-normal" placeholder="User@email.com" required autofocus />
+                    <input name="login" type="text" class="input input-normal" placeholder="User Name or Email" autofocus />
                 </div>
                 <div class="flex flex-col gap-1">
                     {{-- <div class="flex items-center justify-between gap-1"> --}}

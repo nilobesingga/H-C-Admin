@@ -13,28 +13,33 @@ class AuthController extends Controller
     public function doLogin(Request $request)
     {
         $credentials = $request->validate([
-            'email' => ['required', 'email'],
+            'login' => ['required'], // Accepts either email or username
             'password' => ['required'],
         ]);
 
-        if (Auth::attempt($credentials)) {
+        // Determine if the input is an email or username
+        $loginField = filter_var($credentials['login'], FILTER_VALIDATE_EMAIL) ? 'email' : 'user_name';
 
-            $user =  Auth::user();
-            if($user->bitrix_active == 1){
+        if (Auth::attempt([$loginField => $credentials['login'], 'password' => $credentials['password']])) {
+
+            $user = Auth::user();
+
+            if ($user->bitrix_active == 1) {
                 $user->update([
                     'last_login' => Carbon::now(),
                     'last_ip' => $request->getClientIp(),
                     'status' => 'online'
                 ]);
             }
+
             $request->session()->regenerate();
 
             return redirect()->intended('dashboard');
-        }
-        else {
+        } else {
             Auth::logout();
             return redirect()->back()->withErrors(['error' => 'No login access for this user']);
         }
+
         return back()->withErrors([
             'email' => 'The provided credentials do not match our records.',
         ])->onlyInput('email');
