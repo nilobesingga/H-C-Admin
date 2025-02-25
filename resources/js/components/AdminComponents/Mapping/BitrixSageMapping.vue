@@ -75,22 +75,13 @@
                         <td class="text-black">{{ obj.bitrix_category_id }}</td>
                         <td class="text-black text-left">{{ obj.bitrix_category_name }}</td>
                         <td class="text-end">
-                            <div class="menu inline-flex" data-menu="true">
-                                <div class="menu-item menu-item-dropdown" data-menu-item-offset="0, 10px" data-menu-item-placement="bottom-end" data-menu-item-placement-rtl="bottom-start" data-menu-item-toggle="dropdown" data-menu-item-trigger="click|lg:click">
-                                    <button class="menu-toggle btn btn-sm btn-icon btn-light btn-clear">
-                                        <i class="ki-filled ki-dots-vertical">
-                                        </i>
-                                    </button>
-                                    <div class="menu-dropdown menu-default w-full max-w-[175px]" data-menu-dismiss="true">
-                                        <div class="menu-item">
-                                            <span class="menu-link" data-modal-toggle="#bitrix_sage_mapping_form_modal" @click="openModal('edit', obj.id)">
-                                                <span class="menu-icon"><i class="ki-filled ki-pencil"></i></span>
-                                                <span class="menu-title">Edit</span>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            <button
+                                @click="openModal('edit', obj.id)"
+                                data-modal-toggle="#bitrix_sage_mapping_form_modal"
+                                class="secondary-btn mb-1 block w-full focus:!border-tec-active"
+                            >
+                                Edit
+                            </button>
                         </td>
                     </tr>
                     <tr class="table-no-data-available h-full" v-if="data.length === 0">

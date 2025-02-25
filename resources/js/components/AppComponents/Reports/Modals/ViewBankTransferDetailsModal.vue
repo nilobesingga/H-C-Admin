@@ -74,7 +74,7 @@
 import qs from 'qs';
 import {DateTime} from "luxon";
 export default {
-    name: "show-bank-transfer-details-modal",
+    name: "view-bank-transfer-details-modal",
     props: ['obj_id'],
     data(){
         return {

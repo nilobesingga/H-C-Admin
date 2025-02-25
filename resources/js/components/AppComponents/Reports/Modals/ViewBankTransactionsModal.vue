@@ -108,7 +108,7 @@
 import {DateTime} from "luxon";
 
 export default {
-    name: "show-bank-transactions-modal",
+    name: "view-bank-transactions-modal",
     props: ['bitrix_sage_company_mapping'],
     data(){
         return {

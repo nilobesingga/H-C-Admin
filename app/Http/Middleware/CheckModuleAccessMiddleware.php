@@ -19,7 +19,7 @@ class CheckModuleAccessMiddleware
         $user = Auth::user();
 
         // Extract the module slug from the route name
-        $routeName = $request->route()->getName(); // e.g., "reports.purchase-invoices"
+        $routeName = $request->route()->getName();
         $slug = str_replace('reports.', '', $routeName);
 
         // Check if the user has access to this module

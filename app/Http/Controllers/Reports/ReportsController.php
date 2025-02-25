@@ -389,4 +389,47 @@ class ReportsController extends Controller
             return $this->errorResponse('Error while downloading cash release receipt', $e->getMessage());
         }
     }
+    public function redirectToReports()
+    {
+        $path = request()->path();
+        $slug = str_replace('reports/', '', $path);
+
+        $reportMapping = [
+            'cresco-holding' => '/holding',
+            'cresco-accounting' => '/accounting',
+            'cresco-sage' => '/sage',
+            'hensley-and-cook' => '/compliance',
+            'orchidx' => '/orchid/banks',
+            'expense-overview' => '/accounting/expensecalendar',
+            'managing-director-reports' => '/md/mdPurchaseInvoices',
+            'crm-relationships-report' => '/entity/relationships',
+            'demo-reports' => '/demo/dbanks',
+            'hr-reports' => '/hr/checkIn',
+        ];
+
+        $user = Auth::user();
+        $accessToken = $user->access_token;
+
+        if (!$accessToken) {
+            return response()->json(['error' => 'Access token not found'], 403);
+        }
+
+        // Determine the correct base URL based on environment
+        $baseUrl = match (env('APP_ENV')) {
+            'staging' => env('CRESCO_REPORTS_STAGING_BASE_URL'),
+            'production' => env('CRESCO_REPORTS_BASE_URL'),
+            default => 'http://localhost:8000',
+        };
+
+        // Construct the authentication URL
+        $authUrl = $baseUrl . '/bitrix/login/' . $accessToken;
+
+        // After authentication, redirect to the requested report
+        $redirectAfterLogin = urlencode($baseUrl . $reportMapping[$slug]);
+
+        // Final redirect URL
+        $finalUrl = $authUrl . '?redirect=' . $redirectAfterLogin;
+
+        return redirect()->away($finalUrl);
+    }
 }

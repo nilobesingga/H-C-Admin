@@ -214,7 +214,7 @@
         </div>
     </div>
     <!-- show bank transfer detail modal -->
-    <show-bank-transfer-details-modal
+    <view-bank-transfer-details-modal
         :obj_id="selected_obj.bitrix_bank_transfer_id"
         v-if="is_show_bank_transfer_details_modal"
         @closeModal="closeModal"
