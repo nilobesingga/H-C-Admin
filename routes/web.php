@@ -35,6 +35,18 @@ Route::middleware(['auth'])->group(function(){
             Route::get('/proforma-invoices', [ReportsController::class, 'getProformaInvoices'])->name('proforma-invoices');
             Route::get('/bank-summary', [ReportsController::class, 'getBankSummary'])->name('bank-summary');
             Route::get('/expense-planner', [ReportsController::class, 'getExpensePlanner'])->name('expense-planner');
+
+            //########################################### CRESCO Reports links ###############################################################
+            Route::get('/cresco-holding', [ReportsController::class, 'redirectToReports'])->name('cresco-holding');
+            Route::get('/cresco-accounting', [ReportsController::class, 'redirectToReports'])->name('cresco-accounting');
+            Route::get('/cresco-sage', [ReportsController::class, 'redirectToReports'])->name('cresco-sage');
+            Route::get('/hensley-and-cook', [ReportsController::class, 'redirectToReports'])->name('hensley-and-cook');
+            Route::get('/orchidx', [ReportsController::class, 'redirectToReports'])->name('orchidx');
+            Route::get('/expense-overview', [ReportsController::class, 'redirectToReports'])->name('expense-overview');
+            Route::get('/managing-director-reports', [ReportsController::class, 'redirectToReports'])->name('managing-director-reports');
+            Route::get('/crm-relationships-report', [ReportsController::class, 'redirectToReports'])->name('crm-relationships-report');
+            Route::get('/demo-reports', [ReportsController::class, 'redirectToReports'])->name('demo-reports');
+            Route::get('/hr-reports', [ReportsController::class, 'redirectToReports'])->name('hr-reports');
         });
     });
 

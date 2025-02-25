@@ -412,7 +412,12 @@ export default {
             const isChecked = event.target.checked;
             if (isChecked) {
                 // Add all category IDs to the selected list
-                this.form.selected_category_ids = this.form_data.categories.map((category) => category.id);
+                // this.form.selected_category_ids = this.form_data.categories.map((category) => category.id);
+
+                // Select all categories except "Test" (ID: 16)
+                this.form.selected_category_ids = this.form_data.categories
+                    .filter(category => category.id !== 16) // Exclude "Test"
+                    .map(category => category.id);
             } else {
                 // Clear the selected categories
                 this.form.selected_category_ids = [];

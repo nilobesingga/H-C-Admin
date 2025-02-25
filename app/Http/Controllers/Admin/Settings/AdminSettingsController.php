@@ -10,6 +10,7 @@ use App\Models\Category;
 use App\Models\Module;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class AdminSettingsController extends Controller
@@ -110,11 +111,11 @@ class AdminSettingsController extends Controller
 
         return view('admin.settings.bitrix_sage_mapping', compact('page'));
     }
-    public function bitrixSageMappingGetData($id)
+    public function bitrixSageMappingGetData($id = null)
     {
         try {
             if($id){
-                dd('from bitrixSageMappingGetData', $id);
+                return BitrixListsSageCompanyMapping::findOrFail($id);
             }
             else {
                 $filters = request('filters');
@@ -151,13 +152,25 @@ class AdminSettingsController extends Controller
                 $obj->bitrix_sage_company_name = $requestData['bitrix_sage_company_name'];
                 $obj->bitrix_category_id = $requestData['bitrix_category_id'];
                 $obj->bitrix_category_name = $requestData['bitrix_category_name'];
+                $obj->created_by = Auth::id();
 
                 $obj->save();
 
                 return $this->successResponse('Data save successfully', null, 201);
             }
             if ($request->form_type === 'edit'){
+                $obj = BitrixListsSageCompanyMapping::findOrFail($requestData['id']);
+                $obj->category_id = $requestData['category_id'];
+                $obj->bitrix_list_id = $requestData['bitrix_list_id'];
+                $obj->sage_company_code = $requestData['sage_company_code'];
+                $obj->bitrix_sage_company_id = $requestData['bitrix_sage_company_id'];
+                $obj->bitrix_sage_company_name = $requestData['bitrix_sage_company_name'];
+                $obj->bitrix_category_id = $requestData['bitrix_category_id'];
+                $obj->bitrix_category_name = $requestData['bitrix_category_name'];
+                $obj->updated_by = Auth::id();
+                $obj->save();
 
+                return $this->successResponse('Data updated successfully', null, 200);
             }
 
         } catch (\Exception $e){
