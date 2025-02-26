@@ -405,6 +405,7 @@ class ReportsController extends Controller
             'crm-relationships-report' => '/entity/relationships',
             'demo-reports' => '/demo/dbanks',
             'hr-reports' => '/hr/checkIn',
+            'bank-reports' => '/cresco/banks/summary',
         ];
 
         $user = Auth::user();

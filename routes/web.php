@@ -47,6 +47,7 @@ Route::middleware(['auth'])->group(function(){
             Route::get('/crm-relationships-report', [ReportsController::class, 'redirectToReports'])->name('crm-relationships-report');
             Route::get('/demo-reports', [ReportsController::class, 'redirectToReports'])->name('demo-reports');
             Route::get('/hr-reports', [ReportsController::class, 'redirectToReports'])->name('hr-reports');
+            Route::get('/bank-reports', [ReportsController::class, 'redirectToReports'])->name('bank-reports');
         });
     });
 
