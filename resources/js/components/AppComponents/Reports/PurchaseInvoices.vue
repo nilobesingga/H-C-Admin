@@ -348,11 +348,14 @@ export default {
                 this.is_create_bank_transfer_form_modal = true
             }
         },
-        closeModal(){
+        closeModal(isForm = false){
             this.is_show_bank_transfer_details_modal = false;
             this.is_create_bank_transfer_form_modal = false;
             this.selected_obj = null
             this.removeModalBackdrop();
+            if (isForm){
+                this.getPageData()
+            }
         },
     },
     computed:{

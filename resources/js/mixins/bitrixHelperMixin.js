@@ -1,6 +1,7 @@
 import { DateTime } from 'luxon'
 import { sharedState } from '../state.js'
 import {end} from "@popperjs/core";
+import qs from "qs";
 export default {
     data() {
         return {
@@ -175,7 +176,81 @@ export default {
             if (error.response.data){
                 console.log('error from bitrixHelperMixin.js', error.response)
             }
-        }
+        },
+        async getCashRequestById(id){
+            const bitrixUserId = this.sharedState.bitrix_user_id;
+            const bitrixWebhookToken = this.sharedState.bitrix_webhook_token;
+            const endpoint = 'lists.element.get';
+            try {
+               const requestData = {
+                    action: "getCashRequestById",
+                    id: id
+                }
+                const response = await this.callBitrixAPI(endpoint, bitrixUserId, bitrixWebhookToken, requestData);
+                if (response.result){
+                    return response.result
+                }
+            } catch (error) {
+                console.log(error.response)
+            }
+        },
+        async getPurchaseInvoiceById(id){
+            const bitrixUserId = this.sharedState.bitrix_user_id;
+            const bitrixWebhookToken = this.sharedState.bitrix_webhook_token;
+            const endpoint = 'lists.element.get';
+            try {
+                const requestData = {
+                    action: "getPurchaseInvoiceById",
+                    id: id
+                }
+                const response = await this.callBitrixAPI(endpoint, bitrixUserId, bitrixWebhookToken, requestData);
+                if (response.result){
+                    return response.result
+                }
+            } catch (error) {
+                console.log(error.response)
+            }
+        },
+        async getPurchaseInvoiceByIdBitrixFields(id){
+            const bitrixUserId = this.sharedState.bitrix_user_id;
+            const bitrixWebhookToken = this.sharedState.bitrix_webhook_token;
+            const endpoint = 'lists.element.get';
+            try {
+                const requestData = qs.stringify({
+                    IBLOCK_TYPE_ID: "bitrix_processes",
+                    IBLOCK_ID: 104,
+                    FILTER: {
+                        ID: id
+                    }
+                });
+                const response = await this.callBitrixAPI(endpoint, bitrixUserId, bitrixWebhookToken, requestData);
+                if (response.result){
+                    return response.result
+                }
+            } catch (error) {
+                console.log(error.response)
+            }
+        },
+        async getCashRequestByIdBitrixFields(id){
+            const bitrixUserId = this.sharedState.bitrix_user_id;
+            const bitrixWebhookToken = this.sharedState.bitrix_webhook_token;
+            const endpoint = 'lists.element.get';
+            try {
+                const requestData = qs.stringify({
+                    IBLOCK_TYPE_ID: "bitrix_processes",
+                    IBLOCK_ID: 105,
+                    FILTER: {
+                        ID: id
+                    }
+                });
+                const response = await this.callBitrixAPI(endpoint, bitrixUserId, bitrixWebhookToken, requestData);
+                if (response.result){
+                    return response.result
+                }
+            } catch (error) {
+                console.log(error.response)
+            }
+        },
     },
     computed: {
         currency: {
