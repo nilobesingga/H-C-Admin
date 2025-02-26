@@ -163,24 +163,24 @@
                                 <div v-if="!obj.sage_transaction_type && !obj.sage_transaction_type_id">
                                     <a class="secondary-btn mb-1 block w-full"
                                        style="width: 10rem"
-                                       :href="`https://10.0.1.17/CRESCOSage/AP/APInvoice?blockId=105&purchaseId=${obj.id}`" target="_blank"
-                                    >
-                                        Book Purchase Invoice
-                                    </a>
-                                    <a class="secondary-btn mb-1 block w-full"
-                                       style="width: 10rem"
                                        :href="`https://10.0.1.17/CRESCOSage/AP/APCashRequisition?blockId=105&crId=${obj.id}`" target="_blank"
                                     >
                                         Book Misc Payment
                                     </a>
+                                    <a class="secondary-btn mb-1 block w-full"
+                                       style="width: 10rem"
+                                       :href="`https://10.0.1.17/CRESCOSage/AP/APBankEntry?blockId=105&crId=${obj.id}`" target="_blank"
+                                    >
+                                        Bank Entry
+                                    </a>
                                 </div>
-                                <div v-else >
-                                    <div v-if="obj.sage_transaction_type === 'Purchase Invoice' && obj.sage_transaction_type_id === '2223'">
+                                <div v-else>
+                                    <div v-if="obj.sage_transaction_type === 'Bank Entry' && obj.sage_transaction_type_id === '2354'">
                                         <a class="secondary-btn mb-1 block w-full"
                                            style="width: 10rem"
-                                           :href="`https://10.0.1.17/CRESCOSage/AP/APInvoice?blockId=105&purchaseId=${obj.id}`" target="_blank"
+                                           :href="`https://10.0.1.17/CRESCOSage/AP/APBankEntry?blockId=105&crId=${obj.id}`" target="_blank"
                                         >
-                                            View Purchase Invoice
+                                            View Bank Entry
                                         </a>
                                     </div>
                                     <div v-else >
@@ -240,7 +240,7 @@
         </div>
     </div>
     <!-- show bank transfer detail modal -->
-    <show-bank-transfer-details-modal
+    <view-bank-transfer-details-modal
         :obj_id="selected_obj.bitrix_bank_transfer_id"
         v-if="is_show_bank_transfer_details_modal"
         @closeModal="closeModal"
@@ -369,6 +369,14 @@ export default {
                     item.document_lists = []
                     if (item.receipt_id){
                         item.document_lists = item.receipt_id.split(",");
+                    }
+                    if(item.supplier_id || item.supplier_crm_type || item.supplier_name) {
+                        console.log('supplier_id', item.supplier_id)
+                        console.log('supplier_crm_type', item.supplier_crm_type)
+                        console.log('supplier_name', item.supplier_name)
+                    }
+                    if (item.linked_contact_id){
+                        console.log('linked_contact_id', item.linked_contact_id)
                     }
                 })
                 await this.calculateTotalAsPerReportingCurrency();
