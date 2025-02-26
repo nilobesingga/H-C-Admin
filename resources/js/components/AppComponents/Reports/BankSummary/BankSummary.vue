@@ -176,7 +176,7 @@
             </div>
         </div>
     </div>
-    <show-bank-transactions-modal
+    <view-bank-transactions-modal
         v-if="is_show_bank_transactions_modal"
         :bitrix_sage_company_mapping="page_data.bitrix_sage_company_mapping"
         ref="showBankTransactionsModal"

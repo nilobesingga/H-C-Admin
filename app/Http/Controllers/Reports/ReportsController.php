@@ -241,15 +241,6 @@ class ReportsController extends Controller
         $bitrixList = BitrixList::select('id', 'name', 'bitrix_iblock_type', 'bitrix_iblock_id')
             ->whereId(7)->first();
 
-        // cheque register warning counts.
-//        $bitrixAPI = app(\App\Repositories\BitrixApiRepository::class);
-//        $chequeRegisterWarningCounts = $bitrixAPI->call('crm.company.reports_v2', [
-//            'action' => "getChequeRegisterWarningCounts",
-//            'startDate' => getDateOFLast60Days(),
-//            'endDate' => getLastDateOfMonthAfterThreeYears(),
-//            'categories' => json_encode($bitrixListCategories->pluck('bitrix_category_id')),
-//        ]);
-
         $page = (object)[
             'permission' => $modulePermission,
             'user' => $this->user,
@@ -348,6 +339,32 @@ class ReportsController extends Controller
             'bitrix_list_cash_requests_categories' => $bitrixListCashRequestCategories
         ];
         return view('reports.expense_planner', compact('page'));
+    }
+    public function getBankMonitoring()
+    {
+        $sageCompanyCodes = BitrixListsSageCompanyMapping::select('category_id', 'sage_company_code', 'bitrix_sage_company_name')
+            ->whereIn('category_id', $this->userCategoryIds)
+            ->whereNotNull('sage_company_code')
+            ->orderBy('category_id')
+            ->get()
+            ->unique('sage_company_code')
+            ->values()
+            ->toArray();
+
+        $modulePermission = UserModulePermission::where([
+            'user_id' => Auth::id(),
+            'module_id' => $this->userService->getModuleBySlug('bank-monitoring')->id
+        ])->value('permission');
+
+        $page = (object)[
+            'title' => 'Bank Monitoring',
+            'identifier' => 'bank_monitoring',
+            'permission' => $modulePermission,
+            'user' => $this->user,
+            'sage_companies_codes' => $sageCompanyCodes
+        ];
+
+        return view('reports.bank_monitoring', compact('page'));
     }
     public function downloadCashReleasedReceipt(Request $request)
     {
