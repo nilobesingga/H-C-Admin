@@ -7,7 +7,7 @@
         <div class="grid gap-2">
             <!-- Filters Section -->
             <div class="flex items-center justify-between gap-2">
-                <div class="flex">
+                <div class="flex gap-2">
                     <select class="select select-sm select-input w-96" v-model="filters.sage_company_code">
                         <option value="" selected>Filter by Sage Company</option>
                         <option v-for="obj in page_data.sage_companies_codes" :key="obj.id" :value="obj.sage_company_code">
@@ -17,44 +17,44 @@
                 </div>
             </div>
             <!-- table -->
-            <div class="relative flex-grow overflow-auto reports-table-container shadow-md border border-brand h-full">
-                <table class="w-full c-table table table-border align-middle text-xs table-fixed" :class="filteredCompanies.length === 0 ? 'h-full' : ''">
+            <div class="relative flex-grow overflow-auto reports-table-container shadow-md border border-brand h-[78vh]">
+                <table class="w-full c-table table table-border align-middle text-xs" :class="filteredCompanies.length === 0 ? 'h-full' : ''">
                     <thead>
                         <tr class="text-center tracking-tight">
-                            <th colspan="6"></th>
-                            <th colspan="3">Closing Balance</th>
-                            <th></th>
+                            <th colspan="6" style="background: #700f03 !important;"></th>
+                            <th colspan="3" style="background: #700f03 !important;">Closing Balance</th>
+                            <th style="background: #700f03 !important;"></th>
                         </tr>
-                        <tr class="text-center tracking-tight">
-                            <th class="sticky top-0 w-[200px]">Sage Company</th>
-                            <th class="sticky top-0 w-[100px]">Bank</th>
-                            <th class="sticky top-0 w-[50px]">Currency</th>
-                            <th class="sticky top-0 w-[50px]">Frequency</th>
-                            <th class="sticky top-0 w-[80px]">Last upload statement date</th>
-                            <th class="sticky top-0 w-[80px]">Last updated date</th>
-                            <th class="sticky top-0 w-[80px]">Download</th>
-                            <th class="sticky top-0 w-[80px]">Statement</th>
-                            <th class="sticky top-0 w-[80px]">Sage</th>
-                            <th class="sticky top-0 w-[80px]">Difference</th>
+                        <tr class="text-left tracking-tight">
+                            <th class="sticky top-0 w-[150px]">Sage Company</th>
+                            <th class="sticky top-0 w-[150px]">Bank</th>
+                            <th class="sticky top-0 w-[70px] text-center">Currency</th>
+                            <th class="sticky top-0 w-[70px]">Frequency</th>
+                            <th class="sticky top-0 w-[120px] text-center">Last upload statement date</th>
+                            <th class="sticky top-0 w-[100px] text-center">Last updated date</th>
+                            <th class="sticky top-0 w-[70px] text-center">Download</th>
+                            <th class="sticky top-0 w-[80px] text-right">Statement</th>
+                            <th class="sticky top-0 w-[80px] text-right">Sage</th>
+                            <th class="sticky top-0 w-[80px] text-right">Difference</th>
                         </tr>
                     </thead>
-                    <tbody class="text-center text-xs tracking-tight h-full">
+                    <tbody class="text-left text-xs tracking-tight h-full">
                         <template v-for="(company, index) in filteredCompanies" :key="index">
                             <template v-for="(bank, bindex) in company.banks" :key="`bank${bindex}`">
                                 <tr class="transition-all duration-300 text-neutral-800 group">
                                     <td>{{ bank.companyName }}</td>
                                     <td>{{ bank.bankName }}</td>
-                                    <td>{{ bank.bankCurrency }}</td>
+                                    <td class="text-center font-bold">{{ bank.bankCurrency }}</td>
                                     <td>{{ getFrequency(bank.StatementFrequency) }}</td>
-                                    <td>
+                                    <td class="text-center">
                                         <div v-if="bank.lastUpdate">{{ formatDateRange(bank.lastUpdate.LastStatementPeriod) }}</div>
                                     </td>
-                                    <td :style="checkLastUpdate(bank.lastUpdate, bank.StatementFrequency)">
-                                        <div v-if="bank.lastUpdate">{{ formatDateTime(bank.lastUpdate.LastTranUpdate) }}</div>
+                                    <td class="text-center">
+                                        <div v-if="bank.lastUpdate" :style="checkLastUpdate(bank.lastUpdate, bank.StatementFrequency)">{{ formatDateTime(bank.lastUpdate.LastTranUpdate) }}</div>
                                     </td>
-                                    <td>
+                                    <td class="text-center">
                                         <a v-if="bank.lastUpdate"
-                                           class="secondary-btn mb-1 block w-full" target="_blank"
+                                           class="secondary-btn block w-full" target="_blank"
                                            :href="ecapeDownloadUrl(bank.lastUpdate.FilePath)"
                                         >
                                             Download
@@ -63,15 +63,15 @@
                                     <td class="text-right">
                                         <div v-if="bank.lastUpdate">
                                             {{ formatAmount(bank.lastUpdate.ClosingBalAmt) }}
-                                            <span class="!text-bold text-black">{{ bank.lastUpdate.Currency }}</span>
+                                            <span class="!text-bold text-black font-bold">{{ bank.lastUpdate.Currency }}</span>
                                         </div>
                                     </td>
                                     <td class="text-right">
-                                        {{ bank.closing | formatAmount }} <span>{{ bank.bankCurrency }}</span>
+                                        {{ bank.closing | formatAmount }} <span class="font-bold">{{ bank.bankCurrency }}</span>
                                     </td>
                                     <td class="text-right" :style="checkDifference(bank)">
                                         <span v-if="bank.lastUpdate">{{ formatAmount(bank.difference) }}</span>
-                                        <span>{{ bank.bankCurrency }}</span>
+                                        <span class="ml-1 font-bold">{{ bank.bankCurrency }}</span>
                                     </td>
                                 </tr>
                             </template>
@@ -275,9 +275,9 @@ export default {
                 }
 
                 if (weekdayCount > maxDays && frequencyId) {
-                    return {backgroundColor: 'red', color: 'white'};
+                    return {backgroundColor: '#f3b8b8', borderRadius: '50px', padding: '0.25rem'};
                 } else if (weekdayCount > warningDays && frequencyId) {
-                    return {backgroundColor: 'orange', color: 'white'};
+                    return {backgroundColor: '#fdba74', borderRadius: '50px', padding: '0.25rem'};
                 } else {
                     return {}; // Default style
                 }
@@ -315,11 +315,11 @@ export default {
             if (bank.difference || bank.difference === 0) {
                 const difference = Math.abs(bank.difference);
                 if (difference < 5) {
-                    return {backgroundColor: 'green', color: 'white'};
+                    return {color: 'green'};
                 } else if (difference < 100) {
-                    return {backgroundColor: 'orange', color: 'white'};
+                    return {color: 'orange'};
                 } else if (difference >= 100) {
-                    return {backgroundColor: 'red', color: 'white'};
+                    return {color: 'red'};
                 } else {
                     return {}; // Default style
                 }
@@ -343,5 +343,9 @@ export default {
 }
 </script>
 <style scoped>
-
+.table-fixed th,
+.table-fixed td {
+    overflow: hidden;
+    max-width: var(--width);
+}
 </style>
