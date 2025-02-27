@@ -54,7 +54,7 @@
                         <th class="sticky top-0 w-[70px] text-center">Access URL</th>
                         <th class="sticky top-0 w-[200px]">Modules</th>
                         <th class="sticky top-0 w-[300px]">Categories</th>
-                        <th class="sticky top-0 w-[40px] text-center">Action</th>
+                        <th class="sticky top-0 w-[50px] text-center">Action</th>
                     </tr>
                 </thead>
                 <tbody class="text-center text-xs tracking-tight">
@@ -78,10 +78,6 @@
                         <td>{{ obj.bitrix_user_id }}</td>
                         <td>{{ obj.bitrix_webhook_token }}</td>
                         <td><a :href="`${appUrl}/login/${obj.access_token}`" class="btn btn-link transition-all duration-300 !text-neutral-800 hover:!text-tec-active" target="_blank">Authorize</a></td>
-<!--                        <td>-->
-<!--                            <div><span class="badge badge-primary badge-sm">{{ obj.status }}</span></div>-->
-<!--                            <div>{{ formatDateTime12Hours(obj.last_login) }}</div>-->
-<!--                        </td>-->
                         <td class="text-left">
                             <span class="group-hover:!bg-tec-active/10 mr-1 mb-1 !text-neutral-800 badge badge-sm bg-transparent transition-all duration-300" v-for="(category, index) in obj.modules" :key="index">{{ category.name }}</span>
                         </td>
@@ -90,8 +86,15 @@
                         </td>
                         <td class="text-end">
                             <button
-                                @click="openModal('edit', obj.id)"
-                                data-modal-toggle="#user_form_modal"
+                                @click="openModal('acl', obj.id)"
+                                data-modal-toggle="#user_acl_modal"
+                                class="secondary-btn mb-1 block w-full focus:!border-tec-active"
+                            >
+                                ACL
+                            </button>
+                            <button
+                                @click="openModal('update_password', obj.id)"
+                                data-modal-toggle="#user_update_password_form_modal"
                                 class="secondary-btn mb-1 block w-full focus:!border-tec-active"
                             >
                                 Edit
@@ -120,10 +123,14 @@
             </div>
         </div>
     </div>
-    <user-form-modal
+    <user-acl-modal
         :obj_id="obj_id"
-        :modal_type="modal_type"
-        v-if="is_form_modal"
+        v-if="is_acl_modal"
+        @closeModal="closeModal"
+    />
+    <user-update-password-form-modal
+        :obj_id="obj_id"
+        v-if="is_update_password_form_modal"
         @closeModal="closeModal"
     />
 </template>
@@ -142,7 +149,8 @@ export default {
                 bitrix_active: "1"
             },
             obj_id: null,
-            is_form_modal: false,
+            is_acl_modal: false,
+            is_update_password_form_modal: false,
             modal_type: null
         }
     },
@@ -172,12 +180,18 @@ export default {
             this.getData(false);
         }, 500),
         openModal(modalType, objId){
-            this.is_form_modal = true;
+            this.obj_id = objId
             this.modal_type = modalType;
-            modalType === 'edit' ? this.obj_id = objId : this.obj_id = null
+            if(modalType === 'acl'){
+                this.is_acl_modal = true;
+            }
+            if (modalType === 'update_password'){
+                this.is_update_password_form_modal = true
+            }
         },
         closeModal(){
-            this.is_form_modal = false;
+            this.is_acl_modal = false;
+            this.is_update_password_form_modal = false
             this.modal_type = null;
             this.obj_id = null
             this.removeModalBackdrop();

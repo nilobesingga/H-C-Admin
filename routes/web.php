@@ -83,6 +83,7 @@ Route::middleware(['auth'])->group(function(){
                 Route::get('/user/{id}', 'edit');
                 Route::post('/user/save/{userId}', 'save');
             });
+            Route::post('/user/{userId}/update-password', [AuthController::class, 'updatePassword']);
         });
     });
 });
