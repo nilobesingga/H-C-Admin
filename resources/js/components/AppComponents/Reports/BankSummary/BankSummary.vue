@@ -398,11 +398,12 @@ export default {
         },
         formatAmount(value, companyBanks = null, bankId = null){
             if (value) {
-                let numericValue = typeof value === 'string' ? parseFloat(value) : value;
-                return numericValue.toLocaleString(undefined, {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
-                });
+                // let numericValue = typeof value === 'string' ? parseFloat(value) : value;
+                // return numericValue.toLocaleString(undefined, {
+                //     minimumFractionDigits: 2,
+                //     maximumFractionDigits: 2
+                // });
+                return Math.round(value).toLocaleString()
             }
             else {
                 if (companyBanks){

@@ -28,11 +28,12 @@
                             format="dd MMM yyyy"
                             :clearable="false"
                             class="rounded-none"
+                            @change="getData"
                         />
                     </div>
                     <!-- Period Select -->
                     <div class="flex flex-col w-36">
-                        <select class="select select-input" v-model="selected_period">
+                        <select class="select select-input" v-model="selected_period" @change="getData">
                             <option v-for="(period, index) in periods" :key="index" :value="period.key">
                                 {{ period.value }}
                             </option>
@@ -81,7 +82,7 @@
                 </div>
             </div>
 
-            <div v-if="filters.selected_bank_id && filters.sage_company_code" class="relative flex-grow overflow-auto reports-table-container shadow-md border border-brand h-[78vh]">
+            <div v-if="!loading && (filters.selected_bank_id && filters.sage_company_code)" class="relative flex-grow overflow-auto reports-table-container shadow-md border border-brand h-[78vh]">
                 <table class="w-full c-table table table-border align-middle text-xs table-fixed">
                     <thead>
                         <tr class="text-center tracking-tight">
@@ -272,6 +273,7 @@ export default {
                     ];
             }
             this.selected_date_range = newDateRange;
+            console.log('newDateRange',newDateRange)
         },
         async getCompanies(){
             const dateRange = this.selected_date_range;

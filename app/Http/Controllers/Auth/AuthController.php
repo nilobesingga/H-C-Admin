@@ -4,12 +4,16 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Traits\ApiResponser;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
+    use ApiResponser;
     public function doLogin(Request $request)
     {
         $credentials = $request->validate([
@@ -77,6 +81,24 @@ class AuthController extends Controller
             Auth::logout();
 
             return redirect()->route('login')->with('message', 'Logout Successfully');
+        }
+    }
+    public function updatePassword(Request $request, $userId)
+    {
+        try {
+            // Find the user
+            $user = User::findOrFail($userId);
+
+            $user->update([
+                'password' => Hash::make($request->password),
+                'is_default_password' => false,
+                'updated_by' => Auth::id()
+            ]);
+
+            return $this->successResponse('User password updated successfully');
+
+        } catch (\Exception $e){
+            return $this->errorResponse('Oops! An error occurred. Please refresh the page or contact support', config('app.debug') === true ? $e->getMessage() : null, 500 );
         }
     }
 }
