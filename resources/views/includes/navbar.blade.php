@@ -7,16 +7,18 @@
                     <div class="scrollable-x-auto">
                         <div class="menu gap-5 lg:gap-10" data-menu="true">
                             @foreach($page->user->modules as $module)
-                                @php
-                                    $routeName = 'reports.' . $module->slug;
-                                @endphp
-                                <div class="menu-item py-2 border-b-2 border-b-transparent hover:border-b-neutral-900 transition-all duration-300 {{ request()->routeIs($routeName) ? '!border-b-brand-active' : '' }}">
-                                    <a class="menu-link gap-2.5 " href="{{ route($routeName) }}">
+                                @if($module->parent_id !== 0)
+                                    @php
+                                        $routeName = 'reports.' . $module->slug;
+                                    @endphp
+                                    <div class="menu-item py-2 border-b-2 border-b-transparent hover:border-b-neutral-900 transition-all duration-300 {{ request()->routeIs($routeName) ? '!border-b-brand-active' : '' }}">
+                                        <a class="menu-link gap-2.5 " href="{{ route($routeName) }}">
                                         <span class="menu-title text-nowrap font-medium text-sm tracking-tight text-black">
                                             {{ $module->name }}
                                         </span>
-                                    </a>
-                                </div>
+                                        </a>
+                                    </div>
+                                @endif
                             @endforeach
                         </div>
                     </div>

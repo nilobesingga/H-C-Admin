@@ -240,7 +240,7 @@ import qs from 'qs';
 import vSelect from 'vue-select';
 import 'vue-select/dist/vue-select.css';
 import { debounce } from 'lodash';
-import Swal from "sweetalert2";
+import { sharedState } from "../../../../state.js";
 
 export default {
     name: "create-bank-transfer-form-modal",
@@ -266,6 +266,7 @@ export default {
             crud_loading: false,
             loading: false,
             debouncedSearch: null,
+            bitrix_obj: {},
         }
     },
     setup() {
@@ -336,70 +337,52 @@ export default {
                 };
             }
             this.infoToast('Uploading documents. This may take some time. Please wait.')
-            const bitrixUserId = this.page_data.user.bitrix_user_id ? this.page_data.user.bitrix_user_id : null;
-            const bitrixWebhookToken = this.page_data.user.bitrix_webhook_token ? this.page_data.user.bitrix_webhook_token : null;
+            const bitrixUserId = this.sharedState.bitrix_user_id ? this.sharedState.bitrix_user_id : null;
+            const bitrixWebhookToken = this.sharedState.bitrix_webhook_token ? this.sharedState.bitrix_webhook_token : null;
             const endpoint = 'lists.element.add';
-            const requestData = {
+            const requestData = qs.stringify({
                 IBLOCK_TYPE_ID: 'lists',
                 IBLOCK_ID: '99',
                 ELEMENT_CODE: 'element1_' + Date.now(),
                 FIELDS: fields
-            }
+            });
             try {
                 const response = await this.callBitrixAPI(endpoint, bitrixUserId, bitrixWebhookToken, requestData);
-                if(response.data.result){
-                    let bankTransferId = response.data.result;
+                if(response.result){
+                    let bankTransferId = response.result;
                     let iBlockId = 0;
                     if(this.type === "purchaseInvoice"){
                         //update purchase invoice
-                        this.requestObject.PROPERTY_1195 = bankTransferId;
-                        this.requestObject.PROPERTY_929 = `${this.selectedProject.TYPE === '1' ? 'L_' : this.selectedProject.TYPE === '2' ? 'D_' : this.selectedProject.TYPE === '3' ? 'C' : ''}${this.selectedProject.ID}`;
+                        this.bitrix_obj.PROPERTY_1195 = bankTransferId;
+                        this.bitrix_obj.PROPERTY_929 = `${this.form.project.TYPE === '1' ? 'L_' : this.form.project.TYPE === '2' ? 'D_' : this.form.project.TYPE === '3' ? 'C' : ''}${this.form.project.ID}`;
                         iBlockId = '104';
                     }
                     else if (this.type === "cashRequest"){
-                        this.requestObject.PROPERTY_1222 = bankTransferId;
-                        this.requestObject.PROPERTY_942 = `${this.selectedProject.TYPE === '1' ? 'L_' : this.selectedProject.TYPE === '2' ? 'D_' : this.selectedProject.TYPE === '3' ? 'C' : ''}${this.selectedProject.ID}`;
+                        this.bitrix_obj.PROPERTY_1222 = bankTransferId;
+                        this.bitrix_obj.PROPERTY_942 = `${this.form.project.TYPE === '1' ? 'L_' : this.form.project.TYPE === '2' ? 'D_' : this.form.project.TYPE === '3' ? 'C' : ''}${this.this.form.project.ID}`;
                         iBlockId = '105';
                     }
 
-                    const invoiceResponse = await axios({
-                        method: 'post',
-                        url: this.bitrixWebhookUrl + 'lists.element.update',
-                        data:{
-                            IBLOCK_TYPE_ID: 'bitrix_processes',
-                            IBLOCK_ID: iblockId,
-                            ELEMENT_ID: this.requestId,
-                            FIELDS: this.requestObject
-                        }
-                    });
+                    const toBeUpdateEndPoint = 'lists.element.update'
+                    const toBeUpdateData = qs.stringify({
+                        IBLOCK_TYPE_ID: 'bitrix_processes',
+                        IBLOCK_ID: iBlockId,
+                        ELEMENT_ID: this.obj.id,
+                        FIELDS: this.bitrix_obj
+                    })
+                    const toBeUpdateResponse = await this.callBitrixAPI(toBeUpdateEndPoint, bitrixUserId, bitrixWebhookToken, toBeUpdateData);
 
-                    if(invoiceResponse.data.result){
-                        this.status = "Create Bank Transfer";
-                        this.loading = false;
-                        let result = {
-                            bankTransferId: bankTransferId,
-                            requestId: this.requestId
-                        }
-
-                        this.$emit('success', result);
-                        this.$refs.crescoNewBankTransferModal.closeModal();
-                        Swal.fire({
-                            icon: "success",
-                            title: "Bank transfer successfully created",
-                            confirmButtonText: 'Close'
-                        });
+                    if(toBeUpdateResponse.result){
+                        this.crud_loading = false;
+                        this.successToast('Bank transfer successfully created')
+                        this.$emit('closeModal', true)
                     }
                 }
             } catch (error) {
-                this.loading = false;
-                this.status = "Create Bank Transfer";
-                this.$refs.crescoNewBankTransferModal.closeModal();
-                Swal.fire({
-                    icon: "error",
-                    title: "Something went wrong",
-                    html: "Please try again",
-                    confirmButtonText: 'Close',
-                });
+                console.error(error)
+                this.crud_loading = false;
+                this.$emit('closeModal')
+                this.errorToast('Something went wrong')
             }
         },
         async searchData(type, query) {
@@ -477,29 +460,27 @@ export default {
                 const reader = new FileReader();
                 reader.readAsDataURL(fileInput.files[0]);
                 reader.onload = async () => {
+                    const base64File = reader.result.split(',')[1];
+                    const bitrixUserId = this.sharedState.bitrix_user_id;
+                    const bitrixWebhookToken = this.sharedState.bitrix_webhook_token;
+                    const endpoint = 'disk.storage.uploadFile';
                     try {
-                        const base64File = reader.result.split(',')[1];
-                        const response  = await axios({
-                            url: this.bitrixWebhookUrl + "disk.storage.uploadFile",
-                            method: 'post',
-                            data:{
-                                id: 490,
-                                data: {
-                                    'NAME': fileName
-                                },
-                                fileContent:base64File,
-                                generateUniqueName: true,
-                            }
-                        })
-                        resolve(response.data.result);
+                        const requestData = qs.stringify({
+                            id: 490,
+                            data: {
+                                'NAME': fileName
+                            },
+                            fileContent: base64File,
+                            generateUniqueName: true,
+                        });
+                        const response = await this.callBitrixAPI(endpoint, bitrixUserId, bitrixWebhookToken, requestData);
+                        resolve(response.result);
                     } catch (error) {
-                        alert("Unable to upload file")
+                        this.errorToast('Unable to upload file')
                         reject(0);
                     }
-                };
-                reader.onerror = error => reject(error);
-            });
-
+                }
+            })
         },
     },
     created() {
@@ -507,12 +488,22 @@ export default {
             this.searchData(type, query);
         }, 500);
     },
-    mounted() {
+    async mounted() {
         this.form = this.obj;
         this.form.transfer_from_account = null;
         this.form.transfer_to_account = null;
         if(this.obj.project_id){
             this.getProjectById(this.obj.project_id)
+        }
+        if (this.type === "purchaseInvoice"){
+            let response = await this.getPurchaseInvoiceByIdBitrixFields(this.obj.id)
+            if(response && response.length > 0){
+                this.bitrix_obj = response[0];
+            }
+        }
+        if (this.type === "cashRequest"){
+            let response = this.getCashRequestByIdBitrixFields(this.obj.id)
+            this.bitrix_obj = response.result[0];
         }
     },
 }

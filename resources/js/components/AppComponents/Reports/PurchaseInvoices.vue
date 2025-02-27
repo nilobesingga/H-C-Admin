@@ -214,7 +214,7 @@
         </div>
     </div>
     <!-- show bank transfer detail modal -->
-    <show-bank-transfer-details-modal
+    <view-bank-transfer-details-modal
         :obj_id="selected_obj.bitrix_bank_transfer_id"
         v-if="is_show_bank_transfer_details_modal"
         @closeModal="closeModal"
@@ -348,11 +348,14 @@ export default {
                 this.is_create_bank_transfer_form_modal = true
             }
         },
-        closeModal(){
+        closeModal(isForm = false){
             this.is_show_bank_transfer_details_modal = false;
             this.is_create_bank_transfer_form_modal = false;
             this.selected_obj = null
             this.removeModalBackdrop();
+            if (isForm){
+                this.getPageData()
+            }
         },
     },
     computed:{

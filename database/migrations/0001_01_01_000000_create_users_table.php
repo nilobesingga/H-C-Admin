@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('parent_id')->nullable();
             $table->string('bitrix_user_id')->unique();
             $table->string('bitrix_webhook_token')->nullable();
+            $table->string('user_name')->nullable();
             $table->string('email')->unique();
             $table->string('password');
             $table->string('access_token')->unique();

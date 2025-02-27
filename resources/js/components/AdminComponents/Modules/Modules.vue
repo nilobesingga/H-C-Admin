@@ -20,16 +20,16 @@
                             />
                         </div>
                     </div>
-                    <div class="flex">
-                        <button
-                            class="main-btn !bg-white !border !py-2 !px-5 !min-w-[120px] !text-sm focus:!border-tec-active"
-                            :disabled="loading"
-                            @click="openModal('add')"
-                            data-modal-toggle="#module_form_modal"
-                        >
-                            Add Module
-                        </button>
-                    </div>
+<!--                    <div class="flex">-->
+<!--                        <button-->
+<!--                            class="main-btn !bg-white !border !py-2 !px-5 !min-w-[120px] !text-sm focus:!border-tec-active"-->
+<!--                            :disabled="loading"-->
+<!--                            @click="openModal('add')"-->
+<!--                            data-modal-toggle="#module_form_modal"-->
+<!--                        >-->
+<!--                            Add Module-->
+<!--                        </button>-->
+<!--                    </div>-->
                 </div>
             </div>
         </div>
@@ -45,7 +45,7 @@
                         <th class="sticky top-0 w-[150px]">Parent</th>
                         <th class="sticky top-0 w-[100px] text-left">Slug</th>
                         <th class="sticky top-0 w-[250px]">Route</th>
-                        <th class="sticky top-0 w-10">Action</th>
+<!--                        <th class="sticky top-0 w-10">Action</th>-->
                     </tr>
                 </thead>
                 <draggable
@@ -62,15 +62,15 @@
                             <td>{{ element.parent ? element.parent.name : null }}</td>
                             <td>{{ element.slug }}</td>
                             <td>{{ element.route }}</td>
-                            <td class="text-end">
-                                <button
-                                    @click="openModal('edit', obj.id)"
-                                    data-modal-toggle="#user_form_modal"
-                                    class="secondary-btn mb-1 block w-full focus:!border-tec-active"
-                                >
-                                    Edit
-                                </button>
-                            </td>
+<!--                            <td class="text-end">-->
+<!--                                <button-->
+<!--                                    @click="openModal('edit', obj.id)"-->
+<!--                                    data-modal-toggle="#user_form_modal"-->
+<!--                                    class="secondary-btn mb-1 block w-full focus:!border-tec-active"-->
+<!--                                >-->
+<!--                                    Edit-->
+<!--                                </button>-->
+<!--                            </td>-->
                         </tr>
                     </template>
                 </draggable>

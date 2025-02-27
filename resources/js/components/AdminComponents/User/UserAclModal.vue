@@ -1,8 +1,8 @@
 <template>
-    <div class="modal" data-modal="true" data-modal-backdrop-static="true" id="user_form_modal">
+    <div class="modal" data-modal="true" data-modal-backdrop-static="true" id="user_acl_modal">
         <div class="modal-content top-[5%] lg:max-w-[1500px]">
             <div class="modal-header">
-                <h3 class="modal-title capitalize text-xl font-bold tracking-tight">{{ modal_type }} User</h3>
+                <h3 class="modal-title capitalize text-xl font-bold tracking-tight">ACL</h3>
                 <button class="btn btn-xs btn-icon btn-light focus:!border-tec-active" data-modal-dismiss="true" @click="$emit('closeModal')">
                     <i class="ki-outline ki-cross" ></i>
                 </button>
@@ -240,8 +240,8 @@
 
 <script>
 export default {
-    name: "user-form-modal",
-    props: ['obj_id', 'modal_type'],
+    name: "user-acl-modal",
+    props: ['obj_id'],
     data(){
         return {
             obj: null,
@@ -412,7 +412,12 @@ export default {
             const isChecked = event.target.checked;
             if (isChecked) {
                 // Add all category IDs to the selected list
-                this.form.selected_category_ids = this.form_data.categories.map((category) => category.id);
+                // this.form.selected_category_ids = this.form_data.categories.map((category) => category.id);
+
+                // Select all categories except "Test" (ID: 16)
+                this.form.selected_category_ids = this.form_data.categories
+                    .filter(category => category.id !== 16) // Exclude "Test"
+                    .map(category => category.id);
             } else {
                 // Clear the selected categories
                 this.form.selected_category_ids = [];

@@ -241,15 +241,6 @@ class ReportsController extends Controller
         $bitrixList = BitrixList::select('id', 'name', 'bitrix_iblock_type', 'bitrix_iblock_id')
             ->whereId(7)->first();
 
-        // cheque register warning counts.
-//        $bitrixAPI = app(\App\Repositories\BitrixApiRepository::class);
-//        $chequeRegisterWarningCounts = $bitrixAPI->call('crm.company.reports_v2', [
-//            'action' => "getChequeRegisterWarningCounts",
-//            'startDate' => getDateOFLast60Days(),
-//            'endDate' => getLastDateOfMonthAfterThreeYears(),
-//            'categories' => json_encode($bitrixListCategories->pluck('bitrix_category_id')),
-//        ]);
-
         $page = (object)[
             'permission' => $modulePermission,
             'user' => $this->user,
@@ -349,6 +340,58 @@ class ReportsController extends Controller
         ];
         return view('reports.expense_planner', compact('page'));
     }
+    public function getBankMonitoring()
+    {
+        $sageCompanyCodes = BitrixListsSageCompanyMapping::select('category_id', 'sage_company_code', 'bitrix_sage_company_name')
+            ->whereIn('category_id', $this->userCategoryIds)
+            ->whereNotNull('sage_company_code')
+            ->orderBy('category_id')
+            ->get()
+            ->unique('sage_company_code')
+            ->values()
+            ->toArray();
+
+        $modulePermission = UserModulePermission::where([
+            'user_id' => Auth::id(),
+            'module_id' => $this->userService->getModuleBySlug('bank-monitoring')->id
+        ])->value('permission');
+
+        $page = (object)[
+            'title' => 'Bank Monitoring',
+            'identifier' => 'bank_monitoring',
+            'permission' => $modulePermission,
+            'user' => $this->user,
+            'sage_companies_codes' => $sageCompanyCodes
+        ];
+
+        return view('reports.bank_monitoring', compact('page'));
+    }
+    public function getBankAccounts()
+    {
+        $sageCompanyCodes = BitrixListsSageCompanyMapping::select('category_id', 'sage_company_code', 'bitrix_sage_company_name')
+            ->whereIn('category_id', $this->userCategoryIds)
+            ->whereNotNull('sage_company_code')
+            ->orderBy('category_id')
+            ->get()
+            ->unique('sage_company_code')
+            ->values()
+            ->toArray();
+
+        $modulePermission = UserModulePermission::where([
+            'user_id' => Auth::id(),
+            'module_id' => $this->userService->getModuleBySlug('bank-accounts')->id
+        ])->value('permission');
+
+        $page = (object)[
+            'title' => 'Bank Accounts',
+            'identifier' => 'bank_accounts',
+            'permission' => $modulePermission,
+            'user' => $this->user,
+            'sage_companies_codes' => $sageCompanyCodes
+        ];
+
+        return view('reports.bank_accounts', compact('page'));
+    }
     public function downloadCashReleasedReceipt(Request $request)
     {
         try {
@@ -388,5 +431,49 @@ class ReportsController extends Controller
         } catch (\Exception $e){
             return $this->errorResponse('Error while downloading cash release receipt', $e->getMessage());
         }
+    }
+    public function redirectToReports()
+    {
+        $path = request()->path();
+        $slug = str_replace('reports/', '', $path);
+
+        $reportMapping = [
+            'cresco-holding' => '/holding',
+            'cresco-accounting' => '/accounting',
+            'cresco-sage' => '/sage',
+            'hensley-and-cook' => '/compliance',
+            'orchidx' => '/orchid/banks',
+            'expense-overview' => '/accounting/expensecalendar',
+            'managing-director-reports' => '/md/mdPurchaseInvoices',
+            'crm-relationships-report' => '/entity/relationships',
+            'demo-reports' => '/demo/dbanks',
+            'hr-reports' => '/hr/checkIn',
+            'bank-reports' => '/cresco/banks/summary',
+        ];
+
+        $user = Auth::user();
+        $accessToken = $user->access_token;
+
+        if (!$accessToken) {
+            return response()->json(['error' => 'Access token not found'], 403);
+        }
+
+        // Determine the correct base URL based on environment
+        $baseUrl = match (env('APP_ENV')) {
+            'staging' => env('CRESCO_REPORTS_STAGING_BASE_URL'),
+            'production' => env('CRESCO_REPORTS_BASE_URL'),
+            default => 'http://localhost:8000',
+        };
+
+        // Construct the authentication URL
+        $authUrl = $baseUrl . '/bitrix/login/' . $accessToken;
+
+        // After authentication, redirect to the requested report
+        $redirectAfterLogin = urlencode($baseUrl . $reportMapping[$slug]);
+
+        // Final redirect URL
+        $finalUrl = $authUrl . '?redirect=' . $redirectAfterLogin;
+
+        return redirect()->away($finalUrl);
     }
 }
