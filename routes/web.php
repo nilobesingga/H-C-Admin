@@ -36,6 +36,7 @@ Route::middleware(['auth'])->group(function(){
             Route::get('/bank-summary', [ReportsController::class, 'getBankSummary'])->name('bank-summary');
             Route::get('/expense-planner', [ReportsController::class, 'getExpensePlanner'])->name('expense-planner');
             Route::get('/bank-monitoring', [ReportsController::class, 'getBankMonitoring'])->name('bank-monitoring');
+            Route::get('/bank-accounts', [ReportsController::class, 'getBankAccounts'])->name('bank-accounts');
 
             //########################################### CRESCO Reports links ###############################################################
             Route::get('/cresco-holding', [ReportsController::class, 'redirectToReports'])->name('cresco-holding');
