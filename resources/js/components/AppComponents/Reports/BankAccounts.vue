@@ -56,7 +56,7 @@
                     </div>
                     <div class="flex">
                         <div v-if="!filters.sage_company_code">
-                            <span class="text-danger">Please select a company</span>
+                            <span class="text-danger text-sm">Please select a company</span>
                         </div>
                         <div v-if="filters.sage_company_code">
                             <select class="select select-sm select-input w-96" v-model="filters.selected_bank_id" @change="onSelectBank">
@@ -69,30 +69,41 @@
                     </div>
                 </div>
             </div>
+
             <!-- table -->
-            <div class="relative flex-grow overflow-auto reports-table-container shadow-md border border-brand h-full">
+            <div v-if="loading" class="data-loading flex items-center justify-center z-100 pointer-events-none">
+                <div class="flex items-center gap-2 px-4 py-2 font-medium leading-none text-sm text-brand-active h-[70vh]">
+                    <svg class="animate-spin -ml-1 h-5 w-5 text-brand-active" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Loading...
+                </div>
+            </div>
+
+            <div v-if="filters.selected_bank_id && filters.sage_company_code" class="relative flex-grow overflow-auto reports-table-container shadow-md border border-brand h-[78vh]">
                 <table class="w-full c-table table table-border align-middle text-xs table-fixed">
                     <thead>
                         <tr class="text-center tracking-tight">
-                            <th class="sticky top-0"></th>
-                            <th class="sticky top-0">Transaction Date</th>
-                            <th class="sticky top-0">Entry Date</th>
-                            <th class="sticky top-0">Transaction Details</th>
-                            <th class="sticky top-0">Transaction Number</th>
-                            <th class="sticky top-0">Deposit</th>
-                            <th class="sticky top-0">Withdrawal</th>
-                            <th class="sticky top-0">Balance</th>
+                            <th class="sticky top-0 w-[60px]">#</th>
+                            <th class="sticky top-0 w-[150px]">Transaction Date</th>
+                            <th class="sticky top-0 w-[150px]">Entry Date</th>
+                            <th class="sticky top-0 text-left">Transaction Details</th>
+                            <th class="sticky top-0 text-left w-[170px]">Transaction Number</th>
+                            <th class="sticky top-0 text-right w-[170px]">Deposit</th>
+                            <th class="sticky top-0 text-right w-[170px]">Withdrawal</th>
+                            <th class="sticky top-0 text-right w-[170px]">Balance</th>
                         </tr>
                     </thead>
-                    <tbody class="text-center text-xs tracking-tight h-full">
+                    <tbody class="text-center text-xs tracking-tight h-full text-neutral-800">
                         <tr class="transition-all duration-300 text-neutral-800 group">
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td colspan="4">OPENING</td>
-                            <td>
+                            <td class="bg-white"></td>
+                            <td class="bg-white"></td>
+                            <td class="bg-white"></td>
+                            <td class="bg-white" colspan="4">OPENING</td>
+                            <td class="bg-white text-right">
                                 {{ formatAmount(selected_bank.openingBalance) }}
-                                <span>{{ selected_bank.bankCurrency }}</span>
+                                <span class="font-bold">{{ selected_bank.bankCurrency }}</span>
                             </td>
                         </tr>
                         <template v-if="selected_bank.bankDetails && selected_bank.bankDetails.length > 0">
@@ -102,9 +113,9 @@
                                     <td>{{ formatDate(transaction.DateRemit) }}</td>
                                     <td>{{ formatDate(transaction.AuditDate) }}</td>
                                     <td class="text-left">{{ transaction.Comments }}</td>
-                                    <td>{{ transaction.transactionNo }}</td>
-                                    <td class="text-right">{{ formatAmount(transaction.DepositAmt) }} <span>{{ transaction.statemenCurrency }}</span></td>
-                                    <td class="text-right">{{ formatAmount(transaction.WithdrawalAmt) }} <span>{{ transaction.statemenCurrency }}</span></td>
+                                    <td class="text-left">{{ transaction.transactionNo }}</td>
+                                    <td class="text-right">{{ formatAmount(transaction.DepositAmt) }} <span class="font-bold">{{ transaction.statemenCurrency }}</span></td>
+                                    <td class="text-right">{{ formatAmount(transaction.WithdrawalAmt) }} <span class="font-bold">{{ transaction.statemenCurrency }}</span></td>
                                     <td class="text-right"></td>
                                 </tr>
                             </template>
@@ -115,72 +126,48 @@
                             </tr>
                         </template>
                         <tr>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td>TOTAL</td>
-                            <td></td>
-                            <td>
+                            <td class="bg-white"></td>
+                            <td class="bg-white"></td>
+                            <td class="bg-white"></td>
+                            <td class="bg-white">TOTAL</td>
+                            <td class="bg-white"></td>
+                            <td class="bg-white text-right">
                                 {{ formatAmount(selected_bank.totalDeposit) }}
-                                <span>{{ selected_bank.bankCurrency }}</span>
+                                <span class="font-bold">{{ selected_bank.bankCurrency }}</span>
                             </td>
-                            <td class="transaction-headings text-right">
+                            <td class="bg-white transaction-headings text-right">
                                 {{ formatAmount(selected_bank.totalWithdrawal) }}
-                                <span>{{ selected_bank.bankCurrency }}</span>
+                                <span class="font-bold">{{ selected_bank.bankCurrency }}</span>
                             </td>
-                            <td></td>
+                            <td class="bg-white"></td>
                         </tr>
                         <tr>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td colspan="4">CLOSING</td>
-                            <td class="transaction-headings text-right">
+                            <td class="bg-white"></td>
+                            <td class="bg-white"></td>
+                            <td class="bg-white"></td>
+                            <td class="bg-white" colspan="4">CLOSING</td>
+                            <td class="bg-white transaction-headings text-right">
                                 {{ formatAmount(closingBalance) }}
-                                <span>{{ selected_bank.bankCurrency }}</span>
+                                <span class="font-bold">{{ selected_bank.bankCurrency }}</span>
                             </td>
                         </tr>
                         <tr>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td colspan="4">REPORTING AMOUNT</td>
-                            <td class="text-right">
+                            <td class="bg-white"></td>
+                            <td class="bg-white"></td>
+                            <td class="bg-white"></td>
+                            <td class="bg-white" colspan="4">REPORTING AMOUNT</td>
+                            <td class="bg-white text-right">
                                 {{ formatAmount(selected_bank.reportingAmount) }}
-                                <span>{{ selected_bank.reportCurrency }}</span>
+                                <span class="font-bold">{{ selected_bank.reportCurrency }}</span>
                             </td>
                         </tr>
                     </tbody>
                 </table>
-                <div class="text-muted float-right mb-2" v-if="filters.selected_bank_id && !loading">
+                <div class="text-neutral-500 float-right mb-2 mr-2 mt-2 text-xs" v-if="filters.selected_bank_id && !loading">
                     Exchange Rate: 1 {{ selected_bank.bankCurrency }} to {{ selected_bank.reportCurrency }} =
                     {{ selected_bank.reportCurrencyRate }}
                 </div>
-                <div v-if="loading" class="data-loading absolute inset-0 bg-neutral-100 flex items-center justify-center z-100 pointer-events-none">
-                    <div class="flex items-center gap-2 px-4 py-2 font-medium leading-none text-sm text-brand-active">
-                        <svg class="animate-spin -ml-1 h-5 w-5 text-brand-active" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        Loading...
-                    </div>
-                </div>
             </div>
-<!--            &lt;!&ndash; footer &ndash;&gt;-->
-<!--            <div class="flex items-center justify-between">-->
-<!--                &lt;!&ndash; Left Section: Showing Records &ndash;&gt;-->
-<!--                <div class="text-xs text-neutral-700">-->
-<!--                    <span>Showing {{ filteredData.length }} records</span>-->
-<!--                </div>-->
-
-<!--                &lt;!&ndash; Right Section: Total as per Reporting Currency &ndash;&gt;-->
-<!--                <div class="flex items-center justify-center text-right text-neutral-800">-->
-<!--                    <span class="mr-2 tracking-tight">Total as per reporting currency ({{ currency }}):</span>-->
-<!--                    <span class="font-bold text-black">-->
-<!--                        {{ formatAmount(totalAsPerReportingCurrency) }} {{ currency }}-->
-<!--                    </span>-->
-<!--                </div>-->
-<!--            </div>-->
         </div>
     </div>
 </template>
