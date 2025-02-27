@@ -366,6 +366,32 @@ class ReportsController extends Controller
 
         return view('reports.bank_monitoring', compact('page'));
     }
+    public function getBankAccounts()
+    {
+        $sageCompanyCodes = BitrixListsSageCompanyMapping::select('category_id', 'sage_company_code', 'bitrix_sage_company_name')
+            ->whereIn('category_id', $this->userCategoryIds)
+            ->whereNotNull('sage_company_code')
+            ->orderBy('category_id')
+            ->get()
+            ->unique('sage_company_code')
+            ->values()
+            ->toArray();
+
+        $modulePermission = UserModulePermission::where([
+            'user_id' => Auth::id(),
+            'module_id' => $this->userService->getModuleBySlug('bank-accounts')->id
+        ])->value('permission');
+
+        $page = (object)[
+            'title' => 'Bank Accounts',
+            'identifier' => 'bank_accounts',
+            'permission' => $modulePermission,
+            'user' => $this->user,
+            'sage_companies_codes' => $sageCompanyCodes
+        ];
+
+        return view('reports.bank_accounts', compact('page'));
+    }
     public function downloadCashReleasedReceipt(Request $request)
     {
         try {

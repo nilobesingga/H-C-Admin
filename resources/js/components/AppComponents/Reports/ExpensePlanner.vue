@@ -98,7 +98,7 @@
                 <!-- week columns -->
                 <div class="flex gap-3 text-sm expense-planner-columns">
                     <!-- Each column represents a week -->
-                    <div v-for="(week, index) in weekHeaders" :key="index" class="flex-1 flex flex-col bg-neutral-200 p-4 rounded text-center text-sm overflow-auto group">
+                    <div v-for="(week, index) in weekHeaders" :key="index" class="flex-1 flex flex-col bg-neutral-200 p-4 rounded text-center text-sm overflow-auto overflow-y-hidden group">
                         <!-- Week Header -->
                         <div class="text-black text-2xl tracking-tight font-bold">Week {{ week.week_number }}</div>
                         <div class="text-neutral-700 text-xs">{{ week.start_date }} &mdash; {{ week.end_date }}</div>
@@ -180,7 +180,7 @@
                             </draggable>
                         </div>
                         <!-- View Only -->
-                        <div v-if="page_data.permission === 'view_only'">
+                        <div v-if="page_data.permission === 'view_only'" class="h-full">
                             <!-- Week Data -->
                             <div v-if="week.data.length" class="flex flex-col gap-2 overflow-y-auto h-full border-t border-neutral-200 pt-4 group-hover:border-black">
                                 <div v-for="(item, itemIndex) in week.data" :key="itemIndex">
