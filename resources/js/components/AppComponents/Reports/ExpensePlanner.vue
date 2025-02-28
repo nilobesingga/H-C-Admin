@@ -182,7 +182,7 @@
                         <!-- View Only -->
                         <div v-if="page_data.permission === 'view_only'" class="h-full">
                             <!-- Week Data -->
-                            <div v-if="week.data.length" class="flex flex-col gap-2 overflow-y-auto h-full border-t border-neutral-200 pt-4 group-hover:border-black">
+                            <div v-if="week.data.length" class="flex flex-col gap-2 overflow-y-auto h-[68vh] border-t border-neutral-200 pt-4 group-hover:border-black">
                                 <div v-for="(item, itemIndex) in week.data" :key="itemIndex">
                                     <!-- cash requests -->
                                     <div :class="['card', (item.is_budget_only === '1937' ? 'budget-only' : 'cash-request')]" v-if="item.request_type === 'cash_request'">
