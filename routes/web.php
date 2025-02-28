@@ -50,6 +50,7 @@ Route::middleware(['auth'])->group(function(){
             Route::get('/demo-reports', [ReportsController::class, 'redirectToReports'])->name('demo-reports');
             Route::get('/hr-reports', [ReportsController::class, 'redirectToReports'])->name('hr-reports');
             Route::get('/bank-reports', [ReportsController::class, 'redirectToReports'])->name('bank-reports');
+            Route::get('/running-accounts', [ReportsController::class, 'redirectToReports'])->name('running-accounts');
         });
     });
 

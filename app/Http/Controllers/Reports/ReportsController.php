@@ -449,6 +449,7 @@ class ReportsController extends Controller
             'demo-reports' => '/demo/dbanks',
             'hr-reports' => '/hr/checkIn',
             'bank-reports' => '/cresco/banks/summary',
+            'running-accounts' => '/cresco/runningAccount/runningbalances',
         ];
 
         $user = Auth::user();
