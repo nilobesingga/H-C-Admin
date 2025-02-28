@@ -26,7 +26,7 @@
                            Dashboard
                         </a>
 
-                        @if(!$page->user->modules->isEmpty())
+                        @if(request()->is('reports*'))
                             <a class="nav-link {{ request()->is('reports*') ? 'nav-active' : '' }}"
                                href="{{ route('reports.' . $page->user->modules->sortBy('order')->first()->slug) }}"
                             >
