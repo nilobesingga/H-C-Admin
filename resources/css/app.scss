@@ -79,6 +79,14 @@
 .nav-active {
     @apply bg-neutral-900 text-white hover:bg-black hover:text-white
 }
+.bg-icon {
+    @apply absolute -bottom-7 right-7 z-0 pointer-events-none group-hover:-translate-y-8 transition-all duration-300;
+}
+.bg-icon .ki-duotone {
+    @apply text-brand-active group-hover:text-brand-active transition-all duration-300 opacity-30 group-hover:opacity-100;
+    font-size: 7rem!important;
+}
+
 .select-input,
 .text-input,
 .input,
