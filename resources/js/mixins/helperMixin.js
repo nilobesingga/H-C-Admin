@@ -2,7 +2,7 @@ export default {
     data() {
         return {
             appEnv: window.env.APP_ENV,
-            appUrl: window.env.APP_URL,
+            appUrl: window.env.APP_URL.replace(/\/$/, ""),
         }
     },
     methods: {
