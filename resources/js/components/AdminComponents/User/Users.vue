@@ -51,7 +51,7 @@
                         <th class="sticky top-0 w-[70px] text-center">User Name</th>
                         <th class="sticky top-0 w-[70px] text-center">Bitrix User Id</th>
                         <th class="sticky top-0 w-[100px] text-center">Bitrix Webhook Token</th>
-                        <th class="sticky top-0 w-[70px] text-center">Access URL</th>
+                        <th class="sticky top-0 w-[350px] text-center">Access URL</th>
                         <th class="sticky top-0 w-[200px]">Modules</th>
                         <th class="sticky top-0 w-[300px]">Categories</th>
                         <th class="sticky top-0 w-[50px] text-center">Action</th>
@@ -77,7 +77,7 @@
                         <td>{{ obj.user_name }}</td>
                         <td>{{ obj.bitrix_user_id }}</td>
                         <td>{{ obj.bitrix_webhook_token }}</td>
-                        <td><a :href="`${appUrl}/login/${obj.access_token}`" class="btn btn-link transition-all duration-300 !text-neutral-800 hover:!text-tec-active" target="_blank">Authorize</a></td>
+                        <td><a :href="`${appUrl}/login/${obj.access_token}`" class="btn btn-link transition-all duration-300 !text-neutral-800 hover:!text-tec-active" target="_blank">{{ `${appUrl}/login/${obj.access_token}` }}</a></td>
                         <td class="text-left">
                             <span class="group-hover:!bg-tec-active/10 mr-1 mb-1 !text-neutral-800 badge badge-sm bg-transparent transition-all duration-300" v-for="(category, index) in obj.modules" :key="index">{{ category.name }}</span>
                         </td>
