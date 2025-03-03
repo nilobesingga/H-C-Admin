@@ -230,7 +230,8 @@
                         @click="save"
                         :disabled="crud_loading"
                     >
-                        Save
+                        <span v-if="!crud_loading">Save</span>
+                        <span v-else>Saving...</span>
                     </button>
                 </div>
             </div>

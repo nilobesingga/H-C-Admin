@@ -110,7 +110,7 @@
                         </div>
 
                         <!-- Full Access -->
-                        <div v-if="page_data.permission === 'full_access'" class="h-full">
+                        <div v-if="page_data.permission === 'full_access'" class="h-[68vh]">
                             <draggable
                                 tag="template"
                                 group="data"
@@ -125,9 +125,13 @@
                                         <!-- cash requests -->
                                         <div :class="['card', (item.is_budget_only === '1937' ? 'budget-only' : 'cash-request')]" v-if="item.request_type === 'cash_request'">
                                             <div class="card-title text-left flex w-full flex-col">
-                                                <a class="btn btn-link !text-black hover:!text-brand-active text-lg" target="_blank" :href="getBitrixUrlByBlockIdAndId('105', item.id)">
-                                                    {{ formatAmount(item.amount) }} {{ item.currency }}
-                                                </a>
+                                                <div class="flex justify-between items-center">
+                                                    <a class="btn btn-link !text-black hover:!text-brand-active text-lg" target="_blank" :href="getBitrixUrlByBlockIdAndId('105', item.id)">
+                                                        {{ formatAmount(item.amount) }} {{ item.currency }}
+                                                    </a>
+                                                    <!-- awaiting for exchange rate -->
+                                                    <i class="ki-filled ki-timer text-orange-400" v-if="item.awaiting_for_exchange_rate === 'Yes'"></i>
+                                                </div>
                                                 <sub class="text-xs text-neutral-600 mb-2 -mt-1" v-if="item.currency !== 'USD'">({{ formatAmount(item.exchange_amount) }} USD)</sub>
                                             </div>
                                             <a class="btn btn-link text-left !text-neutral-800" target="_blank" :href="getBitrixProjectLink(item)">{{ item.project_name }}</a>
@@ -140,10 +144,29 @@
                                                 <span>Pay By: </span>
                                                 <span class="text-neutral-800">{{ getPaymentMode(item.payment_mode_id) }}</span>
                                             </div>
-                                            <div class="text-left mt-2">
-                                                <small :class="['badge text-xs', isOverdue(item.payment_date) ? 'badge-danger' : 'badge-success']">Due: {{ formatDate(item.payment_date) }}</small>
-                                                <small class="badge badge-warning text-xs ml-1" v-if="item.is_budget_only === '1937'">Budget Only</small>
+                                            <div class="flex justify-between items-center mt-2">
+                                                <div class="text-left">
+                                                    <small :class="['badge text-xs', isOverdue(item.payment_date) ? 'badge-danger' : 'badge-success']">Due: {{ formatDate(item.payment_date) }}</small>
+                                                    <small class="badge badge-warning text-xs ml-1" v-if="item.is_budget_only === '1937'">Budget Only</small>
+                                                </div>
+                                                <div class="mt-[8px]">
+                                                    <button
+                                                        data-modal-toggle="#cash_request_update_form_modal"
+                                                        class="btn btn-xs btn-light"
+                                                        @click="openModal('update', item)"
+                                                    >
+                                                        Update
+                                                    </button>
+                                                    <button
+                                                        data-modal-toggle="#cash_request_release_fund_form_modal"
+                                                        class="btn btn-xs btn-light"
+                                                        @click="openModal('release_fund', item)"
+                                                    >
+                                                        Release Funds
+                                                    </button>
+                                                </div>
                                             </div>
+
                                         </div>
                                         <!-- purchase invoices -->
                                         <div class="card purchase-invoice" v-if="item.request_type === 'purchase_invoice'">
@@ -187,9 +210,13 @@
                                     <!-- cash requests -->
                                     <div :class="['card', (item.is_budget_only === '1937' ? 'budget-only' : 'cash-request')]" v-if="item.request_type === 'cash_request'">
                                         <div class="card-title text-left flex w-full flex-col">
-                                            <a class="btn btn-link !text-black hover:!text-brand-active text-lg" target="_blank" :href="getBitrixUrlByBlockIdAndId('105', item.id)">
-                                                {{ formatAmount(item.amount) }} {{ item.currency }}
-                                            </a>
+                                            <div class="flex justify-between items-center">
+                                                <a class="btn btn-link !text-black hover:!text-brand-active text-lg" target="_blank" :href="getBitrixUrlByBlockIdAndId('105', item.id)">
+                                                    {{ formatAmount(item.amount) }} {{ item.currency }}
+                                                </a>
+                                                <!-- awaiting for exchange rate -->
+                                                <i class="ki-filled ki-timer text-orange-400" v-if="item.awaiting_for_exchange_rate === 'Yes'"></i>
+                                            </div>
                                             <sub class="text-xs text-neutral-600 mb-2 -mt-1" v-if="item.currency !== 'USD'">({{ formatAmount(item.exchange_amount) }} USD)</sub>
                                         </div>
                                         <a class="btn btn-link text-left !text-neutral-800" target="_blank" :href="getBitrixProjectLink(item)">{{ item.project_name }}</a>
@@ -240,6 +267,24 @@
             </div>
         </div>
     </div>
+    <!-- Cash Request Update -->
+    <cash-request-update-form-modal
+        :obj="selected_obj"
+        :cash_pools="cash_pools"
+        :cash_release_locations="cash_release_locations"
+        v-if="is_cash_request_update"
+        @closeModal="closeModal"
+    />
+    <!-- Cash Request Release Fund Form Modal -->
+    <cash-request-release-fund-form-modal
+        :obj="selected_obj"
+        :payment_modes="payment_modes"
+        :cash_pools="cash_pools"
+        :cash_release_locations="cash_release_locations"
+        :sage_companies="page_data.bitrix_list_cash_requests_sage_companies"
+        v-if="is_cash_request_release_fund_form_modal"
+        @closeModal="closeModal"
+    />
 </template>
 
 <script>
@@ -267,25 +312,14 @@ export default {
                 awaiting_for_exchange_rate: "",
                 search: "",
             },
-            payment_modes: [
-                {
-                    id: 1867,
-                    name: 'Cash'
-                },
-                {
-                    id: 1868,
-                    name: 'Card'
-                },
-                {
-                    id: 1869,
-                    name: 'Bank Transfer'
-                },
-                {
-                    id: 1870,
-                    name: 'Cheque'
-                }
-            ],
+            payment_modes: [],
+            cash_pools: [],
+            cash_release_locations: [],
             week_off_set: 0,
+            selected_obj: null,
+            modal_type: null,
+            is_cash_request_release_fund_form_modal: false,
+            is_cash_request_update: false,
         }
     },
     methods: {
@@ -294,6 +328,10 @@ export default {
                 this.loading = true;
                 this.data = [];
 
+                // Fetch payment modes
+                await this.fetchPaymentModesFromBitrix();
+                await this.fetchCashPoolsFromBitrix();
+                await this.fetchCashReleaseLocationsFromBitrix();
                 // Fetch cash requests and purchase invoices in parallel
                 const [cashRequests, purchaseInvoices] = await Promise.all([
                     this.getCashRequestsData(),
@@ -331,6 +369,75 @@ export default {
                 this.loading = false;
             }
         },
+        async fetchPaymentModesFromBitrix() {
+            const bitrixUserId = this.page_data.user.bitrix_user_id;
+            const bitrixWebhookToken = this.page_data.user.bitrix_webhook_token;
+            try {
+                const endpoint = 'lists.field.get';
+                const requestData = {
+                    IBLOCK_TYPE_ID: "bitrix_processes",
+                    IBLOCK_ID: 105,
+                    FIELD_ID: "PROPERTY_1088"
+                };
+                const response = await this.callBitrixAPI(endpoint, bitrixUserId, bitrixWebhookToken, requestData);
+                if (response && response.result && response.result.L && response.result.L.DISPLAY_VALUES_FORM) {
+                    this.payment_modes = Object.entries(response.result.L.DISPLAY_VALUES_FORM).map(([id, name]) => ({
+                        id,
+                        name
+                    }));
+                } else {
+                    this.payment_modes = [];
+                }
+            } catch (error) {
+                console.error(`Error fetching filter data for payment mode list:`, error);
+            }
+        },
+        async fetchCashPoolsFromBitrix() {
+            const bitrixUserId = this.page_data.user.bitrix_user_id;
+            const bitrixWebhookToken = this.page_data.user.bitrix_webhook_token;
+            try {
+                const endpoint = 'lists.field.get';
+                const requestData = {
+                    IBLOCK_TYPE_ID: "bitrix_processes",
+                    IBLOCK_ID: 105,
+                    FIELD_ID: "PROPERTY_1231"
+                };
+                const response = await this.callBitrixAPI(endpoint, bitrixUserId, bitrixWebhookToken, requestData);
+                if (response && response.result && response.result.L && response.result.L.DISPLAY_VALUES_FORM) {
+                    this.cash_pools = Object.entries(response.result.L.DISPLAY_VALUES_FORM).map(([id, name]) => ({
+                        id,
+                        name
+                    }));
+                } else {
+                    this.cash_pools = [];
+                }
+            } catch (error) {
+                console.error(`Error fetching filter data for cash pools list:`, error);
+            }
+        },
+        async fetchCashReleaseLocationsFromBitrix() {
+            const bitrixUserId = this.page_data.user.bitrix_user_id;
+            const bitrixWebhookToken = this.page_data.user.bitrix_webhook_token;
+            try {
+                const endpoint = 'lists.field.get';
+                const requestData = {
+                    IBLOCK_TYPE_ID: "bitrix_processes",
+                    IBLOCK_ID: 105,
+                    FIELD_ID: "PROPERTY_954"
+                };
+                const response = await this.callBitrixAPI(endpoint, bitrixUserId, bitrixWebhookToken, requestData);
+                if (response && response.result && response.result.L && response.result.L.DISPLAY_VALUES_FORM) {
+                    this.cash_release_locations = Object.entries(response.result.L.DISPLAY_VALUES_FORM).map(([id, name]) => ({
+                        id,
+                        name
+                    }));
+                } else {
+                    this.cash_release_locations = [];
+                }
+            } catch (error) {
+                console.error(`Error fetching filter data for cash release locations list:`, error);
+            }
+        },
         async getCashRequestsData(){
             let dateRange = this.calculateDateRange();
             const bitrixUserId = this.page_data.user.bitrix_user_id ? this.page_data.user.bitrix_user_id : null;
@@ -362,7 +469,8 @@ export default {
             try {
                 const response = await this.callBitrixAPI(endpoint, bitrixUserId, bitrixWebhookToken, requestData);
                 return response.result
-                    .filter(item => item.status_id === "1652" || item.status_id === "1654" || item.status_id === "1687")
+                    // .filter(item => item.status_id === "1652" || item.status_id === "1655" || item.status_id === "1687")
+                    .filter(item => item.status_id === "1652" || item.status_id === "1687")
                     .map(item => ({
                         ...item,
                         request_type: "cash_request",
@@ -651,7 +759,24 @@ export default {
             } catch (error) {
                 this.errorToast('Error updating Purchase Invoice payment schedule date')
             }
-        }
+        },
+        openModal(type, obj){
+            this.selected_obj = obj;
+            this.modal_type = type
+            if(type === 'release_fund'){
+                this.is_cash_request_release_fund_form_modal = true
+            }
+            if(type === 'update'){
+                this.is_cash_request_update = true
+            }
+        },
+        closeModal(){
+            this.getData();
+            this.is_cash_request_release_fund_form_modal = false;
+            this.is_cash_request_update = false;
+            this.selected_obj = null
+            this.removeModalBackdrop();
+        },
     },
     computed:{
         filteredData() {
@@ -712,8 +837,8 @@ export default {
         },
     },
     created() {
-        this.sharedState.bitrixUserId = this.page_data.user.bitrix_user_id;
-        this.sharedState.bitrixWebhookToekn = this.page_data.user.bitrix_webhook_token;
+        this.sharedState.bitrix_user_id = this.page_data.user.bitrix_user_id;
+        this.sharedState.bitrix_webhook_token = this.page_data.user.bitrix_webhook_token;
     },
     mounted() {
         this.getData();
