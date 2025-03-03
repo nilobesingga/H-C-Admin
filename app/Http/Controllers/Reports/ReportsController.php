@@ -289,14 +289,19 @@ class ReportsController extends Controller
     {
         $categories = BitrixListsSageCompanyMapping::select('category_id', 'bitrix_category_name')
             ->whereIn('category_id', $this->userCategoryIds)
-            ->whereNotNull('sage_company_code')
+            ->whereNotNull('bitrix_category_name')
             ->distinct()
             ->get();
+
         $sageCompanies = BitrixListsSageCompanyMapping::select('category_id', 'bitrix_sage_company_name', 'sage_company_code')
             ->whereIn('category_id', $this->userCategoryIds)
             ->whereNotNull('sage_company_code')
-            ->distinct()
-            ->get();
+            ->orderBy('category_id')
+            ->get()
+            ->unique('sage_company_code')
+            ->values()
+            ->toArray();
+
         $bitrixListPurchaseInvoicesSageCompanies = BitrixListsSageCompanyMapping::select('category_id', 'bitrix_list_id', 'sage_company_code', 'bitrix_sage_company_id', 'bitrix_sage_company_name')
             ->where('bitrix_list_id', 1)
             ->whereNotNull('bitrix_sage_company_id')
