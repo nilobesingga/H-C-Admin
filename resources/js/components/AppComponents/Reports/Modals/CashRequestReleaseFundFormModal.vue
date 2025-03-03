@@ -21,8 +21,8 @@
                 <!-- Modal Content -->
                 <div v-else>
                     <form @submit.prevent="submit">
-                        <div class="flex">{{ obj.name }}</div>
-                        <div class="flex">
+                        <div class="flex mt-4 mb-2 text-2xl font-bold tracking-tight text-black">{{ formatAmount(obj.amount) }} {{ obj.currency }}</div>
+                        <div class="flex gap-1">
                             <span>Requested By: </span>
                             <span>{{ obj.requested_by_name }}</span>
                         </div>
