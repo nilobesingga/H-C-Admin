@@ -21,13 +21,13 @@
                 <!-- Modal Content -->
                 <div v-else>
                     <form @submit.prevent="submit">
-                        <div class="flex">{{ obj.name }}</div>
-                        <div class="flex">
+                        <div class="flex mt-4 mb-2 text-2xl font-bold tracking-tight text-black">{{ formatAmount(obj.amount) }} {{ obj.currency }}</div>
+                        <div class="flex gap-1">
                             <span>Requested By: </span>
                             <span>{{ obj.requested_by_name }}</span>
                         </div>
                         <!-- Action -->
-                        <div class="w-full mt-5">
+                        <div class="w-full mt-10">
                             <label class="form-label flex items-center gap-1 text-sm mb-1" for="action">Select Action
                                 <span class="text-danger">* <span class="form-text-error" v-if="v$.form.action.$error">Please fill out this field</span></span>
                             </label>
