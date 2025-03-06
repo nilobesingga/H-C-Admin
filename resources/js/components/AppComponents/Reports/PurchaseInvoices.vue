@@ -141,23 +141,21 @@
                             </td>
                             <td>
                                 <button
-                                    @click="openModal('showBankTransferDetailsModal', obj)"
+                                    @click="openModal('view_bank_transfer', obj)"
                                     data-modal-toggle="#show_bank_transfer_details_modal"
                                     class="secondary-btn mb-1 block w-full"
                                     v-if="obj.bitrix_bank_transfer_id"
                                 >
-                                    View Transfer
+                                    <span>View Transfer</span>
                                 </button>
-
                                 <button
-                                    @click="openModal('isCreateBankTransferFormModal', obj)"
+                                    @click="openModal('create_bank_transfer', obj)"
                                     data-modal-toggle="#create_bank_transfer_form_modal"
                                     class="secondary-btn mb-1 block w-full"
                                     v-if="page_data.permission === 'full_access' && (!obj.bitrix_bank_transfer_id && obj.status_id !== '1619' && obj.status_id !== '1620' && obj.status_id !== '1871' && obj.sage_status_text === 'Booked In Sage')"
                                 >
-                                    <span>Bank Transfer</span>
+                                    <span>Create Transfer</span>
                                 </button>
-
                                 <a
                                     class="secondary-btn mb-1 block w-full"
                                     target="_blank"
@@ -165,6 +163,14 @@
                                     v-if="page_data.permission === 'full_access' && (obj.sage_status !== '1863' && obj.status_id !== '1619' && obj.status_id !== '1620')"
                                 >
                                     Book In Sage
+                                </a>
+                                <a
+                                    class="secondary-btn mb-1 block w-full"
+                                    target="_blank"
+                                    :href="`https://10.0.1.17/CRESCOSage/AP/APInvoice?blockId=104&purchaseId=${obj.id}`"
+                                    v-if="obj.sage_status === '1863'"
+                                >
+                                    View In Sage
                                 </a>
                             </td>
                         </tr>
@@ -216,7 +222,7 @@
     <!-- show bank transfer detail modal -->
     <view-bank-transfer-details-modal
         :obj_id="selected_obj.bitrix_bank_transfer_id"
-        v-if="is_show_bank_transfer_details_modal"
+        v-if="is_view_bank_transfer_details_modal"
         @closeModal="closeModal"
     />
     <!-- create transfer form modal -->
@@ -263,7 +269,7 @@ export default {
                 },
             ],
             selected_obj: null,
-            is_show_bank_transfer_details_modal: false,
+            is_view_bank_transfer_details_modal: false,
             is_create_bank_transfer_form_modal: false,
             totalAsPerReportingCurrency: 0,
         }
@@ -341,15 +347,15 @@ export default {
         },
         openModal(type, obj){
             this.selected_obj = obj;
-            if(type === 'showBankTransferDetailsModal'){
-                this.is_show_bank_transfer_details_modal = true
+            if(type === 'view_bank_transfer'){
+                this.is_view_bank_transfer_details_modal = true
             }
-            if(type === 'isCreateBankTransferFormModal'){
+            if(type === 'create_bank_transfer'){
                 this.is_create_bank_transfer_form_modal = true
             }
         },
         closeModal(isForm = false){
-            this.is_show_bank_transfer_details_modal = false;
+            this.is_view_bank_transfer_details_modal = false;
             this.is_create_bank_transfer_form_modal = false;
             this.selected_obj = null
             this.removeModalBackdrop();

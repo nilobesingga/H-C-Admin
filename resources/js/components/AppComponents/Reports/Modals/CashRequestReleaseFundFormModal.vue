@@ -77,9 +77,14 @@
                                 <!-- Cash Pool -->
                                 <div class="mb-4 w-full gap-2.5">
                                     <label class="form-label flex items-center gap-1 text-sm mb-1" for="cash_pool">Cash Pool
-                                        <span class="text-danger">* <span class="form-text-error" v-if="v$.form.cash_pool_id.$error">Please fill out this field</span></span>
+                                        <span class="text-danger" v-if="form.payment_mode_id === '1867'">* <span class="form-text-error" v-if="v$.form.cash_pool_id.$error">Please fill out this field</span></span>
                                     </label>
-                                    <select v-model="form.cash_pool_id" class="select select-input select-sm px-3 pr-8 min-w-fit max-w-full text-black bg-inherit" :class="v$.form.cash_pool_id.$error ? '!border-red-500' : ''" id="cash_pool">
+                                    <select v-model="form.cash_pool_id"
+                                            class="select select-input select-sm px-3 pr-8 min-w-fit max-w-full text-black bg-inherit"
+                                            :class="form.payment_mode_id === '1867' && v$.form.cash_pool_id.$error ? '!border-red-500' : ''"
+                                            id="cash_pool"
+                                    >
+                                        <option v-if="form.payment_mode_id !== '1867'" value="">N/A</option>
                                         <option v-for="obj in cash_pools" :key="obj.id" :value="obj.id">{{ obj.name }}</option>
                                     </select>
                                 </div>
@@ -120,7 +125,7 @@
                         @click="submit"
                         :disabled="loading || crud_loading"
                     >
-                        <span v-if="!crud_loading">Save</span>
+                        <span v-if="!crud_loading">Release Fund</span>
                         <span v-else>Saving...</span>
                     </button>
                 </div>
@@ -144,7 +149,7 @@ export default {
                 sage_company_id: null,
                 cash_release_type: 1,
                 payment_mode_id: null,
-                cash_pool_id: null,
+                cash_pool_id: '',
                 cash_release_location_id: null,
                 amount_released: null,
                 awaiting_for_exchange_rate_id: null,
@@ -159,30 +164,20 @@ export default {
         return { v$ };
     },
     validations () {
-        if(this.form.cash_release_type === 2){
-            return {
-                form: {
-                    sage_company_id: { required },
-                    cash_release_type: { required },
-                    payment_mode_id: { required },
+        return {
+            form: {
+                sage_company_id: { required },
+                cash_release_type: { required },
+                payment_mode_id: { required },
+                cash_release_location_id: { required },
+                awaiting_for_exchange_rate_id: { required },
+                ...(this.form.payment_mode_id === '1867' && {
                     cash_pool_id: { required },
-                    cash_release_location_id: { required },
+                }),
+                ...(this.form.cash_release_type === 2 && {
                     amount_released: { required },
-                    awaiting_for_exchange_rate_id: { required }
-                }
-            }
-        }
-        else {
-            return {
-                form: {
-                    sage_company_id: { required },
-                    cash_release_type: { required },
-                    payment_mode_id: { required },
-                    cash_pool_id: { required },
-                    cash_release_location_id: { required },
-                    awaiting_for_exchange_rate_id: { required },
-                }
-            }
+                }),
+            },
         }
     },
     methods: {
@@ -398,6 +393,16 @@ export default {
                 link.remove();
             });
         },
+    },
+    watch: {
+        'form.payment_mode_id'(newVal) {
+            if (newVal === '1867') {
+                this.form.cash_pool_id = null; // Make selection required
+            } else {
+                this.form.cash_pool_id = ""; // Reset to ""
+            }
+            this.v$.$touch(); // Ensures validation runs after change
+        }
     },
     async mounted() {
         if (this.obj){
