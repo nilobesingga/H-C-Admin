@@ -37,6 +37,7 @@ Route::middleware(['auth'])->group(function(){
             Route::get('/expense-planner', [ReportsController::class, 'getExpensePlanner'])->name('expense-planner');
             Route::get('/bank-monitoring', [ReportsController::class, 'getBankMonitoring'])->name('bank-monitoring');
             Route::get('/bank-accounts', [ReportsController::class, 'getBankAccounts'])->name('bank-accounts');
+            Route::get('/bank-accounts', [ReportsController::class, 'getBankAccounts'])->name('bank-accounts');
 
             //########################################### CRESCO Reports links ###############################################################
             Route::get('/cresco-holding', [ReportsController::class, 'redirectToReports'])->name('cresco-holding');
@@ -51,7 +52,14 @@ Route::middleware(['auth'])->group(function(){
             Route::get('/hr-reports', [ReportsController::class, 'redirectToReports'])->name('hr-reports');
             Route::get('/bank-reports', [ReportsController::class, 'redirectToReports'])->name('bank-reports');
             Route::get('/running-accounts', [ReportsController::class, 'redirectToReports'])->name('running-accounts');
+
         });
+        // Cash Pool
+        Route::group(['prefix' => 'cash-pool', 'as' => 'cash-pool.'], function(){
+            Route::get('/cash-pool-report', [ReportsController::class, 'redirectToReports'])->name('cash-pool-report');
+            Route::get('/cash-pool-expense-planner', [ReportsController::class, 'getExpensePlanner'])->name('cash-pool-expense-planner');
+        });
+
     });
 
     // Download Cash Release Receipt

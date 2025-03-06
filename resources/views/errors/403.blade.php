@@ -71,7 +71,7 @@
     </div>
     <h1>Unauthorized Access</h1>
     <p class="message">You don't have the necessary permissions to access this module.</p>
-    <a href="/"
+    <a href="/dashboard"
        class="btn">
         Back to Home
     </a>
