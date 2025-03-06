@@ -93,8 +93,7 @@
                             <th class="sticky top-0 w-[150px] text-left">Request By & Remarks <i class="ki-outline ki-exit-down"></i></th>
                             <th class="sticky top-0 w-[80px]">Status</th>
                             <th class="sticky top-0 w-[110px]">Documents</th>
-                            <th class="sticky top-0 w-[110px]">Actions</th>
-                            <th class="sticky top-0 w-[130px]" v-if="page_data.permission === 'full_access'">Sage Reference</th>
+                            <th class="sticky top-0 w-[130px]">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="text-center text-xs tracking-tight h-full">
@@ -140,9 +139,9 @@
                                     Release Receipt
                                 </button>
                             </td>
-                            <td class="text-middle">
+                            <td>
                                 <button
-                                    @click="openModal('showBankTransferDetailsModal', obj)"
+                                    @click="openModal('view_bank_transfer', obj)"
                                     data-modal-toggle="#show_bank_transfer_details_modal"
                                     class="secondary-btn mb-1 block w-full"
                                     v-if="obj.bitrix_bank_transfer_id"
@@ -150,46 +149,42 @@
                                     View Transfer
                                 </button>
                                 <button
-                                    @click="openModal('isCreateBankTransferFormModal', obj)"
+                                    @click="openModal('create_bank_transfer', obj)"
                                     data-modal-toggle="#create_bank_transfer_form_modal"
                                     class="secondary-btn mb-1 block w-full"
                                     v-if="page_data.permission === 'full_access' && obj.payment_mode_id === '1869' && !obj.bitrix_bank_transfer_id"
                                 >
-                                    Bank Transfer
+                                    Create Transfer
                                 </button>
                                 <button class="btn btn-sm btn-outline btn-success mt-2" v-if="obj.charge_extra_to_client === '1990' && !obj.has_offer_generated" @click="createOffer(obj)">Create Offer For Extra Charges</button>
-                            </td>
-                            <td v-if="page_data.permission === 'full_access'">
-                                <div v-if="!obj.sage_transaction_type && !obj.sage_transaction_type_id">
-                                    <a class="secondary-btn mb-1 block w-full"
-                                       style="width: 10rem"
-                                       :href="`https://10.0.1.17/CRESCOSage/AP/APCashRequisition?blockId=105&crId=${obj.id}`" target="_blank"
-                                    >
-                                        Book Misc Payment
-                                    </a>
-                                    <a class="secondary-btn mb-1 block w-full"
-                                       style="width: 10rem"
-                                       :href="`https://10.0.1.17/CRESCOSage/AP/APBankEntry?blockId=105&crId=${obj.id}`" target="_blank"
-                                    >
-                                        Bank Entry
-                                    </a>
-                                </div>
-                                <div v-else>
-                                    <div v-if="obj.sage_transaction_type === 'Bank Entry' && obj.sage_transaction_type_id === '2354'">
+                                <div v-if="page_data.permission === 'full_access'">
+                                    <div v-if="!obj.sage_transaction_type && !obj.sage_transaction_type_id">
                                         <a class="secondary-btn mb-1 block w-full"
-                                           style="width: 10rem"
-                                           :href="`https://10.0.1.17/CRESCOSage/AP/APBankEntry?blockId=105&crId=${obj.id}`" target="_blank"
-                                        >
-                                            View Bank Entry
-                                        </a>
-                                    </div>
-                                    <div v-else >
-                                        <a class="secondary-btn mb-1 block w-full"
-                                           style="width: 10rem"
                                            :href="`https://10.0.1.17/CRESCOSage/AP/APCashRequisition?blockId=105&crId=${obj.id}`" target="_blank"
                                         >
-                                            View Misc Payment
+                                            Book Misc Payment
                                         </a>
+                                        <a class="secondary-btn mb-1 block w-full"
+                                           :href="`https://10.0.1.17/CRESCOSage/AP/APBankEntry?blockId=105&crId=${obj.id}`" target="_blank"
+                                        >
+                                            Bank Entry
+                                        </a>
+                                    </div>
+                                    <div v-else>
+                                        <div v-if="obj.sage_transaction_type === 'Bank Entry' && obj.sage_transaction_type_id === '2354'">
+                                            <a class="secondary-btn mb-1 block w-full"
+                                               :href="`https://10.0.1.17/CRESCOSage/AP/APBankEntry?blockId=105&crId=${obj.id}`" target="_blank"
+                                            >
+                                                View Bank Entry
+                                            </a>
+                                        </div>
+                                        <div v-else>
+                                            <a class="secondary-btn mb-1 block w-full"
+                                               :href="`https://10.0.1.17/CRESCOSage/AP/APCashRequisition?blockId=105&crId=${obj.id}`" target="_blank"
+                                            >
+                                                View Misc Payment
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
                             </td>
@@ -242,7 +237,7 @@
     <!-- show bank transfer detail modal -->
     <view-bank-transfer-details-modal
         :obj_id="selected_obj.bitrix_bank_transfer_id"
-        v-if="is_show_bank_transfer_details_modal"
+        v-if="is_view_bank_transfer_details_modal"
         @closeModal="closeModal"
     />
     <!-- create transfer form modal -->
@@ -305,7 +300,7 @@ export default {
             totalAsPerReportingCurrency: 0,
             active_status_filter_ids : [1651, 1652, 1653, 1655, 1659, 1687],
             selected_obj: null,
-            is_show_bank_transfer_details_modal: false,
+            is_view_bank_transfer_details_modal: false,
             is_create_bank_transfer_form_modal: false,
         }
     },
@@ -422,15 +417,15 @@ export default {
         createOffer(){},
         openModal(type, obj){
             this.selected_obj = obj;
-            if(type === 'showBankTransferDetailsModal'){
-                this.is_show_bank_transfer_details_modal = true
+            if(type === 'view_bank_transfer'){
+                this.is_view_bank_transfer_details_modal = true
             }
-            if(type === 'isCreateBankTransferFormModal'){
+            if(type === 'create_bank_transfer'){
                 this.is_create_bank_transfer_form_modal = true
             }
         },
         closeModal(){
-            this.is_show_bank_transfer_details_modal = false;
+            this.is_view_bank_transfer_details_modal = false;
             this.is_create_bank_transfer_form_modal = false;
             this.selected_obj = null
             this.removeModalBackdrop();

@@ -149,7 +149,9 @@
                                                     <small :class="['badge text-xs', isOverdue(item.payment_date) ? 'badge-danger' : 'badge-success']">Due: {{ formatDate(item.payment_date) }}</small>
                                                     <small class="badge badge-warning text-xs ml-1" v-if="item.is_budget_only === '1937'">Budget Only</small>
                                                 </div>
-                                                <div class="mt-[8px]">
+                                            </div>
+                                            <div class="flex justify-between items-center mt-3">
+                                                <div>
                                                     <button
                                                         data-modal-toggle="#cash_request_update_form_modal"
                                                         class="btn btn-xs btn-light"
@@ -159,14 +161,13 @@
                                                     </button>
                                                     <button
                                                         data-modal-toggle="#cash_request_release_fund_form_modal"
-                                                        class="btn btn-xs btn-light"
+                                                        class="btn btn-xs btn-light ml-1"
                                                         @click="openModal('release_fund', item)"
                                                     >
                                                         Release Funds
                                                     </button>
                                                 </div>
                                             </div>
-
                                         </div>
                                         <!-- purchase invoices -->
                                         <div class="card purchase-invoice" v-if="item.request_type === 'purchase_invoice'">
@@ -190,6 +191,15 @@
                                                 <small v-if="item.sage_status && item.sage_status === '1863'" class="badge badge-info text-xs font-bold ml-1">Booked In Sage</small>
                                                 <small v-else class="badge badge-warning text-xs font-bold ml-1">NOT Booked In Sage</small>
                                                 <small v-if="item.status_id === '1864'" class="badge badge-warning text-xs font-bold ml-1 ">Partially Paid</small>
+                                            </div>
+                                            <div class="flex justify-between items-center mt-3" v-if="item.preview_url">
+                                                <a
+                                                    class="btn btn-xs btn-light"
+                                                    target="_blank"
+                                                    :href="item.preview_url"
+                                                >
+                                                    Preview Invoice
+                                                </a>
                                             </div>
                                         </div>
                                     </div>
@@ -256,6 +266,15 @@
                                             <small v-if="item.sage_status && item.sage_status === '1863'" class="badge badge-info text-xs font-bold ml-1">Booked In Sage</small>
                                             <small v-else class="badge badge-warning text-xs font-bold ml-1">NOT Booked In Sage</small>
                                             <small v-if="item.status_id === '1864'" class="badge badge-warning text-xs font-bold ml-1 ">Partially Paid</small>
+                                        </div>
+                                        <div class="flex justify-between items-center mt-3" v-if="item.preview_url">
+                                            <a
+                                                class="btn btn-xs btn-light"
+                                                target="_blank"
+                                                :href="item.preview_url"
+                                            >
+                                                Preview Invoice
+                                            </a>
                                         </div>
                                     </div>
                                 </div>
@@ -790,7 +809,6 @@ export default {
                     (item.cash_amount && item.cash_amount.includes(this.filters.search)) ||
                     (item.project_name && item.project_name.toLowerCase().includes(this.filters.search.toLowerCase()));
 
-
                 // Filter by type
                 const matchesType = this.filters.request_type ? (this.filters.request_type === 'budget_only' ? item.is_budget_only === '1937' : item.request_type === this.filters.request_type) : true;
 
@@ -829,7 +847,22 @@ export default {
             // Populate data in the relevant week headers
             weeks.forEach((week) => {
                 if (filteredGroupedData[week.week_number]) {
-                    week.data = filteredGroupedData[week.week_number];
+                    // week.data = filteredGroupedData[week.week_number];
+
+                    // Sort data by due_date (purchase_invoice) or payment_date (cash_request)
+                    week.data = filteredGroupedData[week.week_number].sort((a, b) => {
+                        const dateA = a.request_type === "purchase_invoice"
+                            ? (a.due_date ? DateTime.fromISO(a.due_date) : null)
+                            : (a.payment_date ? DateTime.fromISO(a.payment_date) : null);
+
+                        const dateB = b.request_type === "purchase_invoice"
+                            ? (b.due_date ? DateTime.fromISO(b.due_date) : null)
+                            : (b.payment_date ? DateTime.fromISO(b.payment_date) : null);
+
+                        if (!dateA) return 1; // Move null/undefined dates to the end
+                        if (!dateB) return -1;
+                        return dateA - dateB; // Ascending order
+                    });
                 }
             });
 
