@@ -20,10 +20,10 @@ class CheckModuleAccessMiddleware
 
         // Extract the module slug from the route name
         $routeName = $request->route()->getName();
-        $slug = str_replace('reports.', '', $routeName);
+        $slug = substr(strrchr($routeName, '.'), 1);
 
         // Check if the user has access to this module
-        if (!$user->modules->contains('slug', $slug)) {
+        if (! $user->modules->contains('slug', $slug)) {
             return abort(403, 'Unauthorized access to this module');
         }
 

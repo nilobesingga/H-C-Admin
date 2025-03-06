@@ -397,6 +397,16 @@ class ReportsController extends Controller
 
         return view('reports.bank_accounts', compact('page'));
     }
+    public function getCashPool()
+    {
+        $page = (object)[
+            'title' => 'Cash Pool',
+            'identifier' => 'Cash Pool',
+            'user' => $this->user,
+        ];
+
+        return view('reports.cash_pool', compact('page'));
+    }
     public function downloadCashReleasedReceipt(Request $request)
     {
         try {
@@ -440,7 +450,13 @@ class ReportsController extends Controller
     public function redirectToReports()
     {
         $path = request()->path();
-        $slug = str_replace('reports/', '', $path);
+        $prefix = str_starts_with($path, 'reports/') ? 'reports/' : 'cash-pool/';
+        $slug = str_replace($prefix, '', $path);
+
+        // Define reports that should be embedded using an iframe
+        $iframeReports = [
+            'cash-pool-report',
+        ];
 
         $reportMapping = [
             'cresco-holding' => '/holding',
@@ -455,6 +471,7 @@ class ReportsController extends Controller
             'hr-reports' => '/hr/checkIn',
             'bank-reports' => '/cresco/banks/summary',
             'running-accounts' => '/cresco/runningAccount/runningbalances',
+            'cash-pool-report' => '/cashpool',
         ];
 
         $user = Auth::user();
@@ -480,6 +497,17 @@ class ReportsController extends Controller
         // Final redirect URL
         $finalUrl = $authUrl . '?redirect=' . $redirectAfterLogin;
 
-        return redirect()->away($finalUrl);
+        if (in_array($slug, $iframeReports)) {
+            $page = (object)[
+                'title' => 'Cash Pool',
+                'identifier' => 'Cash Pool',
+                'user' => $this->user,
+            ];
+//            return view('reports.embedded_report', compact('finalUrl'));
+            return view('reports.cash_pool', compact('page', 'finalUrl'));
+        }
+        else {
+            return redirect()->away($finalUrl);
+        }
     }
 }

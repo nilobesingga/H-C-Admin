@@ -463,8 +463,6 @@ export default {
             const bitrixWebhookToken = this.page_data.user.bitrix_webhook_token ? this.page_data.user.bitrix_webhook_token : null;
             const endpoint = 'crm.company.reports_v2';
             const requestData = {
-                startDate: dateRange[0],
-                endDate: dateRange[1],
                 action: "getCashReports",
                 categories: JSON.stringify(
                     this.filters.category_id === "" ?
