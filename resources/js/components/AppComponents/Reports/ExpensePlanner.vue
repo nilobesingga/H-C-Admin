@@ -659,7 +659,7 @@ export default {
                         // Funds Available Date
                         'PROPERTY_946': DateTime.fromFormat(newWeek.start_date, "dd MMM yyyy").toSQLDate(),
                         // Cash Release Receipt
-                        'PROPERTY_1059': item.cash_release_receipt_id,
+                        'PROPERTY_1059': item.cash_release_receipt_docs,
                         // Receipt
                         'PROPERTY_948': { itemId: [item.receipt_id] },
                         // Receipt Preview Link
