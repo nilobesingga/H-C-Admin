@@ -289,6 +289,7 @@
     <!-- Cash Request Update -->
     <cash-request-update-form-modal
         :obj="selected_obj"
+        :payment_modes="payment_modes"
         :cash_pools="cash_pools"
         :cash_release_locations="cash_release_locations"
         v-if="is_cash_request_update"

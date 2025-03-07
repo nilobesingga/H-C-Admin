@@ -50,6 +50,24 @@
                             <div v-if="form.status_id !== '1687'">
                                 <div class="flex gap-5 mt-8">
                                     <div class="w-1/2">
+                                        <!-- Payment Mode -->
+                                        <div class="mb-4 w-full gap-2.5">
+                                            <label class="form-label flex items-center gap-1 text-sm mb-1" for="payment_mode">Payment Mode
+                                                <span class="text-danger">* <span class="form-text-error" v-if="v$.form.payment_mode_id.$error">Please fill out this field</span></span>
+                                            </label>
+                                            <select v-model="form.payment_mode_id" class="select select-input select-sm px-3 pr-8 min-w-fit max-w-full text-black bg-inherit" :class="v$.form.payment_mode_id.$error ? '!border-red-500' : ''" id="payment_mode">
+                                                <option v-for="obj in payment_modes" :key="obj.id" :value="obj.id">{{ obj.name }}</option>
+                                            </select>
+                                        </div>
+                                        <!-- Cash Release Location -->
+                                        <div class="mb-4 w-full gap-2.5">
+                                            <label class="form-label flex items-center gap-1 text-sm mb-1" for="cash_release_location">Cash Release Location
+                                                <span class="text-danger">* <span class="form-text-error" v-if="v$.form.cash_release_location_id.$error">Please fill out this field</span></span>
+                                            </label>
+                                            <select v-model="form.cash_release_location_id" class="select select-input select-sm px-3 pr-8 min-w-fit max-w-full text-black bg-inherit" :class="v$.form.cash_release_location_id.$error ? '!border-red-500' : ''" id="cash_release_location">
+                                                <option v-for="obj in cash_release_locations" :key="obj.id" :value="obj.id">{{ obj.name }}</option>
+                                            </select>
+                                        </div>
                                         <!-- New Amount -->
                                         <div class="mb-4 w-full gap-2.5">
                                             <label class="form-label flex items-center gap-1 text-sm mb-1" for="new_amount">New Amount
@@ -64,15 +82,6 @@
                                                 type="number"
                                                 v-model="form.new_amount"
                                             >
-                                        </div>
-                                        <!-- Cash Release Location -->
-                                        <div class="mb-4 w-full gap-2.5">
-                                            <label class="form-label flex items-center gap-1 text-sm mb-1" for="cash_release_location">Cash Release Location
-                                                <span class="text-danger">* <span class="form-text-error" v-if="v$.form.cash_release_location_id.$error">Please fill out this field</span></span>
-                                            </label>
-                                            <select v-model="form.cash_release_location_id" class="select select-input select-sm px-3 pr-8 min-w-fit max-w-full text-black bg-inherit" :class="v$.form.cash_release_location_id.$error ? '!border-red-500' : ''" id="cash_release_location">
-                                                <option v-for="obj in cash_release_locations" :key="obj.id" :value="obj.id">{{ obj.name }}</option>
-                                            </select>
                                         </div>
                                         <!-- Awaiting for Exchange Rate -->
                                         <div class="mb-4 w-full gap-2.5">
@@ -95,9 +104,14 @@
                                         <!-- Cash Pool -->
                                         <div class="mb-4 w-full gap-2.5">
                                             <label class="form-label flex items-center gap-1 text-sm mb-1" for="cash_pool">Cash Pool
-                                                <span class="text-danger">* <span class="form-text-error" v-if="v$.form.cash_pool_id.$error">Please fill out this field</span></span>
+                                                <span class="text-danger" v-if="form.payment_mode_id === '1867'">* <span class="form-text-error" v-if="v$.form.cash_pool_id.$error">Please fill out this field</span></span>
                                             </label>
-                                            <select v-model="form.cash_pool_id" class="select select-input select-sm px-3 pr-8 min-w-fit max-w-full text-black bg-inherit" :class="v$.form.cash_pool_id.$error ? '!border-red-500' : ''" id="cash_pool">
+                                            <select v-model="form.cash_pool_id"
+                                                    class="select select-input select-sm px-3 pr-8 min-w-fit max-w-full text-black bg-inherit"
+                                                    :class="form.payment_mode_id === '1867' && v$.form.cash_pool_id.$error ? '!border-red-500' : ''"
+                                                    id="cash_pool"
+                                            >
+                                                <option v-if="form.payment_mode_id !== '1867'" value="">N/A</option>
                                                 <option v-for="obj in cash_pools" :key="obj.id" :value="obj.id">{{ obj.name }}</option>
                                             </select>
                                         </div>
@@ -123,6 +137,16 @@
                                                 <option value="SCR">Seychelles Rupee</option>
                                                 <option value="CRC">Costa Rican Coln</option>
                                                 <option value="BRL">Brazilian Real</option>
+                                            </select>
+                                        </div>
+                                        <!-- Budget Only -->
+                                        <div class="mb-4 w-full gap-2.5">
+                                            <label class="form-label flex items-center gap-1 text-sm mb-1" for="budget_only_id">Budget Only
+                                            </label>
+                                            <select v-model="form.budget_only_id" class="select select-input select-sm px-3 pr-8 min-w-fit max-w-full text-black bg-inherit" id="budget_only_id">
+                                                <option value="">N/A</option>
+                                                <option value="1937">Yes</option>
+                                                <option value="1938">No</option>
                                             </select>
                                         </div>
                                         <!-- Reason -->
@@ -183,18 +207,20 @@ import { sharedState } from "../../../../state.js";
 
 export default {
     name: "cash-request-update-form-modal",
-    props: ['obj', 'cash_pools', 'cash_release_locations'],
+    props: ['obj', 'payment_modes', 'cash_pools', 'cash_release_locations'],
     components: { vSelect },
     data(){
         return {
             form: {
                 action: null,
                 new_amount: null,
-                cash_pool_id: null,
+                payment_mode_id: null,
+                cash_pool_id: '',
                 cash_release_location_id: null,
                 currency: null,
                 awaiting_for_exchange_rate_id: null,
                 reason: '',
+                budget_only_id: '',
             },
             bitrix_obj: {},
             crud_loading: false,
@@ -210,11 +236,14 @@ export default {
             form: {
                 action: { required },
                 new_amount: { required, minValue: minValue(1) },
-                cash_pool_id: { required },
+                payment_mode_id: { required },
                 cash_release_location_id: { required },
                 currency: { required },
                 awaiting_for_exchange_rate_id: { required },
                 reason: { required },
+                ...(this.form.payment_mode_id === '1867' && {
+                    cash_pool_id: { required },
+                }),
             }
         }
     },
@@ -244,6 +273,8 @@ export default {
             this.bitrix_obj.MODIFIED_BY = this.sharedState.bitrix_user_id;
             //  Awaiting for exchange rate
             this.bitrix_obj.PROPERTY_1249 = this.form.awaiting_for_exchange_rate_id;
+            //  Budget Only
+            this.bitrix_obj.PROPERTY_1160 = this.form.budget_only_id;
 
             const requestData = qs.stringify({
                 IBLOCK_TYPE_ID: 'bitrix_processes',
@@ -271,6 +302,16 @@ export default {
         },
         notifyRequestUpdated(){
 
+        }
+    },
+    watch: {
+        'form.payment_mode_id'(newVal) {
+            if (newVal === '1867') {
+                this.form.cash_pool_id = null; // Make selection required
+            } else {
+                this.form.cash_pool_id = ""; // Reset to ""
+            }
+            this.v$.$touch(); // Ensures validation runs after change
         }
     },
     async mounted() {

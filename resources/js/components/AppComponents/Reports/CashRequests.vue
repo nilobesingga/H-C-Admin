@@ -92,7 +92,7 @@
                             </th>
                             <th class="sticky top-0 w-[150px] text-left">Request By & Remarks <i class="ki-outline ki-exit-down"></i></th>
                             <th class="sticky top-0 w-[80px]">Status</th>
-                            <th class="sticky top-0 w-[110px]">Documents</th>
+                            <th class="sticky top-0 w-[130px]">Documents</th>
                             <th class="sticky top-0 w-[130px]">Actions</th>
                         </tr>
                     </thead>
@@ -119,16 +119,18 @@
                             </td>
                             <td>
                                 <div :class="isWarning(obj) ? 'badge badge-warning' : ''">
-                                    <div>{{ obj.status_text }}</div>
-                                    <div v-if="obj.sage_payment_date" class="">on {{ formatDate(obj.sage_payment_date ) }}</div>
-                                    <div v-if="obj.released_date" class="">on {{ formatDate(obj.released_date ) }}</div>
+                                    <div class="flex flex-col gap-0.5">
+                                        <div>{{ obj.status_text }}</div>
+                                        <div v-if="obj.sage_payment_date">{{ formatDate(obj.sage_payment_date ) }}</div>
+                                        <div v-if="obj.released_date">{{ formatDate(obj.released_date ) }}</div>
+                                    </div>
                                 </div>
                             </td>
                             <td>
                                 <a
                                     v-if="obj.doc_for_bank_list && obj.doc_for_bank_list.length > 0"
                                     v-for="(documentId, index) in obj.doc_for_bank_list"
-                                    class="secondary-btn mb-1 block w-full" target="_blank"
+                                    class="secondary-btn bank-doc-btn block mb-1 w-full" target="_blank"
                                     :href="`https://crm.cresco.ae/bitrix/tools/disk/uf.php?attachedId=${documentId}&action=download&ncc=1' + documentId + '&action=download&ncc=1`"
                                 >
                                     {{ ++index }}. Doc for Bank
@@ -136,7 +138,7 @@
                                 <a
                                     v-if="obj.other_document_list && obj.other_document_list.length > 0"
                                     v-for="(documentId, index) in obj.other_document_list"
-                                    class="secondary-btn mb-1 block w-full" target="_blank"
+                                    class="secondary-btn other-doc-btn mb-1 block w-full" target="_blank"
                                     :href="`https://crm.cresco.ae/bitrix/tools/disk/uf.php?attachedId=${documentId}&action=download&ncc=1' + documentId + '&action=download&ncc=1`"
                                 >
                                     {{ ++index }}. Other Doc
@@ -144,7 +146,7 @@
                                 <a
                                     v-if="obj.cash_release_receipt_doc_list && obj.cash_release_receipt_doc_list.length > 0"
                                     v-for="(documentId, index) in obj.cash_release_receipt_doc_list"
-                                    class="secondary-btn mb-1 block w-full" target="_blank"
+                                    class="secondary-btn cash-release-btn mb-1 block w-full" target="_blank"
                                     :href="`https://crm.cresco.ae/bitrix/tools/disk/uf.php?attachedId=${documentId}&action=download&ncc=1' + documentId + '&action=download&ncc=1`"
                                 >
                                     {{ ++index }}. Cash Release receipt
@@ -169,7 +171,7 @@
                                 <button
                                     @click="openModal('view_bank_transfer', obj)"
                                     data-modal-toggle="#show_bank_transfer_details_modal"
-                                    class="secondary-btn mb-1 block w-full"
+                                    class="secondary-btn view-transfer-btn mb-1 block w-full"
                                     v-if="obj.bitrix_bank_transfer_id"
                                 >
                                     View Transfer
@@ -177,7 +179,7 @@
                                 <button
                                     @click="openModal('create_bank_transfer', obj)"
                                     data-modal-toggle="#create_bank_transfer_form_modal"
-                                    class="secondary-btn mb-1 block w-full"
+                                    class="secondary-btn create-transfer-btn mb-1 block w-full"
                                     v-if="page_data.permission === 'full_access' && obj.payment_mode_id === '1869' && !obj.bitrix_bank_transfer_id"
                                 >
                                     Create Transfer
@@ -205,7 +207,7 @@
                                             </a>
                                         </div>
                                         <div v-else>
-                                            <a class="secondary-btn mb-1 block w-full"
+                                            <a class="secondary-btn view-transfer-btn mb-1 block w-full"
                                                :href="`https://10.0.1.17/CRESCOSage/AP/APCashRequisition?blockId=105&crId=${obj.id}`" target="_blank"
                                             >
                                                 View Misc Payment
@@ -464,11 +466,14 @@ export default {
                 this.is_create_bank_transfer_form_modal = true
             }
         },
-        closeModal(){
+        closeModal(isForm = false){
             this.is_view_bank_transfer_details_modal = false;
             this.is_create_bank_transfer_form_modal = false;
             this.selected_obj = null
             this.removeModalBackdrop();
+            if (isForm){
+                this.getPageData()
+            }
         },
         downloadCashReleaseReceipt(item){
             var fileName = `${item.amount_given} | ${item.currency} - ${item.requested_by_name} - Cash Request Receipt.pdf`;
