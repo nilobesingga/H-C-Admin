@@ -359,7 +359,7 @@ export default {
                     }
                     else if (this.type === "cashRequest"){
                         this.bitrix_obj.PROPERTY_1222 = bankTransferId;
-                        this.bitrix_obj.PROPERTY_942 = `${this.form.project.TYPE === '1' ? 'L_' : this.form.project.TYPE === '2' ? 'D_' : this.form.project.TYPE === '3' ? 'C' : ''}${this.this.form.project.ID}`;
+                        this.bitrix_obj.PROPERTY_942 = `${this.form.project.TYPE === '1' ? 'L_' : this.form.project.TYPE === '2' ? 'D_' : this.form.project.TYPE === '3' ? 'C' : ''}${this.form.project.ID}`;
                         iBlockId = '105';
                     }
 
@@ -502,8 +502,10 @@ export default {
             }
         }
         if (this.type === "cashRequest"){
-            let response = this.getCashRequestByIdBitrixFields(this.obj.id)
-            this.bitrix_obj = response.result[0];
+            let response = await this.getCashRequestByIdBitrixFields(this.obj.id)
+            if(response && response.length > 0){
+                this.bitrix_obj = response[0];
+            }
         }
     },
 }
