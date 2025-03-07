@@ -108,9 +108,24 @@
     color: #000;
 }
 .secondary-btn{
-    @apply bg-transparent border border-neutral-300 py-1.5 px-2.5 text-black outline-none duration-300 transition-all text-xs
-    hover:shadow-md hover:border-black hover:bg-white
+    @apply bg-transparent border border-neutral-300 py-1.5 px-2.5 text-black outline-none duration-300 transition-all text-xs relative
+    hover:shadow-md hover:border-black hover:bg-white hover:z-30
     focus:border-brand-active focus:shadow-md
+}
+.other-doc-btn {
+    @apply border-indigo-300 hover:border-indigo-700
+}
+.bank-doc-btn {
+    @apply border-blue-300 hover:border-blue-700
+}
+.cash-release-btn {
+    @apply border-violet-300 hover:border-violet-700
+}
+.create-transfer-btn{
+    @apply border-orange-300 hover:border-orange-700
+}
+.view-transfer-btn{
+    @apply border-red-300 hover:border-red-700
 }
 .main-btn{
     @apply relative flex min-w-[200px] items-center justify-center border-2 outline-none text-md bg-white

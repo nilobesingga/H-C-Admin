@@ -289,6 +289,7 @@
     <!-- Cash Request Update -->
     <cash-request-update-form-modal
         :obj="selected_obj"
+        :payment_modes="payment_modes"
         :cash_pools="cash_pools"
         :cash_release_locations="cash_release_locations"
         v-if="is_cash_request_update"
@@ -659,7 +660,7 @@ export default {
                         // Funds Available Date
                         'PROPERTY_946': DateTime.fromFormat(newWeek.start_date, "dd MMM yyyy").toSQLDate(),
                         // Cash Release Receipt
-                        'PROPERTY_1059': item.cash_release_receipt_id,
+                        'PROPERTY_1059': item.cash_release_receipt_docs,
                         // Receipt
                         'PROPERTY_948': { itemId: [item.receipt_id] },
                         // Receipt Preview Link
