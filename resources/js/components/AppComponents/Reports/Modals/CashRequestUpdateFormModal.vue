@@ -2,16 +2,16 @@
     <div class="modal" data-modal="true" data-modal-backdrop-static="true" id="cash_request_update_form_modal">
         <div class="modal-content top-[5%] lg:max-w-[1000px]">
             <div class="modal-header">
-                <h3 class="modal-title capitalize text-xl font-bold tracking-tight">Update Cash Request</h3>
+                <h3 class="text-xl font-bold tracking-tight capitalize modal-title">Update Cash Request</h3>
                 <button class="btn btn-xs btn-icon btn-light" data-modal-dismiss="true" @click="$emit('closeModal')">
                     <i class="ki-outline ki-cross" ></i>
                 </button>
             </div>
-            <div class="modal-body relative h-full overflow-auto">
+            <div class="relative h-full overflow-auto modal-body">
                 <!-- Loading Spinner -->
-                <div v-if="loading" class="absolute inset-0 h-40 flex items-center justify-center z-50">
-                    <div class="flex items-center gap-2 px-4 py-2 font-medium leading-none text-sm border border-gray-200 shadow-default rounded-md text-gray-500 bg-white">
-                        <svg class="animate-spin -ml-1 h-5 w-5 text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <div v-if="loading" class="absolute inset-0 z-50 flex items-center justify-center h-40">
+                    <div class="flex items-center gap-2 px-4 py-2 text-sm font-medium leading-none text-gray-500 bg-white border border-gray-200 rounded-md shadow-default">
+                        <svg class="w-5 h-5 -ml-1 text-gray-600 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
@@ -28,12 +28,12 @@
                         </div>
                         <!-- Action -->
                         <div class="w-full mt-10">
-                            <label class="form-label flex items-center gap-1 text-sm mb-1" for="action">Select Action
+                            <label class="flex items-center gap-1 mb-1 text-sm form-label" for="action">Select Action
                                 <span class="text-danger">* <span class="form-text-error" v-if="v$.form.action.$error">Please fill out this field</span></span>
                             </label>
                             <select
                                 v-model="form.action"
-                                class="select select-input select-sm px-3 pr-8 min-w-fit max-w-full text-black bg-inherit"
+                                class="max-w-full px-3 pr-8 text-black select select-input select-sm min-w-fit bg-inherit"
                                 :class="v$.form.action.$error ? '!border-red-500' : ''"
                                 id="action"
                             >
@@ -52,30 +52,30 @@
                                     <div class="w-1/2">
                                         <!-- Payment Mode -->
                                         <div class="mb-4 w-full gap-2.5">
-                                            <label class="form-label flex items-center gap-1 text-sm mb-1" for="payment_mode">Payment Mode
+                                            <label class="flex items-center gap-1 mb-1 text-sm form-label" for="payment_mode">Payment Mode
                                                 <span class="text-danger">* <span class="form-text-error" v-if="v$.form.payment_mode_id.$error">Please fill out this field</span></span>
                                             </label>
-                                            <select v-model="form.payment_mode_id" class="select select-input select-sm px-3 pr-8 min-w-fit max-w-full text-black bg-inherit" :class="v$.form.payment_mode_id.$error ? '!border-red-500' : ''" id="payment_mode">
+                                            <select v-model="form.payment_mode_id" class="max-w-full px-3 pr-8 text-black select select-input select-sm min-w-fit bg-inherit" :class="v$.form.payment_mode_id.$error ? '!border-red-500' : ''" id="payment_mode">
                                                 <option v-for="obj in payment_modes" :key="obj.id" :value="obj.id">{{ obj.name }}</option>
                                             </select>
                                         </div>
                                         <!-- Cash Release Location -->
                                         <div class="mb-4 w-full gap-2.5">
-                                            <label class="form-label flex items-center gap-1 text-sm mb-1" for="cash_release_location">Cash Release Location
+                                            <label class="flex items-center gap-1 mb-1 text-sm form-label" for="cash_release_location">Cash Release Location
                                                 <span class="text-danger">* <span class="form-text-error" v-if="v$.form.cash_release_location_id.$error">Please fill out this field</span></span>
                                             </label>
-                                            <select v-model="form.cash_release_location_id" class="select select-input select-sm px-3 pr-8 min-w-fit max-w-full text-black bg-inherit" :class="v$.form.cash_release_location_id.$error ? '!border-red-500' : ''" id="cash_release_location">
+                                            <select v-model="form.cash_release_location_id" class="max-w-full px-3 pr-8 text-black select select-input select-sm min-w-fit bg-inherit" :class="v$.form.cash_release_location_id.$error ? '!border-red-500' : ''" id="cash_release_location">
                                                 <option v-for="obj in cash_release_locations" :key="obj.id" :value="obj.id">{{ obj.name }}</option>
                                             </select>
                                         </div>
                                         <!-- New Amount -->
                                         <div class="mb-4 w-full gap-2.5">
-                                            <label class="form-label flex items-center gap-1 text-sm mb-1" for="new_amount">New Amount
+                                            <label class="flex items-center gap-1 mb-1 text-sm form-label" for="new_amount">New Amount
                                                 <span class="text-danger">* <span class="form-text-error" v-if="v$.form.new_amount.required.$invalid">Please fill out this field</span></span>
                                                 <span class="text-danger"><span class="form-text-error" v-if="v$.form.new_amount.minValue.$invalid">Amount must be greater than 0.</span></span>
                                             </label>
                                             <input
-                                                class="input text-black bg-inherit"
+                                                class="text-black input bg-inherit"
                                                 :class="v$.form.new_amount.$error ? '!border-red-500' : ''"
                                                 placeholder="New Amount"
                                                 id="new_amount"
@@ -85,12 +85,12 @@
                                         </div>
                                         <!-- Awaiting for Exchange Rate -->
                                         <div class="mb-4 w-full gap-2.5">
-                                            <label class="form-label flex items-center gap-1 text-sm mb-1" for="awaiting_for_exchange_rate">Awaiting for Exchange Rate
+                                            <label class="flex items-center gap-1 mb-1 text-sm form-label" for="awaiting_for_exchange_rate">Awaiting for Exchange Rate
                                                 <span class="text-danger">* <span class="form-text-error" v-if="v$.form.awaiting_for_exchange_rate_id.$error">Please fill out this field</span></span>
                                             </label>
                                             <select
                                                 v-model="form.awaiting_for_exchange_rate_id"
-                                                class="select select-input select-sm px-3 pr-8 min-w-fit max-w-full text-black bg-inherit"
+                                                class="max-w-full px-3 pr-8 text-black select select-input select-sm min-w-fit bg-inherit"
                                                 :class="v$.form.awaiting_for_exchange_rate_id.$error ? '!border-red-500' : ''"
                                                 id="awaiting_for_exchange_rate"
                                             >
@@ -103,11 +103,11 @@
                                     <div class="w-1/2">
                                         <!-- Cash Pool -->
                                         <div class="mb-4 w-full gap-2.5">
-                                            <label class="form-label flex items-center gap-1 text-sm mb-1" for="cash_pool">Cash Pool
+                                            <label class="flex items-center gap-1 mb-1 text-sm form-label" for="cash_pool">Cash Pool
                                                 <span class="text-danger" v-if="form.payment_mode_id === '1867'">* <span class="form-text-error" v-if="v$.form.cash_pool_id.$error">Please fill out this field</span></span>
                                             </label>
                                             <select v-model="form.cash_pool_id"
-                                                    class="select select-input select-sm px-3 pr-8 min-w-fit max-w-full text-black bg-inherit"
+                                                    class="max-w-full px-3 pr-8 text-black select select-input select-sm min-w-fit bg-inherit"
                                                     :class="form.payment_mode_id === '1867' && v$.form.cash_pool_id.$error ? '!border-red-500' : ''"
                                                     id="cash_pool"
                                             >
@@ -117,12 +117,13 @@
                                         </div>
                                         <!-- Currency -->
                                         <div class="mb-4 w-full gap-2.5">
-                                            <label class="form-label flex items-center gap-1 text-sm mb-1" for="currency">Currency
+                                            <label class="flex items-center gap-1 mb-1 text-sm form-label" for="currency">Currency
                                                 <span class="text-danger">* <span class="form-text-error" v-if="v$.form.currency.$error">Please fill out this field</span></span>
                                             </label>
-                                            <select v-model="form.currency" class="select select-input select-sm px-3 pr-8 min-w-fit max-w-full text-black bg-inherit" :class="v$.form.currency.$error ? '!border-red-500' : ''" id="currency">
+                                            <select v-model="form.currency" class="max-w-full px-3 pr-8 text-black select select-input select-sm min-w-fit bg-inherit" :class="v$.form.currency.$error ? '!border-red-500' : ''" id="currency">
                                                 <option value="">Select Currency</option>
-                                                <option value="USD">US Dollar</option>
+                                                <option v-for="(cur, k) in currencies"  :value="cur.CURRENCY" :key="k">{{ cur.FULL_NAME }}</option>
+                                                <!-- <option value="USD">US Dollar</option>
                                                 <option value="AED">UAE Dirham</option>
                                                 <option value="AUD">Australian Dollar</option>
                                                 <option value="CNY">China Yuan Renminbi</option>
@@ -136,14 +137,14 @@
                                                 <option value="INR">Indian Rupee</option>
                                                 <option value="SCR">Seychelles Rupee</option>
                                                 <option value="CRC">Costa Rican Coln</option>
-                                                <option value="BRL">Brazilian Real</option>
+                                                <option value="BRL">Brazilian Real</option> -->
                                             </select>
                                         </div>
                                         <!-- Budget Only -->
                                         <div class="mb-4 w-full gap-2.5">
-                                            <label class="form-label flex items-center gap-1 text-sm mb-1" for="budget_only_id">Budget Only
+                                            <label class="flex items-center gap-1 mb-1 text-sm form-label" for="budget_only_id">Budget Only
                                             </label>
-                                            <select v-model="form.budget_only_id" class="select select-input select-sm px-3 pr-8 min-w-fit max-w-full text-black bg-inherit" id="budget_only_id">
+                                            <select v-model="form.budget_only_id" class="max-w-full px-3 pr-8 text-black select select-input select-sm min-w-fit bg-inherit" id="budget_only_id">
                                                 <option value="">N/A</option>
                                                 <option value="1937">Yes</option>
                                                 <option value="1938">No</option>
@@ -151,11 +152,11 @@
                                         </div>
                                         <!-- Reason -->
                                         <div class="mb-4 w-full gap-2.5">
-                                            <label class="form-label flex items-center gap-1 text-sm mb-1" for="reason">Reason for changing the amount
+                                            <label class="flex items-center gap-1 mb-1 text-sm form-label" for="reason">Reason for changing the amount
                                                 <span class="text-danger">* <span class="form-text-error" v-if="v$.form.reason.$error">Please fill out this field</span></span>
                                             </label>
                                             <input
-                                                class="input text-black bg-inherit"
+                                                class="text-black input bg-inherit"
                                                 :class="v$.form.reason.$error ? '!border-red-500' : ''"
                                                 placeholder="Reason for changing the amount"
                                                 id="reason"
@@ -173,7 +174,7 @@
                     </form>
                 </div>
             </div>
-            <div class="modal-footer justify-end">
+            <div class="justify-end modal-footer">
                 <div class="flex gap-4">
                     <button
                         class="secondary-btn !text-md font-semibold !border-2 !px-10"
@@ -225,6 +226,7 @@ export default {
             bitrix_obj: {},
             crud_loading: false,
             loading: false,
+            currencies : []
         }
     },
     setup() {
@@ -300,6 +302,17 @@ export default {
                 this.errorToast('Something went wrong. Please contact IT')
             }
         },
+        async getCurrencyList(){
+            try {
+                const response = await this.callBitrixAPI('crm.currency.list', this.sharedState.bitrix_user_id, this.sharedState.bitrix_webhook_token, {});
+                if(response.result) {
+                    this.currencies =  response.result;
+                }
+            } catch (error) {
+                console.error(error)
+                this.errorToast('Something went wrong. Please contact IT')
+            }
+        },
         notifyRequestUpdated(){
 
         }
@@ -327,5 +340,8 @@ export default {
             }
         }
     },
+    async created(){
+        await this.getCurrencyList();
+    }
 }
 </script>
