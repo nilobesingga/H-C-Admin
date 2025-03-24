@@ -1,5 +1,5 @@
 <template>
-    <div class="container-fluid px-3">
+    <div class="px-3 container-fluid">
         <reports-filters-component
             @get-data="getData"
             class="reports-header-filters"
@@ -18,14 +18,14 @@
             </div>
             <!-- table -->
             <div class="relative flex-grow overflow-auto reports-table-container shadow-md border border-brand h-[78vh]">
-                <table class="w-full c-table table table-border align-middle text-xs" :class="filteredCompanies.length === 0 ? 'h-full' : ''">
+                <table class="table w-full text-xs align-middle c-table table-border" :class="filteredCompanies.length === 0 ? 'h-full' : ''">
                     <thead>
-                        <tr class="text-center tracking-tight">
+                        <tr class="tracking-tight text-center">
                             <th colspan="6" style="background: #700f03 !important;"></th>
                             <th colspan="3" style="background: #700f03 !important;">Closing Balance</th>
                             <th style="background: #700f03 !important;"></th>
                         </tr>
-                        <tr class="text-left tracking-tight">
+                        <tr class="tracking-tight text-left">
                             <th class="sticky top-0 w-[150px]">Sage Company</th>
                             <th class="sticky top-0 w-[150px]">Bank</th>
                             <th class="sticky top-0 w-[70px] text-center">Currency</th>
@@ -38,13 +38,13 @@
                             <th class="sticky top-0 w-[80px] text-right">Difference</th>
                         </tr>
                     </thead>
-                    <tbody class="text-left text-xs tracking-tight h-full">
+                    <tbody class="h-full text-xs tracking-tight text-left">
                         <template v-for="(company, index) in filteredCompanies" :key="index">
                             <template v-for="(bank, bindex) in company.banks" :key="`bank${bindex}`">
                                 <tr class="transition-all duration-300 text-neutral-800 group">
                                     <td>{{ bank.companyName }}</td>
                                     <td>{{ bank.bankName }}</td>
-                                    <td class="text-center font-bold">{{ bank.bankCurrency }}</td>
+                                    <td class="font-bold text-center">{{ bank.bankCurrency }}</td>
                                     <td>{{ getFrequency(bank.StatementFrequency) }}</td>
                                     <td class="text-center">
                                         <div v-if="bank.lastUpdate">{{ formatDateRange(bank.lastUpdate.LastStatementPeriod) }}</div>
@@ -54,7 +54,7 @@
                                     </td>
                                     <td class="text-center">
                                         <a v-if="bank.lastUpdate"
-                                           class="secondary-btn block w-full" target="_blank"
+                                           class="block w-full secondary-btn" target="_blank"
                                            :href="ecapeDownloadUrl(bank.lastUpdate.FilePath)"
                                         >
                                             Download
@@ -67,10 +67,10 @@
                                         </div>
                                     </td>
                                     <td class="text-right">
-                                        {{ bank.closing | formatAmount }} <span class="font-bold">{{ bank.bankCurrency }}</span>
+                                        {{ formatAmount(bank.closing) }} <span class="font-bold">{{ bank.bankCurrency }}</span>
                                     </td>
                                     <td class="text-right" :style="checkDifference(bank)">
-                                        <span v-if="bank.lastUpdate">{{ formatAmount(bank.difference) }}</span>
+                                        <span>{{ (formatAmount(bank.closing) == 0) ? formatAmount(parseData(bank['lastUpdate'],'ClosingBalAmt')) : formatAmount(bank.difference) }}</span>
                                         <span class="ml-1 font-bold">{{ bank.bankCurrency }}</span>
                                     </td>
                                 </tr>
@@ -79,10 +79,10 @@
 <!--                        <tr v-for="(obj, index) in " :key="index" class="transition-all duration-300 text-neutral-800 group">-->
 <!--                            <td>{{ index + 1 }}</td>-->
 <!--                        </tr>-->
-                        <tr class="table-no-data-available h-full" v-if="filteredCompanies.length === 0">
+                        <tr class="h-full table-no-data-available" v-if="filteredCompanies.length === 0">
                             <td class="text-center text-md text-red-400 !border-none h-full">
-                                <div class="flex flex-col h-full w-full items-center justify-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-10 mb-4">
+                                <div class="flex flex-col items-center justify-center w-full h-full">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mb-4 size-10">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636" />
                                     </svg>
                                     No data available
@@ -91,9 +91,9 @@
                         </tr>
                     </tbody>
                 </table>
-                <div v-if="loading" class="data-loading absolute inset-0 bg-neutral-100 flex items-center justify-center z-100 pointer-events-none">
-                    <div class="flex items-center gap-2 px-4 py-2 font-medium leading-none text-sm text-brand-active">
-                        <svg class="animate-spin -ml-1 h-5 w-5 text-brand-active" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <div v-if="loading" class="absolute inset-0 flex items-center justify-center pointer-events-none data-loading bg-neutral-100 z-100">
+                    <div class="flex items-center gap-2 px-4 py-2 text-sm font-medium leading-none text-brand-active">
+                        <svg class="w-5 h-5 -ml-1 animate-spin text-brand-active" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
@@ -159,11 +159,12 @@ export default {
                                 bank.closing = 0;
                             }
                         }
+                        bank.difference = bank.closing;
                         let update = self.bank_last_update.find(obj => obj.CompanyCode === bank.sageCompanyCode && obj.GLBankCode === bank.sageBankCode);
                         if (update) {
                             bank.lastUpdate = update;
                             //statement amount - sage amount
-                            bank.difference = update.ClosingBalAmt - bank.closing;
+                            bank.difference = parseFloat(update.ClosingBalAmt) - parseFloat(bank.closing);
                         }
                     });
                 });
@@ -327,6 +328,20 @@ export default {
                 return {};
             }
         },
+        parseData(jsonString, field) {
+            try {
+                // Parse the JSON string if it's not already an object
+                const data = typeof jsonString === 'string' ? JSON.parse(jsonString) : jsonString;
+                // Access the ClosingBalAmt property
+                if (data && field in data) {
+                    return data[field]
+                }
+                return data;
+            } catch (err) {
+                this.error = "Failed to parse JSON data: " + err.message;
+                console.error(this.error);
+            }
+        }
     },
     computed:{
         filteredCompanies() {
