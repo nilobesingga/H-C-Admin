@@ -251,6 +251,16 @@ export default {
                 console.log(error.response)
             }
         },
+        async getBitrixCurrencyList(){
+            try {
+                const response = await this.callBitrixAPI('crm.currency.list', this.sharedState.bitrix_user_id, this.sharedState.bitrix_webhook_token, {});
+                if(response.result) {
+                    return response.result;
+                }
+            } catch (error) {
+                console.error(error)
+            }
+        },
     },
     computed: {
         currency: {
