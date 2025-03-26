@@ -174,22 +174,23 @@
                                         <span class="text-danger">* <span class="form-text-error" v-if="v$.form.currency.$error">Please fill out this field</span></span>
                                     </label>
                                     <select v-model="form.currency" class="select select-input select-sm px-3 pr-8 min-w-fit max-w-full text-black bg-inherit" :class="v$.form.currency.$error ? '!border-red-500' : ''" id="currency">
-                                        <option value="USD">US Dollar</option>
-                                        <option value="AED">UAE Dirham</option>
-                                        <option value="AUD">Australian Dollar</option>
-                                        <option value="CNY">China Yuan Renminbi</option>
-                                        <option value="GBP">Pound Sterling</option>
-                                        <option value="HKD">Hong Kong Dollar</option>
-                                        <option value="SGD">Singapore Dollar</option>
-                                        <option value="THB">Thai Baht</option>
-                                        <option value="EUR">Euro</option>
-                                        <option value="CHF">Swiss Franc</option>
-                                        <option value="PHP">Philippine Peso</option>
-                                        <option value="INR">Indian Rupee</option>
-                                        <option value="SCR">Seychelles Rupee</option>
-                                        <option value="CRC">Costa Rican Coln</option>
-                                        <option value="BRL">Brazilian Real</option>
-                                        <option value="RUB">Russian Ruble</option>
+                                        <option v-for="(obj, index) in currencies" :key="index" :value="obj.CURRENCY">{{ obj.FULL_NAME }}</option>
+<!--                                        <option value="USD">US Dollar</option>-->
+<!--                                        <option value="AED">UAE Dirham</option>-->
+<!--                                        <option value="AUD">Australian Dollar</option>-->
+<!--                                        <option value="CNY">China Yuan Renminbi</option>-->
+<!--                                        <option value="GBP">Pound Sterling</option>-->
+<!--                                        <option value="HKD">Hong Kong Dollar</option>-->
+<!--                                        <option value="SGD">Singapore Dollar</option>-->
+<!--                                        <option value="THB">Thai Baht</option>-->
+<!--                                        <option value="EUR">Euro</option>-->
+<!--                                        <option value="CHF">Swiss Franc</option>-->
+<!--                                        <option value="PHP">Philippine Peso</option>-->
+<!--                                        <option value="INR">Indian Rupee</option>-->
+<!--                                        <option value="SCR">Seychelles Rupee</option>-->
+<!--                                        <option value="CRC">Costa Rican Coln</option>-->
+<!--                                        <option value="BRL">Brazilian Real</option>-->
+<!--                                        <option value="RUB">Russian Ruble</option>-->
                                     </select>
                                 </div>
                                 <!-- Purpose of Transfer -->
@@ -240,6 +241,7 @@ import qs from 'qs';
 import vSelect from 'vue-select';
 import 'vue-select/dist/vue-select.css';
 import { debounce } from 'lodash';
+import { DateTime } from "luxon";
 import { sharedState } from "../../../../state.js";
 
 export default {
@@ -267,6 +269,7 @@ export default {
             loading: false,
             debouncedSearch: null,
             bitrix_obj: {},
+            currencies : []
         }
     },
     setup() {
@@ -301,7 +304,8 @@ export default {
                 'PROPERTY_877': this.form.invoice_number,
                 'DETAIL_TEXT': this.form.detail_text,
                 'PROPERTY_887': 1532, //Transfer status
-                'PROPERTY_901': `${this.form.project.TYPE === '1' ? 'L_' : this.form.project.TYPE === '2' ? 'D_' : this.form.project.TYPE === '3' ? 'C' : ''}${this.form.project.ID}`
+                'PROPERTY_901': `${this.form.project.TYPE === '1' ? 'L_' : this.form.project.TYPE === '2' ? 'D_' : this.form.project.TYPE === '3' ? 'C' : ''}${this.form.project.ID}`,
+                'PROPERTY_1228': DateTime.now().toFormat('dd.MM.yyyy')
             }
 
             if(this.type === "purchaseInvoice"){
@@ -507,6 +511,7 @@ export default {
                 this.bitrix_obj = response[0];
             }
         }
+        this.currencies = await this.getBitrixCurrencyList();
     },
 }
 </script>
