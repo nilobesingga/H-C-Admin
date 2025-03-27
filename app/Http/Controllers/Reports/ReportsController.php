@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Bitrix\BitrixList;
 use App\Models\Bitrix\BitrixListsSageCompanyMapping;
 use App\Models\UserModulePermission;
+use App\Repositories\BitrixApiRepository;
 use App\Services\UserServices;
 use App\Traits\ApiResponser;
 use \Barryvdh\Snappy\Facades\SnappyPdf as PDF;
@@ -242,7 +243,7 @@ class ReportsController extends Controller
             ->whereId(7)->first();
 
         // cheque register warning counts.
-        $bitrixAPI = app(\App\Repositories\BitrixAPIRepository::class);
+        $bitrixAPI = app(BitrixAPIRepository::class);
         $chequeRegisterWarningCounts = $bitrixAPI->call('crm.company.reports_v2', [
             'action' => "getChequeRegisterWarningCounts",
             'startDate' => getDateOFLast60Days(),
