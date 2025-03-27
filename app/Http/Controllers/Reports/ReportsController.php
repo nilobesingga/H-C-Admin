@@ -241,6 +241,15 @@ class ReportsController extends Controller
         $bitrixList = BitrixList::select('id', 'name', 'bitrix_iblock_type', 'bitrix_iblock_id')
             ->whereId(7)->first();
 
+        // cheque register warning counts.
+        $bitrixAPI = app(\App\Repositories\BitrixAPIRepository::class);
+        $chequeRegisterWarningCounts = $bitrixAPI->call('crm.company.reports_v2', [
+            'action' => "getChequeRegisterWarningCounts",
+            'startDate' => getDateOFLast60Days(),
+            'endDate' => getLastDateOfMonthAfterThreeYears(),
+            'categories' => json_encode($bitrixListCategories->pluck('bitrix_category_id')->toArray()),
+        ]);
+
         $page = (object)[
             'permission' => $modulePermission,
             'user' => $this->user,
