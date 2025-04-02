@@ -492,21 +492,30 @@ class ReportsController extends Controller
         }
 
         // Determine the correct base URL based on environment
-        $baseUrl = match (env('APP_ENV')) {
+//        $baseUrl = match (env('APP_ENV')) {
+//            'staging' => env('CRESCO_REPORTS_STAGING_BASE_URL'),
+//            'production' => env('CRESCO_REPORTS_BASE_URL'),
+//            default => 'http://localhost:8000',
+//        };
+        $baseUrl = rtrim(match (env('APP_ENV')) {
             'staging' => env('CRESCO_REPORTS_STAGING_BASE_URL'),
             'production' => env('CRESCO_REPORTS_BASE_URL'),
             default => 'http://localhost:8000',
-        };
+        }, '/');
+
 
         // Construct the authentication URL
         $authUrl = $baseUrl . '/bitrix/login/' . $accessToken;
 
         // After authentication, redirect to the requested report
-//        $redirectAfterLogin = urlencode($baseUrl . $reportMapping[$slug]);
-        $redirectAfterLogin = urlencode($baseUrl . rtrim($reportMapping[$slug], '/'));
+        $redirectAfterLogin = urlencode($baseUrl . $reportMapping[$slug]);
 
         // Final redirect URL
         $finalUrl = $authUrl . '?redirect=' . $redirectAfterLogin;
+
+        \Log::info('baseUrl: ' . $baseUrl);
+        \Log::info('reportMapping[slug]: ' . $reportMapping[$slug]);
+        \Log::info('finalUrl: ' . $finalUrl);
 
         if (in_array($slug, $iframeReports)) {
             $page = (object)[
