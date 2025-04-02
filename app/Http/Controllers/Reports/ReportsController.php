@@ -502,7 +502,8 @@ class ReportsController extends Controller
         $authUrl = $baseUrl . '/bitrix/login/' . $accessToken;
 
         // After authentication, redirect to the requested report
-        $redirectAfterLogin = urlencode($baseUrl . $reportMapping[$slug]);
+//        $redirectAfterLogin = urlencode($baseUrl . $reportMapping[$slug]);
+        $redirectAfterLogin = urlencode($baseUrl . rtrim($reportMapping[$slug], '/'));
 
         // Final redirect URL
         $finalUrl = $authUrl . '?redirect=' . $redirectAfterLogin;
@@ -511,7 +512,7 @@ class ReportsController extends Controller
             $page = (object)[
                 'title' => 'Cash Pool',
                 'identifier' => 'Cash Pool',
-                'user' => $this->user,
+                'user' => $user,
             ];
 //            return view('reports.embedded_report', compact('finalUrl'));
             return view('reports.cash_pool', compact('page', 'finalUrl'));
