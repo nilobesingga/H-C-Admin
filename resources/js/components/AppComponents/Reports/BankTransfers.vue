@@ -1,7 +1,8 @@
 <template>
-    <div class="container-fluid px-3">
+    <div class="px-3 container-fluid">
         <reports-filters-component
             @get-data="getData"
+            ref="filters"
             class="reports-header-filters"
         />
         <div class="grid gap-2">
@@ -11,7 +12,7 @@
                     <!-- Category Filter -->
                     <div class="flex flex-shrink-0">
                         <select
-                            class="select select-sm select-input w-48"
+                            class="w-48 select select-sm select-input"
                             v-model="filters.category_id"
                             @change="getData"
                         >
@@ -24,7 +25,7 @@
                     <!-- Dynamic Filters -->
                     <div v-for="filter in page_filters" :key="filter.key" class="flex flex-shrink-0">
                         <select
-                            class="select select-sm select-input w-56"
+                            class="w-56 select select-sm select-input"
                             v-model="filters[filter.key]"
                         >
                             <option value="" selected>Filter by {{ filter.name }}</option>
@@ -35,7 +36,7 @@
                 <!-- Search Input -->
                 <div class="flex grow">
                     <div class="relative w-full">
-                        <i class="ki-outline ki-magnifier leading-none text-md text-black absolute top-1/2 left-3 transform -translate-y-1/2"></i>
+                        <i class="absolute leading-none text-black transform -translate-y-1/2 ki-outline ki-magnifier text-md top-1/2 left-3"></i>
                         <input
                             class="input input-sm text-input !ps-8"
                             placeholder="Search"
@@ -51,15 +52,15 @@
                         @click="filters.is_warning = !filters.is_warning"
                     >
                         <i class="ki-outline ki-information-1"></i>
-                        <span class="absolute top-1 right-1 translate-x-1/2 -translate-y-1/2 shadow-md shadow-yellow-300 bg-yellow-500 text-white text-xs font-bold rounded-full min-h-5 min-w-5 flex items-center justify-center">{{ warningCount }}</span>
+                        <span class="absolute flex items-center justify-center text-xs font-bold text-white translate-x-1/2 -translate-y-1/2 bg-yellow-500 rounded-full shadow-md top-1 right-1 shadow-yellow-300 min-h-5 min-w-5">{{ warningCount }}</span>
                     </button>
                 </div>
             </div>
             <!-- table -->
-            <div class="relative flex-grow overflow-auto reports-table-container shadow-md border border-brand h-full">
-                <table class="w-full c-table table table-border align-middle text-xs table-fixed" :class="filteredData.length === 0 ? 'h-full' : ''">
+            <div class="relative flex-grow h-full overflow-auto border shadow-md reports-table-container border-brand">
+                <table class="table w-full text-xs align-middle table-fixed c-table table-border" :class="filteredData.length === 0 ? 'h-full' : ''">
                     <thead>
-                        <tr class="text-center tracking-tight">
+                        <tr class="tracking-tight text-center">
                             <th class="sticky top-0 w-10">#</th>
                             <th class="sticky top-0 w-[50px]">Id</th>
                             <th class="sticky top-0 w-[100px] text-right">Transfer Amount</th>
@@ -69,28 +70,29 @@
                             <th class="sticky top-0 w-[80px]">Reference No</th>
                             <th class="sticky top-0 w-[70px]" data-tooltip="#Created_Date_tooltip">
                                 Created <i class="ki-outline ki-information-2"></i>
-                                <div class="tooltip transition-opacity duration-300" id="Created_Date_tooltip">Created Date</div>
+                                <div class="transition-opacity duration-300 tooltip" id="Created_Date_tooltip">Created Date</div>
                             </th>
                             <th class="sticky top-0 w-[80px]" data-tooltip="#Payment_Invoice_Reference_tooltip">
                                 Reference <i class="ki-outline ki-information-2"></i>
-                                <div class="tooltip transition-opacity duration-300" id="Payment_Invoice_Reference_tooltip">Purchase Invoice Reference</div>
+                                <div class="transition-opacity duration-300 tooltip" id="Payment_Invoice_Reference_tooltip">Purchase Invoice Reference</div>
                             </th>
                             <th class="sticky top-0 w-[80px]">Transfer Status</th>
                             <th class="sticky top-0 w-[80px]">Transfer Date</th>
+                            <th class="sticky top-0 w-[80px]">Sage Bank Transfer</th>
                             <th class="sticky top-0 w-[80px]" data-tooltip="#Transfer_Documents_tooltip">
                                 Documents <i class="ki-outline ki-information-2"></i>
-                                <div class="tooltip transition-opacity duration-300" id="Transfer_Documents_tooltip">Transfer Documents</div>
+                                <div class="transition-opacity duration-300 tooltip" id="Transfer_Documents_tooltip">Transfer Documents</div>
                             </th>
                         </tr>
                     </thead>
-                    <tbody class="text-center text-xs tracking-tight h-full">
+                    <tbody class="h-full text-xs tracking-tight text-center">
                         <tr v-for="(obj, index) in filteredData" :key="index" class="transition-all duration-300 text-neutral-800 group">
                             <td>{{ index + 1 }}</td>
                             <td><a target="_blank" class="btn btn-link !text-neutral-800 hover:!text-brand-active" :href="'https://crm.cresco.ae/services/lists/99/element/0/' + obj.id  + '/?list_section_id='">{{ obj.id }}</a></td>
                             <td class="text-right">{{ formatAmount(obj.amount) }} <strong class="font-bold text-black">{{ obj.currency }}</strong></td>
-                            <td class="text-left whitespace-normal break-words">
+                            <td class="text-left break-words whitespace-normal">
                                 <div class="relative">
-                                    <div class="line-clamp-3 group-hover:line-clamp-none transition-all duration-500">
+                                    <div class="transition-all duration-500 line-clamp-3 group-hover:line-clamp-none">
                                         <div><span>Account Name:</span> <strong class="font-bold text-black">{{ obj.from_account_name }}</strong></div>
                                         <div><span>Account Number: </span><span class="text-black">{{ obj.from_account_number }}</span></div>
                                         <div><span>Bank Name: </span><span class="text-black">{{ obj.from_bank_name }}</span></div>
@@ -103,7 +105,7 @@
                                     </div>
                                 </div>
                             </td>
-                            <td class="text-left whitespace-normal break-words">
+                            <td class="text-left break-words whitespace-normal">
                                 <div class="relative">
                                     <div class="line-clamp-3 group-hover:line-clamp-none">
                                         <div><span>Account Name:</span> <strong class="font-bold text-black">{{ obj.to_account_name }}</strong></div>
@@ -119,7 +121,7 @@
                                     </div>
                                 </div>
                             </td>
-                            <td class="text-left whitespace-normal break-words">
+                            <td class="text-left break-words whitespace-normal">
                                 <div class="relative">
                                     <div class="line-clamp-3 group-hover:line-clamp-none">
                                         <div class="text-wrap">{{ obj.detail_text }}</div>
@@ -138,7 +140,7 @@
                                     v-for="pid in obj.purchase_invoice_ids"
                                     @click="openModal(pid)"
                                     data-modal-toggle="#view_purchase_invoice_details_modal"
-                                    class="secondary-btn mb-1 block w-full"
+                                    class="block w-full mb-1 secondary-btn"
                                 >
                                     View Invoice
                                 </button>
@@ -147,15 +149,16 @@
                                 <div :class="isWarning(obj) ? 'badge badge-warning' : ''">{{ obj.status_text }}</div>
                             </td>
                             <td>{{ formatDate(obj.transfer_date) }}</td>
+                            <td>{{ obj.sage_bank_transfer }}</td>
                             <td>
                                 <a v-for="(documentId, index) in obj.invoice_docoment_list"
-                                   class="secondary-btn mb-1 block w-full" target="_blank"
+                                   class="block w-full mb-1 secondary-btn" target="_blank"
                                    :href="`https://crm.cresco.ae/bitrix/tools/disk/uf.php?attachedId=${documentId}&action=download&ncc=1' + documentId + '&action=download&ncc=1`"
                                 >
                                     Transfer Doc {{ ++index }}
                                 </a>
                                 <a v-for="(documentId, index) in obj.invoice_supporting_docoment_list"
-                                   class="secondary-btn mb-1 block w-full" target="_blank"
+                                   class="block w-full mb-1 secondary-btn" target="_blank"
                                    :href="`https://crm.cresco.ae/bitrix/tools/disk/uf.php?attachedId=${documentId}&action=download&ncc=1' + documentId + '&action=download&ncc=1`"
                                 >
                                     Doc for Bank {{ ++index }}
@@ -163,15 +166,15 @@
                             </td>
                         </tr>
                         <tr v-show="filteredData.length > 0">
-                            <td colspan="2" class="font-bold text-center text-sm text-black">Total per currency</td>
+                            <td colspan="2" class="text-sm font-bold text-center text-black">Total per currency</td>
                             <td class="text-right text-neutral-800">
                                 <div v-for="(amount, currency) in groupedByCurrency">{{ formatAmount(amount) }} <span class="font-bold text-black">{{ currency }} </span></div>
                             </td>
                         </tr>
-                        <tr class="table-no-data-available h-full" v-if="filteredData.length === 0">
+                        <tr class="h-full table-no-data-available" v-if="filteredData.length === 0">
                             <td class="text-center text-md text-red-400 !border-none h-full">
-                                <div class="flex flex-col h-full w-full items-center justify-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-10 mb-4">
+                                <div class="flex flex-col items-center justify-center w-full h-full">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mb-4 size-10">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636" />
                                     </svg>
                                     No data available
@@ -180,9 +183,9 @@
                         </tr>
                     </tbody>
                 </table>
-                <div v-if="loading" class="data-loading absolute inset-0 bg-neutral-100 flex items-center justify-center z-100 pointer-events-none">
-                    <div class="flex items-center gap-2 px-4 py-2 font-medium leading-none text-sm text-brand-active">
-                        <svg class="animate-spin -ml-1 h-5 w-5 text-brand-active" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <div v-if="loading" class="absolute inset-0 flex items-center justify-center pointer-events-none data-loading bg-neutral-100 z-100">
+                    <div class="flex items-center gap-2 px-4 py-2 text-sm font-medium leading-none text-brand-active">
+                        <svg class="w-5 h-5 -ml-1 animate-spin text-brand-active" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
@@ -361,7 +364,7 @@ export default {
                     item.transfer_amount, item.from_bank_name, item.from_account_number,
                     item.from_company_name, item.from_iban, item.project_id,
                     item.project_name, item.status_text, item.to_account_name,
-                    item.to_account_number, item.to_bank_name, item.to_company_name,
+                    item.to_account_number, item.to_bank_name, item.to_company_name, item.sage_bank_transfer
                 ].some(field => field?.toLowerCase().includes(searchTerm));
                 // Filter by status
                 const matchesStatus = this.filters.transfer_status ? item.transfer_status_id === this.filters.transfer_status : true;
@@ -398,11 +401,25 @@ export default {
         if(urlParams.get("id")){
             this.filters.search = urlParams.get("id");
         }
+
+        if(urlParams.get("search")){
+            this.filters.search = urlParams.get("search");
+        }
+
         if (urlParams.get('date')) {
             const parsedDate = DateTime.fromFormat(urlParams.get('date'), 'dd.MM.yyyy');
             if (parsedDate.isValid) {
+                let newDateRange = [
+                    parsedDate.startOf('month').toISODate(),
+                    DateTime.now().toISODate()
+                ];
+                // Set dateRange on the child component via ref
+                this.$nextTick(() => {
+                    this.$refs.filters?.setDateRangeExternally?.(newDateRange);
+                });
                 startDate = parsedDate.toFormat('yyyy-MM-dd');
                 endDate = parsedDate.toFormat('yyyy-MM-dd');
+
                 // Call getPageData with formatted date
                 this.getPageData(startDate, endDate);
             }

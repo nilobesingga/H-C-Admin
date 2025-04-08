@@ -1,7 +1,8 @@
 <template>
-    <div class="container-fluid px-3">
+    <div class="px-3 container-fluid">
         <reports-filters-component
             @get-data="getData"
+            ref="filters"
             class="reports-header-filters"
         />
         <div class="grid gap-2">
@@ -11,7 +12,7 @@
                     <!-- Category Filter -->
                     <div class="flex flex-shrink-0">
                         <select
-                            class="select select-sm select-input w-48"
+                            class="w-48 select select-sm select-input"
                             v-model="filters.category_id"
                             @change="getData"
                         >
@@ -37,7 +38,7 @@
                     <!-- Dynamic Filters -->
                     <div v-for="filter in page_filters" :key="filter.key" class="flex flex-shrink-0">
                         <select
-                            class="select select-sm select-input w-56"
+                            class="w-56 select select-sm select-input"
                             v-model="filters[filter.key]"
                         >
                             <option value="" selected>Filter by {{ filter.name }}</option>
@@ -48,7 +49,7 @@
                 <!-- Search Input -->
                 <div class="flex grow">
                     <div class="relative w-full">
-                        <i class="ki-outline ki-magnifier leading-none text-md text-black absolute top-1/2 left-3 transform -translate-y-1/2"></i>
+                        <i class="absolute leading-none text-black transform -translate-y-1/2 ki-outline ki-magnifier text-md top-1/2 left-3"></i>
                         <input
                             class="input input-sm text-input !ps-8"
                             placeholder="Search"
@@ -64,16 +65,16 @@
                         @click="filters.is_warning = !filters.is_warning"
                     >
                         <i class="ki-outline ki-information-1"></i>
-                        <span class="absolute top-1 right-1 translate-x-1/2 -translate-y-1/2 shadow-md shadow-yellow-300 bg-yellow-500 text-white text-xs font-bold rounded-full min-h-5 min-w-5 flex items-center justify-center">{{ warningCount }}</span>
+                        <span class="absolute flex items-center justify-center text-xs font-bold text-white translate-x-1/2 -translate-y-1/2 bg-yellow-500 rounded-full shadow-md top-1 right-1 shadow-yellow-300 min-h-5 min-w-5">{{ warningCount }}</span>
                     </button>
                 </div>
             </div>
 
             <!-- table -->
-            <div class="relative flex-grow overflow-auto reports-table-container shadow-md border border-brand h-full">
-                <table class="w-full c-table table table-border align-middle text-xs table-fixed" :class="filteredData.length === 0 ? 'h-full' : ''">
+            <div class="relative flex-grow h-full overflow-auto border shadow-md reports-table-container border-brand">
+                <table class="table w-full text-xs align-middle table-fixed c-table table-border" :class="filteredData.length === 0 ? 'h-full' : ''">
                     <thead>
-                        <tr class="text-center tracking-tight">
+                        <tr class="tracking-tight text-center">
                             <th class="sticky top-0 w-10">#</th>
                             <th class="sticky top-0 w-[60px]">Id</th>
                             <th class="sticky top-0 w-[150px] text-left">Receiver</th>
@@ -81,7 +82,7 @@
                             <th class="sticky top-0 w-[100px]">Due Date</th>
                             <th class="sticky top-0 w-[100px]" data-tooltip="#Payment_Schedule_tooltip">
                                 Schedule <i class="ki-outline ki-information-2"></i>
-                                <div class="tooltip transition-opacity duration-300" id="Payment_Schedule_tooltip">Payment Schedule</div>
+                                <div class="transition-opacity duration-300 tooltip" id="Payment_Schedule_tooltip">Payment Schedule</div>
                             </th>
                             <th class="sticky top-0 w-[130px]">SAGE Status</th>
                             <th class="sticky top-0 w-[100px]">Status</th>
@@ -90,17 +91,17 @@
                             <th class="sticky top-0 w-[150px] text-left">Project</th>
                             <th class="sticky top-0 w-[80px]" data-tooltip="#charge_to_client_tooltip">
                                 Charge <i class="ki-outline ki-information-2"></i>
-                                <div class="tooltip transition-opacity duration-300" id="charge_to_client_tooltip">Charge to Client</div>
+                                <div class="transition-opacity duration-300 tooltip" id="charge_to_client_tooltip">Charge to Client</div>
                             </th>
                             <th class="sticky top-0 w-[130px] text-left whitespace-normal break-words" data-tooltip="#Request_By_Remarks">
                                 Request By <i class="ki-outline ki-information-2"></i> <i class="ki-outline ki-exit-down"></i>
-                                <div class="tooltip transition-opacity duration-300" id="Request_By_Remarks">Request By & Remarks</div>
+                                <div class="transition-opacity duration-300 tooltip" id="Request_By_Remarks">Request By & Remarks</div>
                             </th>
                             <th class="sticky top-0 w-[100px]">Documents</th>
                             <th class="sticky top-0 w-[120px]">Action</th>
                         </tr>
                     </thead>
-                    <tbody class="text-center text-xs tracking-tight h-full">
+                    <tbody class="h-full text-xs tracking-tight text-center">
                         <tr v-for="(obj, index) in filteredData" :key="index" class="transition-all duration-300 text-neutral-800">
                             <td>{{ ++index }}</td>
                             <td><a class="btn btn-link !text-neutral-800 hover:!text-brand-active" target="_blank" :href="'https://crm.cresco.ae/bizproc/processes/104/element/0/' + obj.id  + '/?list_section_id='">{{ obj.id }}</a></td>
@@ -125,7 +126,7 @@
                             <td class="text-left">{{ obj.invoice_number }}</td>
                             <td class="text-left"><a class="btn btn-link !text-xs !text-neutral-800 hover:!text-brand-active" target="_blank" :href="getBitrixProjectLink(obj)">{{ obj.project_name }}</a></td>
                             <td>{{ getChargeExtraToClientValue(obj.charge_extra_to_client, page_data.identifier) }}</td>
-                            <td class="text-left whitespace-normal break-words group/request">
+                            <td class="text-left break-words whitespace-normal group/request">
                                 <div class="font-bold text-black">{{ obj.requested_by_name }}</div>
                                 <div class="line-clamp-2 group-hover/request:line-clamp-none">
                                     {{ obj.detail_text }}
@@ -133,7 +134,7 @@
                             </td>
                             <td>
                                 <a v-for="(documentId, index) in obj.document_list"
-                                   class="secondary-btn mb-1 block" target="_blank"
+                                   class="block mb-1 secondary-btn" target="_blank"
                                    :href="`https://crm.cresco.ae/bitrix/tools/disk/uf.php?attachedId=${documentId}&action=download&ncc=1'`"
                                 >
                                     Doc {{ ++index }}
@@ -143,7 +144,7 @@
                                 <button
                                     @click="openModal('view_bank_transfer', obj)"
                                     data-modal-toggle="#show_bank_transfer_details_modal"
-                                    class="secondary-btn mb-1 block w-full"
+                                    class="block w-full mb-1 secondary-btn"
                                     v-if="obj.bitrix_bank_transfer_id"
                                 >
                                     <span>View Transfer</span>
@@ -151,13 +152,13 @@
                                 <button
                                     @click="openModal('create_bank_transfer', obj)"
                                     data-modal-toggle="#create_bank_transfer_form_modal"
-                                    class="secondary-btn mb-1 block w-full"
+                                    class="block w-full mb-1 secondary-btn"
                                     v-if="page_data.permission === 'full_access' && (!obj.bitrix_bank_transfer_id && obj.status_id !== '1619' && obj.status_id !== '1620' && obj.status_id !== '1871' && obj.sage_status_text === 'Booked In Sage')"
                                 >
                                     <span>Create Transfer</span>
                                 </button>
                                 <a
-                                    class="secondary-btn mb-1 block w-full"
+                                    class="block w-full mb-1 secondary-btn"
                                     target="_blank"
                                     :href="`https://10.0.1.17/CRESCOSage/AP/APInvoice?blockId=104&purchaseId=${obj.id}`"
                                     v-if="page_data.permission === 'full_access' && (obj.sage_status !== '1863' && obj.status_id !== '1619' && obj.status_id !== '1620')"
@@ -165,7 +166,7 @@
                                     Book In Sage
                                 </a>
                                 <a
-                                    class="secondary-btn mb-1 block w-full"
+                                    class="block w-full mb-1 secondary-btn"
                                     target="_blank"
                                     :href="`https://10.0.1.17/CRESCOSage/AP/APInvoice?blockId=104&purchaseId=${obj.id}`"
                                     v-if="obj.sage_status === '1863'"
@@ -175,15 +176,15 @@
                             </td>
                         </tr>
                         <tr v-show="filteredData.length > 0">
-                            <td colspan="8" class="font-bold text-center text-sm text-black">Total per currency</td>
+                            <td colspan="8" class="text-sm font-bold text-center text-black">Total per currency</td>
                             <td colspan="1" class="text-right text-neutral-800">
                                 <div v-for="(amount, currency) in groupedByCurrency">{{ formatAmount(amount) }} <span class="font-bold text-black">{{ currency }} </span></div>
                             </td>
                         </tr>
-                        <tr class="table-no-data-available h-full" v-if="filteredData.length === 0">
+                        <tr class="h-full table-no-data-available" v-if="filteredData.length === 0">
                             <td class="text-center text-md text-red-400 !border-none h-full">
-                                <div class="flex flex-col h-full w-full items-center justify-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-10 mb-4">
+                                <div class="flex flex-col items-center justify-center w-full h-full">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mb-4 size-10">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636" />
                                     </svg>
                                     No data available
@@ -192,9 +193,9 @@
                         </tr>
                     </tbody>
                 </table>
-                <div v-if="loading" class="data-loading absolute inset-0 bg-neutral-100 flex items-center justify-center z-100 pointer-events-none">
-                    <div class="flex items-center gap-2 px-4 py-2 font-medium leading-none text-sm text-brand-active">
-                        <svg class="animate-spin -ml-1 h-5 w-5 text-brand-active" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <div v-if="loading" class="absolute inset-0 flex items-center justify-center pointer-events-none data-loading bg-neutral-100 z-100">
+                    <div class="flex items-center gap-2 px-4 py-2 text-sm font-medium leading-none text-brand-active">
+                        <svg class="w-5 h-5 -ml-1 animate-spin text-brand-active" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
@@ -420,6 +421,14 @@ export default {
         if (urlParams.get('date')) {
             const parsedDate = DateTime.fromFormat(urlParams.get('date'), 'dd.MM.yyyy');
             if (parsedDate.isValid) {
+                let newDateRange = [
+                    parsedDate.startOf('month').toISODate(),
+                    DateTime.now().toISODate()
+                ];
+                // Set dateRange on the child component via ref
+                this.$nextTick(() => {
+                    this.$refs.filters?.setDateRangeExternally?.(newDateRange);
+                });
                 startDate = parsedDate.toFormat('yyyy-MM-dd');
                 endDate = parsedDate.toFormat('yyyy-MM-dd');
                 // Call getPageData with formatted date

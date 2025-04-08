@@ -1,13 +1,13 @@
 <template>
-    <div class="pb-4 pt-4">
+    <div class="pt-4 pb-4">
         <div class="flex items-center justify-between">
             <!-- Date Range Picker Text on the Left -->
-            <div class="flex flex-col justify-start w-1/2 text-black font-bold text-2xl tracking-tight">
+            <div class="flex flex-col justify-start w-1/2 text-2xl font-bold tracking-tight text-black">
                 {{ dateRangePickerText }}
             </div>
 
             <!-- Right Side Controls -->
-            <div class="flex items-center gap-2 flex-wrap w-1/2 justify-end">
+            <div class="flex flex-wrap items-center justify-end w-1/2 gap-2">
                 <!-- Currency Select -->
                 <div class="flex flex-col w-24">
                     <select class="select select-input" v-model="currency">
@@ -138,6 +138,13 @@ export default {
             this.dateRange = newDateRange;
             localStorage.setItem("dateRange", JSON.stringify(newDateRange));
         },
+        setDateRangeExternally(newRange) {
+            if (Array.isArray(newRange) && newRange.length === 2) {
+                this.dateRange = newRange;
+                localStorage.setItem("dateRange", JSON.stringify(newRange));
+                this.$emit("get-data");
+            }
+        }
     },
     computed: {
         datePickerRange: {
