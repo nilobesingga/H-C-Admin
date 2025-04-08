@@ -123,21 +123,6 @@
                                             <select v-model="form.currency" class="max-w-full px-3 pr-8 text-black select select-input select-sm min-w-fit bg-inherit" :class="v$.form.currency.$error ? '!border-red-500' : ''" id="currency">
                                                 <option value="">Select Currency</option>
                                                 <option v-for="(cur, k) in currencies"  :value="cur.CURRENCY" :key="k">{{ cur.FULL_NAME }}</option>
-                                                <!-- <option value="USD">US Dollar</option>
-                                                <option value="AED">UAE Dirham</option>
-                                                <option value="AUD">Australian Dollar</option>
-                                                <option value="CNY">China Yuan Renminbi</option>
-                                                <option value="GBP">Pound Sterling</option>
-                                                <option value="HKD">Hong Kong Dollar</option>
-                                                <option value="SGD">Singapore Dollar</option>
-                                                <option value="THB">Thai Baht</option>
-                                                <option value="EUR">Euro</option>
-                                                <option value="CHF">Swiss Franc</option>
-                                                <option value="PHP">Philippine Peso</option>
-                                                <option value="INR">Indian Rupee</option>
-                                                <option value="SCR">Seychelles Rupee</option>
-                                                <option value="CRC">Costa Rican Coln</option>
-                                                <option value="BRL">Brazilian Real</option> -->
                                             </select>
                                         </div>
                                         <!-- Budget Only -->
@@ -264,7 +249,7 @@ export default {
             // Name
             this.bitrix_obj.NAME = name;
             // Amount (including VAT)
-            // this.bitrix_obj.PROPERTY_939 = amountCurrency;
+            this.bitrix_obj.PROPERTY_939 = amountCurrency;
             // Amount Given
             this.bitrix_obj.PROPERTY_944 = this.form.amount;
             // Cash Pool
@@ -330,6 +315,7 @@ export default {
     async mounted() {
         if (this.obj){
             this.form = this.obj;
+            console.log(this.obj,"this.obj");
             this.form.action = '1';
             this.form.new_amount = 0;
             this.form.awaiting_for_exchange_rate_id = "2269";

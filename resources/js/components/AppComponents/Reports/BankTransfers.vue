@@ -2,6 +2,7 @@
     <div class="px-3 container-fluid">
         <reports-filters-component
             @get-data="getData"
+            ref="filters"
             class="reports-header-filters"
         />
         <div class="grid gap-2">
@@ -408,8 +409,17 @@ export default {
         if (urlParams.get('date')) {
             const parsedDate = DateTime.fromFormat(urlParams.get('date'), 'dd.MM.yyyy');
             if (parsedDate.isValid) {
+                let newDateRange = [
+                    parsedDate.startOf('month').toISODate(),
+                    DateTime.now().toISODate()
+                ];
+                // Set dateRange on the child component via ref
+                this.$nextTick(() => {
+                    this.$refs.filters?.setDateRangeExternally?.(newDateRange);
+                });
                 startDate = parsedDate.toFormat('yyyy-MM-dd');
                 endDate = parsedDate.toFormat('yyyy-MM-dd');
+
                 // Call getPageData with formatted date
                 this.getPageData(startDate, endDate);
             }
