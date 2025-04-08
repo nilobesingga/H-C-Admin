@@ -1,21 +1,21 @@
 <template>
-    <div class="container-fluid px-3">
+    <div class="px-3 container-fluid">
         <!-- Left Hover Area -->
-        <div class="hover-area hover-area-left group transition-all duration-500">
+        <div class="transition-all duration-500 hover-area hover-area-left group">
             <button
                 class="prev-week-btn group-hover:w-16 group-hover:h-16 group-hover:bg-black"
                 @click="navigateWeeks(-1)"
             >
-                <i class="ki-solid ki-to-left text-black group-hover:text-white"></i>
+                <i class="text-black ki-solid ki-to-left group-hover:text-white"></i>
             </button>
         </div>
         <!-- Right Hover Area -->
-        <div class="hover-area hover-area-right group transition-all duration-500">
+        <div class="transition-all duration-500 hover-area hover-area-right group">
             <button
                 class="next-week-btn group-hover:w-16 group-hover:h-16 group-hover:right-0 group-hover:bg-black"
                 @click="navigateWeeks(1)"
             >
-                <i class="ki-solid ki-to-right text-black group-hover:text-white"></i>
+                <i class="text-black ki-solid ki-to-right group-hover:text-white"></i>
             </button>
         </div>
 
@@ -23,7 +23,7 @@
             <!-- filters -->
             <div class="flex flex-wrap items-center gap-2">
                 <div class="flex">
-                    <select class="select select-sm select-input w-48" v-model="filters.category_id" @change="getData">
+                    <select class="w-48 select select-sm select-input" v-model="filters.category_id" @change="getData">
                         <option value="" selected>Filter by Category</option>
                         <option v-for="(obj, index) in page_data.categories" :key="index" :value="obj.category_id">
                             {{ obj.bitrix_category_name }}
@@ -39,7 +39,7 @@
                     </select>
                 </div>
                 <div class="flex">
-                    <select class="select select-sm select-input w-40" v-model="filters.currency">
+                    <select class="w-40 select select-sm select-input" v-model="filters.currency">
                         <option value="" selected>Filter by Currency</option>
                         <option value="USD">USD</option>
                         <option value="AED">AED</option>
@@ -57,7 +57,7 @@
                     </select>
                 </div>
                 <div class="flex">
-                    <select class="select select-sm select-input w-40" v-model="filters.request_type">
+                    <select class="w-40 select select-sm select-input" v-model="filters.request_type">
                         <option value="" selected>Filter by Type</option>
                         <option value="cash_request">Cash Request</option>
                         <option value="purchase_invoice">Purchase Invoice</option>
@@ -65,7 +65,7 @@
                     </select>
                 </div>
                 <div class="flex">
-                    <select class="select select-sm select-input w-64" v-model="filters.awaiting_for_exchange_rate">
+                    <select class="w-64 select select-sm select-input" v-model="filters.awaiting_for_exchange_rate">
                         <option value="" selected>Filter by Awaiting for Exchange Rate</option>
                         <option value="include">Include</option>
                         <option value="only">Only</option>
@@ -73,7 +73,7 @@
                 </div>
                 <div class="flex grow">
                     <div class="relative w-full">
-                        <i class="ki-outline ki-magnifier leading-none text-md text-black absolute top-1/2 left-3 transform -translate-y-1/2"></i>
+                        <i class="absolute leading-none text-black transform -translate-y-1/2 ki-outline ki-magnifier text-md top-1/2 left-3"></i>
                         <input
                             class="input input-sm text-input !ps-8"
                             placeholder="Search"
@@ -86,9 +86,9 @@
             <!-- content area -->
             <div class="relative flex-grow overflow-auto">
                 <!-- Loading Indicator -->
-                <div v-if="loading" class="data-loading absolute inset-0 bg-neutral-100 flex items-center justify-center z-100 pointer-events-none">
-                    <div class="flex items-center gap-2 px-4 py-2 font-medium leading-none text-sm text-brand-active">
-                        <svg class="animate-spin -ml-1 h-5 w-5 text-brand-active" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <div v-if="loading" class="absolute inset-0 flex items-center justify-center pointer-events-none data-loading bg-neutral-100 z-100">
+                    <div class="flex items-center gap-2 px-4 py-2 text-sm font-medium leading-none text-brand-active">
+                        <svg class="w-5 h-5 -ml-1 animate-spin text-brand-active" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
@@ -98,10 +98,10 @@
                 <!-- week columns -->
                 <div class="flex gap-3 text-sm expense-planner-columns">
                     <!-- Each column represents a week -->
-                    <div v-for="(week, index) in weekHeaders" :key="index" class="flex-1 flex flex-col bg-neutral-200 p-4 rounded text-center text-sm overflow-auto overflow-y-hidden group">
+                    <div v-for="(week, index) in weekHeaders" :key="index" class="flex flex-col flex-1 p-4 overflow-auto overflow-y-hidden text-sm text-center rounded bg-neutral-200 group">
                         <!-- Week Header -->
-                        <div class="text-black text-2xl tracking-tight font-bold">Week {{ week.week_number }}</div>
-                        <div class="text-neutral-700 text-xs">{{ week.start_date }} &mdash; {{ week.end_date }}</div>
+                        <div class="text-2xl font-bold tracking-tight text-black">Week {{ week.week_number }}</div>
+                        <div class="text-xs text-neutral-700">{{ week.start_date }} &mdash; {{ week.end_date }}</div>
 
                         <!-- Total Amount -->
                         <div v-if="week.data.length" class="mt-4 mb-4">
@@ -116,7 +116,7 @@
                                 group="data"
                                 :list="week.data"
                                 item-key="id"
-                                class="flex flex-col gap-2 overflow-y-auto h-full border-t border-neutral-200 pt-4 group-hover:border-black"
+                                class="flex flex-col h-full gap-2 pt-4 overflow-y-auto border-t border-neutral-200 group-hover:border-black"
                                 @change="onDragUpdateColumn($event, week)"
                                 :animation="200"
                             >
@@ -124,33 +124,33 @@
                                     <div :key="itemIndex">
                                         <!-- cash requests -->
                                         <div :class="['card', (item.is_budget_only === '1937' ? 'budget-only' : 'cash-request')]" v-if="item.request_type === 'cash_request'">
-                                            <div class="card-title text-left flex w-full flex-col">
-                                                <div class="flex justify-between items-center">
+                                            <div class="flex flex-col w-full text-left card-title">
+                                                <div class="flex items-center justify-between">
                                                     <a class="btn btn-link !text-black hover:!text-brand-active text-lg" target="_blank" :href="getBitrixUrlByBlockIdAndId('105', item.id)">
                                                         {{ formatAmount(item.amount) }} {{ item.currency }}
                                                     </a>
                                                     <!-- awaiting for exchange rate -->
-                                                    <i class="ki-filled ki-timer text-orange-400" v-if="item.awaiting_for_exchange_rate === 'Yes'"></i>
+                                                    <i class="text-orange-400 ki-filled ki-timer" v-if="item.awaiting_for_exchange_rate === 'Yes'"></i>
                                                 </div>
-                                                <sub class="text-xs text-neutral-600 mb-2 -mt-1" v-if="item.currency !== 'USD'">({{ formatAmount(item.exchange_amount) }} USD)</sub>
+                                                <sub class="mb-2 -mt-1 text-xs text-neutral-600" v-if="item.currency !== 'USD'">({{ formatAmount(item.exchange_amount) }} USD)</sub>
                                             </div>
                                             <a class="btn btn-link text-left !text-neutral-800" target="_blank" :href="getBitrixProjectLink(item)">{{ item.project_name }}</a>
-                                            <div class="text-neutral-700 text-left">{{ item.detail_text }}</div>
-                                            <div class="text-left text-xs text-neutral-700 mt-4">
+                                            <div class="text-left text-neutral-700">{{ item.detail_text }}</div>
+                                            <div class="mt-4 text-xs text-left text-neutral-700">
                                                 <span>Requested By: </span>
                                                 <span class="text-neutral-800">{{ item.requested_by_name }}</span>
                                             </div>
-                                            <div class="text-left text-xs text-neutral-700">
+                                            <div class="text-xs text-left text-neutral-700">
                                                 <span>Pay By: </span>
                                                 <span class="text-neutral-800">{{ getPaymentMode(item.payment_mode_id) }}</span>
                                             </div>
-                                            <div class="flex justify-between items-center mt-2">
+                                            <div class="flex items-center justify-between mt-2">
                                                 <div class="text-left">
                                                     <small :class="['badge text-xs', isOverdue(item.payment_date) ? 'badge-danger' : 'badge-success']">Due: {{ formatDate(item.payment_date) }}</small>
-                                                    <small class="badge badge-warning text-xs ml-1" v-if="item.is_budget_only === '1937'">Budget Only</small>
+                                                    <small class="ml-1 text-xs badge badge-warning" v-if="item.is_budget_only === '1937'">Budget Only</small>
                                                 </div>
                                             </div>
-                                            <div class="flex justify-between items-center mt-3">
+                                            <div class="flex items-center justify-between mt-3">
                                                 <div>
                                                     <button
                                                         data-modal-toggle="#cash_request_update_form_modal"
@@ -161,7 +161,7 @@
                                                     </button>
                                                     <button
                                                         data-modal-toggle="#cash_request_release_fund_form_modal"
-                                                        class="btn btn-xs btn-light ml-1"
+                                                        class="ml-1 btn btn-xs btn-light"
                                                         @click="openModal('release_fund', item)"
                                                     >
                                                         Release Funds
@@ -171,7 +171,7 @@
                                         </div>
                                         <!-- purchase invoices -->
                                         <div class="card purchase-invoice" v-if="item.request_type === 'purchase_invoice'">
-                                            <div class="card-title text-left flex">
+                                            <div class="flex text-left card-title">
                                                 <a class="btn btn-link !text-black hover:!text-brand-active " target="_blank" :href="getBitrixUrlByBlockIdAndId(item.request_type === 'cash_request' ? '104' : '104', item.id)">
                                                     <div class="text-lg">
                                                         <span v-if="item.remaining_balance">{{ formatAmount(item.remaining_balance) }}</span>
@@ -181,18 +181,18 @@
                                                 </a>
                                             </div>
                                             <a class="btn btn-link text-left !text-neutral-800" target="_blank" :href="getBitrixProjectLink(item)">{{ item.project_name }}</a>
-                                            <div class="text-neutral-700 text-left mt-2">{{ item.detail_text }}</div>
-                                            <div class="text-left text-xs text-neutral-700 mt-4">
+                                            <div class="mt-2 text-left text-neutral-700">{{ item.detail_text }}</div>
+                                            <div class="mt-4 text-xs text-left text-neutral-700">
                                                 <span>Requested By: </span>
                                                 <span class="text-neutral-800">{{ item.requested_by_name }}</span>
                                             </div>
-                                            <div class="text-left mt-2">
+                                            <div class="mt-2 text-left">
                                                 <small :class="['badge text-xs', isOverdue(item.due_date) ? 'badge-danger' : 'badge-success']">Due: {{ formatDate(item.due_date) }}</small>
-                                                <small v-if="item.sage_status && item.sage_status === '1863'" class="badge badge-info text-xs font-bold ml-1">Booked In Sage</small>
-                                                <small v-else class="badge badge-warning text-xs font-bold ml-1">NOT Booked In Sage</small>
-                                                <small v-if="item.status_id === '1864'" class="badge badge-warning text-xs font-bold ml-1 ">Partially Paid</small>
+                                                <small v-if="item.sage_status && item.sage_status === '1863'" class="ml-1 text-xs font-bold badge badge-info">Booked In Sage</small>
+                                                <small v-else class="ml-1 text-xs font-bold badge badge-warning">NOT Booked In Sage</small>
+                                                <small v-if="item.status_id === '1864'" class="ml-1 text-xs font-bold badge badge-warning ">Partially Paid</small>
                                             </div>
-                                            <div class="flex justify-between items-center mt-3" v-if="item.preview_url">
+                                            <div class="flex items-center justify-between mt-3" v-if="item.preview_url">
                                                 <a
                                                     class="btn btn-xs btn-light"
                                                     target="_blank"
@@ -206,7 +206,7 @@
                                 </template>
                                 <!-- Empty column is still draggable -->
                                 <template #footer>
-                                    <div v-if="week.data.length === 0" class="text-center text-red-400 mt-4 flex justify-center items-center">
+                                    <div v-if="week.data.length === 0" class="flex items-center justify-center mt-4 text-center text-red-400">
                                         No data available
                                     </div>
                                 </template>
@@ -219,34 +219,34 @@
                                 <div v-for="(item, itemIndex) in week.data" :key="itemIndex">
                                     <!-- cash requests -->
                                     <div :class="['card', (item.is_budget_only === '1937' ? 'budget-only' : 'cash-request')]" v-if="item.request_type === 'cash_request'">
-                                        <div class="card-title text-left flex w-full flex-col">
-                                            <div class="flex justify-between items-center">
+                                        <div class="flex flex-col w-full text-left card-title">
+                                            <div class="flex items-center justify-between">
                                                 <a class="btn btn-link !text-black hover:!text-brand-active text-lg" target="_blank" :href="getBitrixUrlByBlockIdAndId('105', item.id)">
                                                     {{ formatAmount(item.amount) }} {{ item.currency }}
                                                 </a>
                                                 <!-- awaiting for exchange rate -->
-                                                <i class="ki-filled ki-timer text-orange-400" v-if="item.awaiting_for_exchange_rate === 'Yes'"></i>
+                                                <i class="text-orange-400 ki-filled ki-timer" v-if="item.awaiting_for_exchange_rate === 'Yes'"></i>
                                             </div>
-                                            <sub class="text-xs text-neutral-600 mb-2 -mt-1" v-if="item.currency !== 'USD'">({{ formatAmount(item.exchange_amount) }} USD)</sub>
+                                            <sub class="mb-2 -mt-1 text-xs text-neutral-600" v-if="item.currency !== 'USD'">({{ formatAmount(item.exchange_amount) }} USD)</sub>
                                         </div>
                                         <a class="btn btn-link text-left !text-neutral-800" target="_blank" :href="getBitrixProjectLink(item)">{{ item.project_name }}</a>
-                                        <div class="text-neutral-700 text-left">{{ item.detail_text }}</div>
-                                        <div class="text-left text-xs text-neutral-700 mt-4">
+                                        <div class="text-left text-neutral-700">{{ item.detail_text }}</div>
+                                        <div class="mt-4 text-xs text-left text-neutral-700">
                                             <span>Requested By: </span>
                                             <span class="text-neutral-800">{{ item.requested_by_name }}</span>
                                         </div>
-                                        <div class="text-left text-xs text-neutral-700">
+                                        <div class="text-xs text-left text-neutral-700">
                                             <span>Pay By: </span>
                                             <span class="text-neutral-800">{{ getPaymentMode(item.payment_mode_id) }}</span>
                                         </div>
-                                        <div class="text-left mt-2">
+                                        <div class="mt-2 text-left">
                                             <small :class="['badge text-xs', isOverdue(item.payment_date) ? 'badge-danger' : 'badge-success']">Due: {{ formatDate(item.payment_date) }}</small>
-                                            <small class="badge badge-warning text-xs ml-1" v-if="item.is_budget_only === '1937'">Budget Only</small>
+                                            <small class="ml-1 text-xs badge badge-warning" v-if="item.is_budget_only === '1937'">Budget Only</small>
                                         </div>
                                     </div>
                                     <!-- purchase invoices -->
                                     <div class="card purchase-invoice" v-if="item.request_type === 'purchase_invoice'">
-                                        <div class="card-title text-left flex">
+                                        <div class="flex text-left card-title">
                                             <a class="btn btn-link !text-black hover:!text-brand-active " target="_blank" :href="getBitrixUrlByBlockIdAndId(item.request_type === 'cash_request' ? '104' : '104', item.id)">
                                                 <div class="text-lg">
                                                     <span v-if="item.remaining_balance">{{ formatAmount(item.remaining_balance) }}</span>
@@ -256,18 +256,18 @@
                                             </a>
                                         </div>
                                         <a class="btn btn-link text-left !text-neutral-800" target="_blank" :href="getBitrixProjectLink(item)">{{ item.project_name }}</a>
-                                        <div class="text-neutral-700 text-left mt-2">{{ item.detail_text }}</div>
-                                        <div class="text-left text-xs text-neutral-700 mt-4">
+                                        <div class="mt-2 text-left text-neutral-700">{{ item.detail_text }}</div>
+                                        <div class="mt-4 text-xs text-left text-neutral-700">
                                             <span>Requested By: </span>
                                             <span class="text-neutral-800">{{ item.requested_by_name }}</span>
                                         </div>
-                                        <div class="text-left mt-2">
+                                        <div class="mt-2 text-left">
                                             <small :class="['badge text-xs', isOverdue(item.due_date) ? 'badge-danger' : 'badge-success']">Due: {{ formatDate(item.due_date) }}</small>
-                                            <small v-if="item.sage_status && item.sage_status === '1863'" class="badge badge-info text-xs font-bold ml-1">Booked In Sage</small>
-                                            <small v-else class="badge badge-warning text-xs font-bold ml-1">NOT Booked In Sage</small>
-                                            <small v-if="item.status_id === '1864'" class="badge badge-warning text-xs font-bold ml-1 ">Partially Paid</small>
+                                            <small v-if="item.sage_status && item.sage_status === '1863'" class="ml-1 text-xs font-bold badge badge-info">Booked In Sage</small>
+                                            <small v-else class="ml-1 text-xs font-bold badge badge-warning">NOT Booked In Sage</small>
+                                            <small v-if="item.status_id === '1864'" class="ml-1 text-xs font-bold badge badge-warning ">Partially Paid</small>
                                         </div>
-                                        <div class="flex justify-between items-center mt-3" v-if="item.preview_url">
+                                        <div class="flex items-center justify-between mt-3" v-if="item.preview_url">
                                             <a
                                                 class="btn btn-xs btn-light"
                                                 target="_blank"
@@ -279,7 +279,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div v-else class="text-center text-red-400 mt-4 flex justify-center items-center h-full">No data available</div>
+                            <div v-else class="flex items-center justify-center h-full mt-4 text-center text-red-400">No data available</div>
                         </div>
                     </div>
                 </div>
@@ -779,6 +779,7 @@ export default {
             }
         },
         openModal(type, obj){
+            console.log("type", obj)
             this.selected_obj = obj;
             this.modal_type = type
             if(type === 'release_fund'){
@@ -823,7 +824,7 @@ export default {
         },
         // Dynamically filter and group data by week
         weekHeaders() {
-            const today = DateTime.now().plus({ weeks: this.week_off_set * 5 });;
+            const today = DateTime.now().plus({ weeks: this.week_off_set * 1 });;
             const currentWeekStart = today.startOf("week");
 
             // Generate 5 week headers based on the current offset

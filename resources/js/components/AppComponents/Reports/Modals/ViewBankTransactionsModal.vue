@@ -158,22 +158,21 @@ export default {
             }
         },
         getURL(transaction){
-            console.log(transaction.SourceApp, "transaction.SourceApp",transaction.transactionNo)
             // Sales Invoices
             if(transaction.SourceApp === 'AR - Receipt'){
-                return `${window.location.origin}/reports/sales-invoices?search=${transaction.transactionNo}`
+                return `${window.location.origin}/reports/sales-invoices?search=${transaction.transactionNo}&date=${DateTime.fromFormat(transaction.tranDate,'dd/MM/yyyy').toFormat("dd.MM.yyyy")}`
             }
             // Cash Request
             if(transaction.SourceApp === 'AP - Misc. Payment'){
-                return `${window.location.origin}/reports/cash-requests?search=${transaction.transactionNo}`
+                return `${window.location.origin}/reports/cash-requests?search=${transaction.transactionNo}&date=${DateTime.fromFormat(transaction.tranDate,'dd/MM/yyyy').toFormat("dd.MM.yyyy")}`
             }
             // Purchase Invoices
             if(transaction.SourceApp === 'AP - Payment'){
-                return `${window.location.origin}/reports/purchase-invoices?search=${transaction.transactionNo}`
+                return `${window.location.origin}/reports/purchase-invoices?search=${transaction.transactionNo}&date=${DateTime.fromFormat(transaction.tranDate,'dd/MM/yyyy').toFormat("dd.MM.yyyy")}`
             }
 
             if(transaction.SourceApp === 'BK'){
-                return `${window.location.origin}/reports/bank-transfers?search=${transaction.transactionNo}`
+                return `${window.location.origin}/reports/bank-transfers?search=${transaction.transactionNo}&date=${DateTime.fromFormat(transaction.tranDate,'dd/MM/yyyy').toFormat("dd.MM.yyyy")}`
             }
         },
     },
