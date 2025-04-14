@@ -272,40 +272,74 @@
                     <div>
                         <table class="table" style="margin-top:2rem">
                             <thead>
-                            <tr>
-                                <th style="width:300px;" rowspan="2">Name and Residential Address of Beneficial Owner</th>
-                                <!-- <th style="width:300px;">Address</th> -->
-                                <th style="width:100px;" rowspan="2">Date of Birth</th>
-                                <th style="width:100px;" rowspan="2">Nationality</th>
-                                <th style="width:100px;" rowspan="2">Passport No / National Identification Number</th>
-                                <th style="width:100px;" rowspan="2">TIN</th>
-                                <th style="width:100px;" rowspan="2">Nature of Interest Held</th>
-                                <th style="width:100px;" colspan="4">Details of each member (if nominee) holding shares for and
-                                    on behalf of beneficial owner
-                                </th>
-                                <th style="width:100px;" rowspan="2">Date became the beneficial owner</th>
-                                <th style="width:100px;" rowspan="2">Date ceased to be the beneficial owner</th>
-                            </tr>
-                            <tr>
-                                <th style="width:200px;">Name, address, date of birth and nationality of each nominee</th>
-                                <th>Particulars and details of the interest held by nominee</th>
-                                <th>Name, residential address, date of birth and nationality of each nominator</th>
-                                <th>Date became nominee</th>
+{{--                                <tr>--}}
+{{--                                    <th style="width:300px;" rowspan="2">Name and Residential Address of Beneficial Owner</th>--}}
+{{--                                    <!-- <th style="width:300px;">Address</th> -->--}}
+{{--                                    <th style="width:100px;" rowspan="2">Date of Birth</th>--}}
+{{--                                    <th style="width:100px;" rowspan="2">Nationality</th>--}}
+{{--                                    <th style="width:100px;" rowspan="2">Passport No / National Identification Number</th>--}}
+{{--                                    <th style="width:100px;" rowspan="2">TIN</th>--}}
+{{--                                    <th style="width:100px;" rowspan="2">Nature of Interest Held</th>--}}
+{{--                                    <th style="width:100px;" colspan="4">Details of each member (if nominee) holding shares for and--}}
+{{--                                        on behalf of beneficial owner--}}
+{{--                                    </th>--}}
+{{--                                    <th style="width:100px;" rowspan="2">Date became the beneficial owner</th>--}}
+{{--                                    <th style="width:100px;" rowspan="2">Date ceased to be the beneficial owner</th>--}}
+{{--                                </tr>--}}
+{{--                                <tr>--}}
+{{--                                    <th style="width:200px;">Name, address, date of birth and nationality of each nominee</th>--}}
+{{--                                    <th>Particulars and details of the interest held by nominee</th>--}}
+{{--                                    <th>Name, residential address, date of birth and nationality of each nominator</th>--}}
+{{--                                    <th>Date became nominee</th>--}}
+{{--    --}}
+{{--                                </tr>--}}
+                                <tr>
+                                    <th style="width:300px;" colspan="3">Details of Beneficial Owner</th>
+                                    <th style="width:100px;" rowspan="2">Residential Address of BO</th>
+                                    <th style="width:100px;" rowspan="2">Service Address of BO</th>
+                                    <th style="width:100px;" rowspan="2">Passport No</th>
+                                    <th style="width:100px;" rowspan="2">National Identification Number</th>
+                                    <th style="width:100px;" rowspan="2">TIN</th>
+                                    <th style="width:100px;" rowspan="2">Nature of Interest Held</th>
+                                    <th style="width:100px;" colspan="4">Details of each member (if nominee) holding shares for and
+                                        on behalf of beneficial owner
+                                    </th>
+                                    <th style="width:100px;" rowspan="2">Date became the beneficial owner</th>
+                                    <th style="width:100px;" rowspan="2">Date ceased to be the beneficial owner</th>
+                                </tr>
+                                <tr>
+                                    <th>Name</th>
+                                    <th style="width:100px;">Date of Birth</th>
+                                    <th style="width:100px;">Nationality</th>
+                                    <th style="width:200px;">Name, address, date of birth and nationality of each nominee</th>
+                                    <th>Particulars and details of the interest held by nominee</th>
+                                    <th>Name, residential address, date of birth and nationality of each nominator</th>
+                                    <th>Date became nominee</th>
 
-                            </tr>
+                                </tr>
                             </thead>
                             <tbody>
                             @foreach($ubos as $ubo)
                                 <tr>
                                     <td>
                                         <div>{{isset($ubo['name']) ? $ubo['name']: '' }}</div>
-                                        <div class="address">{{isset($ubo['address']) ? $ubo['address']: '' }}</div>
                                     </td>
                                     <td>{{isset($ubo['dateOfBirth']) ? $ubo['dateOfBirth']: '' }}</td>
                                     <td>{{isset($ubo['nationality']) ? $ubo['nationality']: '' }}</td>
+                                    <td>
+                                        <div>{{isset($ubo['address']) ? $ubo['address']: '' }}</div>
+                                    </td>
+                                    <td>
+                                        <div>{{ $registered_address }}</div>
+                                    </td>
                                     <td>{{isset($ubo['passportNumber']) ? $ubo['passportNumber']: '' }}</td>
+                                    <td>{{isset($ubo['nin']) ? $ubo['nin']: 'Not Available' }}</td>
                                     <td>{{isset($ubo['tin']) ? $ubo['tin']: '' }}</td>
-                                    <td>{{isset($ubo['shares']) ? $ubo['shares']: ''  }}</td>
+                                    <td>
+                                        <div class="shares">
+                                            {{isset($ubo['shares']) ? $ubo['shares']: ''  }}
+                                        </div>
+                                    </td>
                                     @if(count($ubo['nomineeList']) > 0)
                                         @foreach($ubo['nomineeList'] as $nominee)
                                             <td>
@@ -338,14 +372,7 @@
                                                     {{ date("d M Y", strtotime($nominee['startDate'])) }}
                                                 @endif
                                             </td>
-                                            {{--                                        <td class="nominee">--}}
-                                            {{--                                            @php--}}
-                                            {{--                                            if($nominee['endDate'] != null)--}}
-                                            {{--                                                echo date("d M Y", strtotime($nominee['endDate'] ));--}}
-                                            {{--                                            @endphp--}}
-                                            {{--                                        </td>--}}
                                         @endforeach
-
                                     @else
                                         <td></td>
                                         <td></td>
@@ -363,6 +390,73 @@
                                         @endif
                                     </td>
                                 </tr>
+{{--                                <tr>--}}
+{{--                                    <td>--}}
+{{--                                        <div>{{isset($ubo['name']) ? $ubo['name']: '' }}</div>--}}
+{{--                                        <div class="address">{{isset($ubo['address']) ? $ubo['address']: '' }}</div>--}}
+{{--                                    </td>--}}
+{{--                                    <td>{{isset($ubo['dateOfBirth']) ? $ubo['dateOfBirth']: '' }}</td>--}}
+{{--                                    <td>{{isset($ubo['nationality']) ? $ubo['nationality']: '' }}</td>--}}
+{{--                                    <td>{{isset($ubo['passportNumber']) ? $ubo['passportNumber']: '' }}</td>--}}
+{{--                                    <td>{{isset($ubo['tin']) ? $ubo['tin']: '' }}</td>--}}
+{{--                                    <td>{{isset($ubo['shares']) ? $ubo['shares']: ''  }}</td>--}}
+{{--                                    @if(count($ubo['nomineeList']) > 0)--}}
+{{--                                        @foreach($ubo['nomineeList'] as $nominee)--}}
+{{--                                            <td>--}}
+{{--                                                <div class="nominee">{{isset($nominee['name']) ? $nominee['name']: '' }}</div>--}}
+{{--                                                <div--}}
+{{--                                                    class="address">{{isset($nominee['address']) ? $nominee['address']: '' }}</div>--}}
+{{--                                            </td>--}}
+{{--                                            <td class="nominee">{{isset($nominee['shares']) ? $nominee['shares']: ''  }}</td>--}}
+{{--                                            <td class="nominee">--}}
+{{--                                                @if(isset($nominee['nominator']) && $nominee['nominator']['typeId'] == 3)--}}
+{{--                                                    <div--}}
+{{--                                                        class="nominee">{{isset($nominee['nominator']['name']) ? $nominee['nominator']['name']: '' }}</div>--}}
+{{--                                                    <div--}}
+{{--                                                        class="address">{{isset($nominee['nominator']['address']) ? $nominee['nominator']['address']: '' }}</div>--}}
+{{--                                                    <div--}}
+{{--                                                        class="address">{{isset($nominee['nominator']['dateOfBirth']) ? $nominee['nominator']['dateOfBirth']: '' }}</div>--}}
+{{--                                                    <div--}}
+{{--                                                        class="address">{{isset($nominee['nominator']['nationality']) ? $nominee['nominator']['nationality']: '' }}</div>--}}
+
+{{--                                                @elseif(isset($nominee['nominator']) && $nominee['nominator']['typeId'] == 4)--}}
+{{--                                                    <div--}}
+{{--                                                        class="nominee">{{isset($nominee['nominator']['name']) ? $nominee['nominator']['name']: '' }}</div>--}}
+{{--                                                    <div--}}
+{{--                                                        class="address">{{isset($nominee['nominator']['address']) ? $nominee['nominator']['address']: '' }}</div>--}}
+{{--                                                @endif--}}
+
+{{--                                            </td>--}}
+{{--                                            <td class="nominee">--}}
+{{--                                                @if(isset($nominee['startDate']) && $nominee['startDate'] != null)--}}
+{{--                                                    {{ date("d M Y", strtotime($nominee['startDate'])) }}--}}
+{{--                                                @endif--}}
+{{--                                            </td>--}}
+{{--                                            --}}{{--                                        <td class="nominee">--}}
+{{--                                            --}}{{--                                            @php--}}
+{{--                                            --}}{{--                                            if($nominee['endDate'] != null)--}}
+{{--                                            --}}{{--                                                echo date("d M Y", strtotime($nominee['endDate'] ));--}}
+{{--                                            --}}{{--                                            @endphp--}}
+{{--                                            --}}{{--                                        </td>--}}
+{{--                                        @endforeach--}}
+
+{{--                                    @else--}}
+{{--                                        <td></td>--}}
+{{--                                        <td></td>--}}
+{{--                                        <td></td>--}}
+{{--                                        <td></td>--}}
+{{--                                    @endif--}}
+{{--                                    <td class="text-center">--}}
+{{--                                        @if(isset($ubo['startDate']) && $ubo['startDate'] != null)--}}
+{{--                                            {{ date("d M Y", strtotime($ubo['startDate'])) }}--}}
+{{--                                        @endif--}}
+{{--                                    </td>--}}
+{{--                                    <td class="text-center">--}}
+{{--                                        @if(isset($ubo['endDate']) && $ubo['endDate'] != null)--}}
+{{--                                            {{ date("d M Y", strtotime($ubo['endDate'])) }}--}}
+{{--                                        @endif--}}
+{{--                                    </td>--}}
+{{--                                </tr>--}}
                             @endforeach
                             </tbody>
                         </table>
