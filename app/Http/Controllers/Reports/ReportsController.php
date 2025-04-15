@@ -13,6 +13,7 @@ use \Barryvdh\Snappy\Facades\SnappyPdf as PDF;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ReportsController extends Controller
 {
@@ -503,7 +504,6 @@ class ReportsController extends Controller
             default => 'http://localhost:8000',
         }, '/');
 
-
         // Construct the authentication URL
         $authUrl = $baseUrl . '/bitrix/login/' . $accessToken;
 
@@ -513,9 +513,9 @@ class ReportsController extends Controller
         // Final redirect URL
         $finalUrl = $authUrl . '?redirect=' . $redirectAfterLogin;
 
-        \Log::info('baseUrl: ' . $baseUrl);
-        \Log::info('reportMapping[slug]: ' . $reportMapping[$slug]);
-        \Log::info('finalUrl: ' . $finalUrl);
+        Log::info('baseUrl: ' . $baseUrl);
+        Log::info('reportMapping[slug]: ' . $reportMapping[$slug]);
+        Log::info('finalUrl: ' . $finalUrl);
 
         if (in_array($slug, $iframeReports)) {
             $page = (object)[
