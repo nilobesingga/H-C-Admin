@@ -508,7 +508,7 @@ class ReportsController extends Controller
         $authUrl = $baseUrl . '/bitrix/login/' . $accessToken;
 
         // After authentication, redirect to the requested report
-        $redirectAfterLogin = urlencode($baseUrl . $reportMapping[$slug]);
+        $redirectAfterLogin = $baseUrl . $reportMapping[$slug];
 
         // Final redirect URL
         $finalUrl = $authUrl . '?redirect=' . $redirectAfterLogin;
