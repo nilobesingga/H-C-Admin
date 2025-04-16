@@ -75,6 +75,13 @@
                                     </label>
                                     <input class="input text-black bg-inherit" :class="v$.form.amount.$error ? '!border-red-500' : ''" placeholder="Transfer Amount" id="amount" type="text" v-model="form.amount">
                                 </div>
+                                <!--Bank Charge -->
+                                <div class="mb-4 w-full gap-2.5">
+                                    <label class="form-label flex items-center gap-1 text-sm mb-1" for="amount">Bank Charge
+                                        <span class="text-danger">* <span class="form-text-error" v-if="v$.form.bank_charge.$error">Please fill out this field</span></span>
+                                    </label>
+                                    <input class="input text-black bg-inherit" :class="v$.form.bank_charge.$error ? '!border-red-500' : ''" placeholder="Bank Charge" id="bank_charge" type="text" v-model="form.bank_charge">
+                                </div>
                                 <!-- Reference Number -->
                                 <div class="mb-4 w-full gap-2.5">
                                     <label class="form-label flex items-center gap-1 text-sm mb-1" for="invoice_number">Reference Number</label>
@@ -175,22 +182,15 @@
                                     </label>
                                     <select v-model="form.currency" class="select select-input select-sm px-3 pr-8 min-w-fit max-w-full text-black bg-inherit" :class="v$.form.currency.$error ? '!border-red-500' : ''" id="currency">
                                         <option v-for="(obj, index) in currencies" :key="index" :value="obj.CURRENCY">{{ obj.FULL_NAME }}</option>
-<!--                                        <option value="USD">US Dollar</option>-->
-<!--                                        <option value="AED">UAE Dirham</option>-->
-<!--                                        <option value="AUD">Australian Dollar</option>-->
-<!--                                        <option value="CNY">China Yuan Renminbi</option>-->
-<!--                                        <option value="GBP">Pound Sterling</option>-->
-<!--                                        <option value="HKD">Hong Kong Dollar</option>-->
-<!--                                        <option value="SGD">Singapore Dollar</option>-->
-<!--                                        <option value="THB">Thai Baht</option>-->
-<!--                                        <option value="EUR">Euro</option>-->
-<!--                                        <option value="CHF">Swiss Franc</option>-->
-<!--                                        <option value="PHP">Philippine Peso</option>-->
-<!--                                        <option value="INR">Indian Rupee</option>-->
-<!--                                        <option value="SCR">Seychelles Rupee</option>-->
-<!--                                        <option value="CRC">Costa Rican Coln</option>-->
-<!--                                        <option value="BRL">Brazilian Real</option>-->
-<!--                                        <option value="RUB">Russian Ruble</option>-->
+                                    </select>
+                                </div>
+                                <!-- Bank Charge Currency -->
+                                <div class="mb-4 w-full gap-2.5">
+                                    <label class="form-label flex items-center gap-1 text-sm mb-1" for="currency">Bank Charge Currency
+                                        <span class="text-danger">* <span class="form-text-error" v-if="v$.form.bank_charge_currency.$error">Please fill out this field</span></span>
+                                    </label>
+                                    <select v-model="form.bank_charge_currency" class="select select-input select-sm px-3 pr-8 min-w-fit max-w-full text-black bg-inherit" :class="v$.form.bank_charge_currency.$error ? '!border-red-500' : ''" id="bank_charge_currency">
+                                        <option v-for="(obj, index) in currencies" :key="index" :value="obj.CURRENCY">{{ obj.FULL_NAME }}</option>
                                     </select>
                                 </div>
                                 <!-- Purpose of Transfer -->
@@ -254,6 +254,8 @@ export default {
                 transfer_from_account: null,
                 transfer_to_account: null,
                 amount: '',
+                bank_charge: 0,
+                bank_charge_currency : null,
                 transfer_document: null,
                 invoice_number: '',
                 currency: '',
@@ -282,6 +284,8 @@ export default {
                 transfer_from_account: { required },
                 transfer_to_account: { required },
                 amount: { required },
+                bank_charge: { required },
+                bank_charge_currency : { required },
                 currency: { required },
                 detail_text: { required },
                 project: {required},
@@ -301,6 +305,7 @@ export default {
                 'PROPERTY_875': this.form.transfer_from_account.ID,
                 'PROPERTY_876': this.form.transfer_to_account.ID,
                 'PROPERTY_872': this.form.amount + "|" + this.form.currency,
+                'PROPERTY_1275': this.form.bank_charge + "|" + this.form.bank_charge_currency,
                 'PROPERTY_877': this.form.invoice_number,
                 'DETAIL_TEXT': this.form.detail_text,
                 'PROPERTY_887': 1532, //Transfer status
@@ -494,6 +499,8 @@ export default {
     },
     async mounted() {
         this.form = this.obj;
+        this.form.bank_charge = 0;
+        this.form.bank_charge_currency = this.obj.currency;
         this.form.transfer_from_account = null;
         this.form.transfer_to_account = null;
         if(this.obj.project_id){
