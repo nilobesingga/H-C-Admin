@@ -25,14 +25,30 @@
                         >
                            Dashboard
                         </a>
+                        @if(($page->user->modules->isNotEmpty() && (request()->is('reports*') || request()->is('cash-pool*'))))
+                            @php
+                                $currentPath = request()->path();
+                                $normalizedPath = '/' . ltrim($currentPath, '/');
+                                $currentModule = $page->user->modules->firstWhere('route', $normalizedPath);
+                                if ($currentModule) {
+                                    $parentModule = $currentModule->parent;
 
-                        @if(request()->is('reports*'))
-                            <a class="nav-link {{ request()->is('reports*') ? 'nav-active' : '' }}"
-                               href="{{ route('reports.' . $page->user->modules->sortBy('order')->first()->slug) }}"
-                            >
-                                Cash Reports
-                            </a>
+                                    $href = $parentModule->children->isNotEmpty()
+                                    ? str_contains($parentModule->children->first()->route, 'cash-pool') ? 'cash-pool.' . $parentModule->children->first()->slug : 'reports.' . $parentModule->children->first()->slug
+                                    : route('reports.' . $parentModule->slug);
+                                }
+                            @endphp
+                            <a class="nav-link nav-active" href="{{ route($href) }}">{{ $parentModule->name }}</a>
                         @endif
+
+
+{{--                        @if(request()->is('reports*') && $page->user->modules->isNotEmpty())--}}
+{{--                            <a class="nav-link {{ request()->is('reports*') ? 'nav-active' : '' }}"--}}
+{{--                               href="{{ route('reports.' . $page->user->modules->first()->slug) }}"--}}
+{{--                            >--}}
+{{--                                Cash Reports--}}
+{{--                            </a>--}}
+{{--                        @endif--}}
                     </div>
 
 

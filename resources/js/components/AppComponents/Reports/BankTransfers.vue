@@ -134,7 +134,10 @@
                                 </div>
                             </td>
                             <td>{{ obj.reference_number }}</td>
-                            <td>{{ formatDate(obj.date_create) }}</td>
+                            <td>
+                                <div class="font-bold text-black">{{ obj.created_by_text }}</div>
+                                {{ formatDate(obj.date_create) }}
+                            </td>
                             <td>
                                 <button
                                     v-for="pid in obj.purchase_invoice_ids"
@@ -364,7 +367,7 @@ export default {
                     item.transfer_amount, item.from_bank_name, item.from_account_number,
                     item.from_company_name, item.from_iban, item.project_id,
                     item.project_name, item.status_text, item.to_account_name,
-                    item.to_account_number, item.to_bank_name, item.to_company_name, item.sage_bank_transfer
+                    item.to_account_number, item.to_bank_name, item.to_company_name, item.sage_bank_transfer, item.created_by_text,
                 ].some(field => field?.toLowerCase().includes(searchTerm));
                 // Filter by status
                 const matchesStatus = this.filters.transfer_status ? item.transfer_status_id === this.filters.transfer_status : true;
