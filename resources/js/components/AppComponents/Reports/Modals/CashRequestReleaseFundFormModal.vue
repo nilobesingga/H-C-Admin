@@ -212,14 +212,18 @@ export default {
             this.bitrix_obj.PROPERTY_954 = this.form.cash_release_location_id;
             // Payment Mode
             this.bitrix_obj.PROPERTY_1088 = this.form.payment_mode_id;
-            // // Amount (including VAT)
+            // Amount (including VAT)
             this.bitrix_obj.PROPERTY_939 = amountCurrency;
             // Amount Given
             this.bitrix_obj.PROPERTY_944 = this.form.amount_released;
             // Status
             this.bitrix_obj.PROPERTY_943 = this.form.status_id;
-            //  Modified By
+            // Modified By
             this.bitrix_obj.MODIFIED_BY = this.sharedState.bitrix_user_id;
+            // Released By
+            this.bitrix_obj.PROPERTY_1071 = this.sharedState.bitrix_name;
+            // Release Date
+            this.bitrix_obj.PROPERTY_1073 = DateTime.now().toFormat('dd.MM.yyyy');
 
 
             const bitrixUserId = this.sharedState.bitrix_user_id ? this.sharedState.bitrix_user_id : null;
@@ -408,7 +412,8 @@ export default {
         if (this.obj){
             this.form = this.obj;
             this.form.cash_release_type = 1;
-            this.form.amount_released = this.obj.amount
+            this.form.amount_released = this.obj.amount;
+            this.form.awaiting_for_exchange_rate_id = 2269; // default value NO
             let response = await this.getCashRequestByIdBitrixFields(this.obj.id)
             if(response && response.length > 0){
                 this.bitrix_obj = response[0];

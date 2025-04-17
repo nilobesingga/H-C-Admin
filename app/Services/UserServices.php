@@ -29,7 +29,8 @@ class UserServices
                 'modules' => function ($query) {
                     $query->orderBy('order', 'asc');
                 },
-                'categories'
+                'categories',
+                'profile'
             ]);
         }
     }
