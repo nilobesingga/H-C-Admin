@@ -128,10 +128,14 @@ class AdminUserController extends Controller
         // Extract category IDs
         $categories = $user->categories->pluck('id');
 
+        $modulesData = Module::with(['children' => function ($q) {
+            $q->orderBy('order', 'ASC');
+        }])->select('id', 'parent_id', 'name', 'slug', 'route', 'order')->where('parent_id', 0)->get();
+
         try {
             $data = (Object)[
                 'obj' => $user,
-                'modules' => Module::with('children')->select('id', 'parent_id', 'name', 'slug', 'route')->where('parent_id', 0)->get(),
+                'modules' => $modulesData,
                 'categories' => Category::select('id', 'name')->get(),
                 'selected_modules' => $modules,
                 'selected_category_ids' => $categories

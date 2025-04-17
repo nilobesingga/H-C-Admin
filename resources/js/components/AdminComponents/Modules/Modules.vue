@@ -45,6 +45,7 @@
                         <th class="sticky top-0 w-[150px]">Parent</th>
                         <th class="sticky top-0 w-[100px] text-left">Slug</th>
                         <th class="sticky top-0 w-[250px]">Route</th>
+                        <th class="sticky top-0 w-[100px]">Icon</th>
 <!--                        <th class="sticky top-0 w-10">Action</th>-->
                     </tr>
                 </thead>
@@ -62,6 +63,7 @@
                             <td>{{ element.parent ? element.parent.name : null }}</td>
                             <td>{{ element.slug }}</td>
                             <td>{{ element.route }}</td>
+                            <td>{{ element.icon }}</td>
 <!--                            <td class="text-end">-->
 <!--                                <button-->
 <!--                                    @click="openModal('edit', obj.id)"-->
