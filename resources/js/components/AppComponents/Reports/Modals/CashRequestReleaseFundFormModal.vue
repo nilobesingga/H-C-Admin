@@ -373,7 +373,7 @@ export default {
                     'requestPaymentDate': DateTime.fromISO(this.form.payment_date).toFormat('dd LLL yyyy'),
                     'releaseDate': DateTime.now().toFormat('dd LLL yyyy'),
                     'requestedBy': this.form.requested_by_name,
-                    'releasedBy': this.form.accountant, //can be any employee not just accountant
+                    'releasedBy': this.sharedState.bitrix_name, //can be any employee not just accountant
                     'project': this.form.project_name,
                     'company': this.form.company_name,
                     'remarks': this.form.detail_text,
