@@ -248,20 +248,22 @@ export default {
 
             // Name
             this.bitrix_obj.NAME = name;
-            // Amount (including VAT)
-            this.bitrix_obj.PROPERTY_939 = amountCurrency;
-            // Amount Given
-            this.bitrix_obj.PROPERTY_944 = this.form.amount;
+            // Payment Mode
+            this.bitrix_obj.PROPERTY_1088 = this.form.payment_mode_id;
             // Cash Pool
             this.bitrix_obj.PROPERTY_1231 = this.form.cash_pool_id;
             // Cash Release Location
             this.bitrix_obj.PROPERTY_954 = this.form.cash_release_location_id;
-            //  Modified By
-            this.bitrix_obj.MODIFIED_BY = this.sharedState.bitrix_user_id;
-            //  Awaiting for exchange rate
-            this.bitrix_obj.PROPERTY_1249 = this.form.awaiting_for_exchange_rate_id;
+            // Amount (including VAT)
+            this.bitrix_obj.PROPERTY_939 = amountCurrency;
+            // Amount Given
+            this.bitrix_obj.PROPERTY_944 = this.form.amount;
             //  Budget Only
             this.bitrix_obj.PROPERTY_1160 = this.form.budget_only_id;
+            //  Awaiting for exchange rate
+            this.bitrix_obj.PROPERTY_1249 = this.form.awaiting_for_exchange_rate_id;
+            //  Modified By
+            this.bitrix_obj.MODIFIED_BY = this.sharedState.bitrix_user_id;
 
             const requestData = qs.stringify({
                 IBLOCK_TYPE_ID: 'bitrix_processes',
