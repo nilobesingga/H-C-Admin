@@ -69,6 +69,12 @@ Route::middleware(['auth'])->group(function(){
     Route::get('/sync/FSA/documents', [DocumentSyncController::class, 'syncFSADocuments'])->name('sync.FSA.documents');
     Route::get('/sync/FSA/documents/progress', [DocumentSyncController::class, 'getSyncFSADocumentsProgress'])->name('sync.FSA.documents.progress');
 
+    // Invoice Email Routes
+    Route::controller(App\Http\Controllers\InvoiceEmailController::class)->prefix('invoice-emails')->name('invoice-emails.')->group(function() {
+        Route::post('/send', 'sendInvoiceEmail')->name('send');
+        Route::post('/send-existing', 'sendExistingInvoiceEmail')->name('send-existing');
+    });
+
     //########################################### ADMIN ###############################################################
 
     Route::group(['middleware' => ['isAdmin'], 'prefix' => 'admin', 'as' => 'admin.'], function(){
