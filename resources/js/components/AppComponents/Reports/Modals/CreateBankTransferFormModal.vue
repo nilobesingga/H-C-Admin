@@ -305,12 +305,15 @@ export default {
                 'PROPERTY_875': this.form.transfer_from_account.ID,
                 'PROPERTY_876': this.form.transfer_to_account.ID,
                 'PROPERTY_872': this.form.amount + "|" + this.form.currency,
-                'PROPERTY_1275': this.form.bank_charge + "|" + this.form.bank_charge_currency,
+                // 'PROPERTY_1275': this.form.bank_charge + "|" + this.form.bank_charge_currency,
                 'PROPERTY_877': this.form.invoice_number,
                 'DETAIL_TEXT': this.form.detail_text,
                 'PROPERTY_887': 1532, //Transfer status
                 'PROPERTY_901': `${this.form.project.TYPE === '1' ? 'L_' : this.form.project.TYPE === '2' ? 'D_' : this.form.project.TYPE === '3' ? 'C' : ''}${this.form.project.ID}`,
                 'PROPERTY_1228': DateTime.now().toFormat('dd.MM.yyyy')
+            }
+            if (Number(this.form.bank_charge) > 0) {
+                fields['PROPERTY_1275'] = `${Number(this.form.bank_charge)}|${this.form.bank_charge_currency}`;
             }
 
             if(this.type === "purchaseInvoice"){

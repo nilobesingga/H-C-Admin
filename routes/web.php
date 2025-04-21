@@ -59,7 +59,6 @@ Route::middleware(['auth'])->group(function(){
             Route::get('/cash-pool-report', [ReportsController::class, 'redirectToReports'])->name('cash-pool-report');
             Route::get('/cash-pool-expense-planner', [ReportsController::class, 'getExpensePlanner'])->name('cash-pool-expense-planner');
         });
-
     });
 
     // Download Cash Release Receipt

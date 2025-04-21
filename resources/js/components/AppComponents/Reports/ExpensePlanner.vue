@@ -872,6 +872,7 @@ export default {
     created() {
         this.sharedState.bitrix_user_id = this.page_data.user.bitrix_user_id;
         this.sharedState.bitrix_webhook_token = this.page_data.user.bitrix_webhook_token;
+        this.sharedState.bitrix_name = this.page_data.user.profile.bitrix_name;
     },
     mounted() {
         this.getData();
