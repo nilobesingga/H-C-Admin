@@ -504,8 +504,8 @@ export default {
             const bitrixWebhookToken = this.page_data.user.bitrix_webhook_token ? this.page_data.user.bitrix_webhook_token : null;
             const endpoint = 'crm.company.reports_v2';
             const requestData = {
-                startDate: dateRange[0],
-                endDate: dateRange[1],
+                // startDate: dateRange[0],
+                // endDate: dateRange[1],
                 action: "getPurchaseInvoices",
                 categories: JSON.stringify(
                     this.filters.category_id === "" ?
@@ -779,7 +779,6 @@ export default {
             }
         },
         openModal(type, obj){
-            console.log("type", obj)
             this.selected_obj = obj;
             this.modal_type = type
             if(type === 'release_fund'){
@@ -823,8 +822,53 @@ export default {
             });
         },
         // Dynamically filter and group data by week
+        // weekHeaders() {
+        //     const today = DateTime.now().plus({ weeks: this.week_off_set * 1 });;
+        //     const currentWeekStart = today.startOf("week");
+        //
+        //     // Generate 5 week headers based on the current offset
+        //     const weeks = Array.from({ length: 5 }).map((_, i) => {
+        //         const startDate = currentWeekStart.plus({ weeks: i });
+        //         return {
+        //             week_number: startDate.weekNumber,
+        //             start_date: startDate.toFormat("dd MMM yyyy"),
+        //             end_date: startDate.endOf("week").toFormat("dd MMM yyyy"),
+        //             data: [], // Will be populated based on filters
+        //         };
+        //     });
+        //
+        //     // Filter and group data by week number
+        //     const filteredGroupedData = _.groupBy(this.filteredData, (item) => {
+        //         const weekDate = DateTime.fromISO(item.week_date).startOf("week");
+        //         return weekDate.weekNumber;
+        //     });
+        //
+        //     // Populate data in the relevant week headers
+        //     weeks.forEach((week) => {
+        //         if (filteredGroupedData[week.week_number]) {
+        //             // week.data = filteredGroupedData[week.week_number];
+        //
+        //             // Sort data by due_date (purchase_invoice) or payment_date (cash_request)
+        //             week.data = filteredGroupedData[week.week_number].sort((a, b) => {
+        //                 const dateA = a.request_type === "purchase_invoice"
+        //                     ? (a.due_date ? DateTime.fromISO(a.due_date) : null)
+        //                     : (a.payment_date ? DateTime.fromISO(a.payment_date) : null);
+        //
+        //                 const dateB = b.request_type === "purchase_invoice"
+        //                     ? (b.due_date ? DateTime.fromISO(b.due_date) : null)
+        //                     : (b.payment_date ? DateTime.fromISO(b.payment_date) : null);
+        //
+        //                 if (!dateA) return 1; // Move null/undefined dates to the end
+        //                 if (!dateB) return -1;
+        //                 return dateA - dateB; // Ascending order
+        //             });
+        //         }
+        //     });
+        //
+        //     return weeks;
+        // },
         weekHeaders() {
-            const today = DateTime.now().plus({ weeks: this.week_off_set * 1 });;
+            const today = DateTime.now().plus({ weeks: this.week_off_set * 1 });
             const currentWeekStart = today.startOf("week");
 
             // Generate 5 week headers based on the current offset
@@ -834,36 +878,43 @@ export default {
                     week_number: startDate.weekNumber,
                     start_date: startDate.toFormat("dd MMM yyyy"),
                     end_date: startDate.endOf("week").toFormat("dd MMM yyyy"),
-                    data: [], // Will be populated based on filters
+                    data: [],
                 };
             });
 
-            // Filter and group data by week number
-            const filteredGroupedData = _.groupBy(this.filteredData, (item) => {
-                const weekDate = DateTime.fromISO(item.week_date).startOf("week");
-                return weekDate.weekNumber;
+            // Assign filtered data to the appropriate week
+            this.filteredData.forEach(item => {
+                const itemDate = DateTime.fromISO(item.week_date);
+                for (let i = 0; i < weeks.length; i++) {
+                    const weekStart = DateTime.fromFormat(weeks[i].start_date, "dd MMM yyyy");
+                    const weekEnd = DateTime.fromFormat(weeks[i].end_date, "dd MMM yyyy");
+                    if (i === 0 && itemDate <= weekEnd) {
+                        // Assign to first week if before or during the first week
+                        weeks[0].data.push(item);
+                        break;
+                    } else if (itemDate >= weekStart && itemDate <= weekEnd) {
+                        // Assign to the corresponding week
+                        weeks[i].data.push(item);
+                        break;
+                    }
+                }
             });
 
-            // Populate data in the relevant week headers
-            weeks.forEach((week) => {
-                if (filteredGroupedData[week.week_number]) {
-                    // week.data = filteredGroupedData[week.week_number];
+            // Sort data within each week by due_date or payment_date
+            weeks.forEach(week => {
+                week.data.sort((a, b) => {
+                    const dateA = a.request_type === "purchase_invoice"
+                        ? (a.due_date ? DateTime.fromISO(a.due_date) : null)
+                        : (a.payment_date ? DateTime.fromISO(a.payment_date) : null);
 
-                    // Sort data by due_date (purchase_invoice) or payment_date (cash_request)
-                    week.data = filteredGroupedData[week.week_number].sort((a, b) => {
-                        const dateA = a.request_type === "purchase_invoice"
-                            ? (a.due_date ? DateTime.fromISO(a.due_date) : null)
-                            : (a.payment_date ? DateTime.fromISO(a.payment_date) : null);
+                    const dateB = b.request_type === "purchase_invoice"
+                        ? (b.due_date ? DateTime.fromISO(b.due_date) : null)
+                        : (b.payment_date ? DateTime.fromISO(b.payment_date) : null);
 
-                        const dateB = b.request_type === "purchase_invoice"
-                            ? (b.due_date ? DateTime.fromISO(b.due_date) : null)
-                            : (b.payment_date ? DateTime.fromISO(b.payment_date) : null);
-
-                        if (!dateA) return 1; // Move null/undefined dates to the end
-                        if (!dateB) return -1;
-                        return dateA - dateB; // Ascending order
-                    });
-                }
+                    if (!dateA) return 1; // Move null/undefined dates to the end
+                    if (!dateB) return -1;
+                    return dateA - dateB; // Ascending order
+                });
             });
 
             return weeks;
