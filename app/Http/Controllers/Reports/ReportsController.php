@@ -118,6 +118,41 @@ class ReportsController extends Controller
         ];
         return view('reports.cash_requests', compact('page'));
     }
+    public function getCashReceived()
+    {
+        $bitrixListCategories = BitrixListsSageCompanyMapping::select('category_id', 'bitrix_list_id', 'bitrix_category_id', 'bitrix_category_name')
+            ->where('bitrix_list_id', 8)
+            ->whereNotNull('bitrix_category_id')
+            ->whereIn('category_id', $this->userCategoryIds)
+            ->distinct()
+            ->get();
+
+        $bitrixListSageCompanies = BitrixListsSageCompanyMapping::select('category_id', 'bitrix_list_id', 'sage_company_code', 'bitrix_sage_company_id', 'bitrix_sage_company_name')
+            ->where('bitrix_list_id', 8)
+            ->whereNotNull('sage_company_code')
+            ->whereIn('category_id', $this->userCategoryIds)
+            ->distinct()
+            ->get();
+
+        $modulePermission = UserModulePermission::where([
+            'user_id' => Auth::id(),
+            'module_id' => $this->userService->getModuleBySlug('cash-received')->id
+        ])->value('permission');
+
+        $bitrixList = BitrixList::select('id', 'name', 'bitrix_iblock_type', 'bitrix_iblock_id')
+            ->whereId(8)->first();
+
+        $page = (object)[
+            'title' => 'Cash Received',
+            'identifier' => 'reports_cash_received',
+            'bitrix_list' => $bitrixList,
+            'permission' => $modulePermission,
+            'user' => $this->user,
+            'bitrix_list_sage_companies' => $bitrixListSageCompanies,
+            'bitrix_list_categories' => $bitrixListCategories,
+        ];
+        return view('reports.cash_received', compact('page'));
+    }
     public function getBankTransfers()
     {
         $bitrixListCategories = BitrixListsSageCompanyMapping::select('category_id', 'bitrix_list_id', 'bitrix_category_id', 'bitrix_category_name')

@@ -154,7 +154,20 @@
                             </div>
                         </div>
                         <div v-if="form.action === '2'">
-
+                            <!-- Reason -->
+                            <div class="mt-4 w-full gap-2.5">
+                                <label class="flex items-center gap-1 mb-1 text-sm form-label" for="reason">Reason
+                                    <span class="text-danger">* <span class="form-text-error" v-if="v$.form.reason.$error">Please fill out this field</span></span>
+                                </label>
+                                <input
+                                    class="text-black input bg-inherit"
+                                    :class="v$.form.reason.$error ? '!border-red-500' : ''"
+                                    placeholder="Reason for Cancel"
+                                    id="reason"
+                                    type="text"
+                                    v-model="form.reason"
+                                >
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -198,7 +211,7 @@ export default {
     data(){
         return {
             form: {
-                action: null,
+                action: '1',
                 new_amount: null,
                 payment_mode_id: null,
                 cash_pool_id: '',
@@ -219,18 +232,28 @@ export default {
         return { v$ };
     },
     validations () {
-        return {
-            form: {
-                action: { required },
-                new_amount: { required, minValue: minValue(1) },
-                payment_mode_id: { required },
-                cash_release_location_id: { required },
-                currency: { required },
-                awaiting_for_exchange_rate_id: { required },
-                reason: { required },
-                ...(this.form.payment_mode_id === '1867' && {
-                    cash_pool_id: { required },
-                }),
+        if (this.form.action === '1'){
+            return {
+                form: {
+                    action: { required },
+                    new_amount: { required, minValue: minValue(1) },
+                    payment_mode_id: { required },
+                    cash_release_location_id: { required },
+                    currency: { required },
+                    awaiting_for_exchange_rate_id: { required },
+                    reason: { required },
+                    ...(this.form.payment_mode_id === '1867' && {
+                        cash_pool_id: { required },
+                    }),
+                }
+            }
+        }
+        if (this.form.action === '2'){
+            return {
+                form: {
+                    action: { required },
+                    reason: { required },
+                }
             }
         }
     },
@@ -243,27 +266,39 @@ export default {
             let amountCurrency = null;
             let name = null;
 
-            amountCurrency = _.round(this.form.new_amount, 2) + "|" + this.form.currency;
-            name = 'Cash Request - ' + amountCurrency;
+            if(this.form.action === '1'){
+                amountCurrency = _.round(this.form.new_amount, 2) + "|" + this.form.currency;
+                name = 'Cash Request - ' + amountCurrency;
 
-            // Name
-            this.bitrix_obj.NAME = name;
-            // Payment Mode
-            this.bitrix_obj.PROPERTY_1088 = this.form.payment_mode_id;
-            // Cash Pool
-            this.bitrix_obj.PROPERTY_1231 = this.form.cash_pool_id;
-            // Cash Release Location
-            this.bitrix_obj.PROPERTY_954 = this.form.cash_release_location_id;
-            // Amount (including VAT)
-            this.bitrix_obj.PROPERTY_939 = amountCurrency;
-            // Amount Given
-            this.bitrix_obj.PROPERTY_944 = this.form.amount;
-            //  Budget Only
-            this.bitrix_obj.PROPERTY_1160 = this.form.budget_only_id;
-            //  Awaiting for exchange rate
-            this.bitrix_obj.PROPERTY_1249 = this.form.awaiting_for_exchange_rate_id;
-            //  Modified By
-            this.bitrix_obj.MODIFIED_BY = this.sharedState.bitrix_user_id;
+                // Name
+                this.bitrix_obj.NAME = name;
+                // Payment Mode
+                this.bitrix_obj.PROPERTY_1088 = this.form.payment_mode_id;
+                // Cash Pool
+                this.bitrix_obj.PROPERTY_1231 = this.form.cash_pool_id;
+                // Cash Release Location
+                this.bitrix_obj.PROPERTY_954 = this.form.cash_release_location_id;
+                // Amount (including VAT)
+                this.bitrix_obj.PROPERTY_939 = amountCurrency;
+                // Amount Given
+                this.bitrix_obj.PROPERTY_944 = this.form.amount;
+                //  Budget Only
+                this.bitrix_obj.PROPERTY_1160 = this.form.budget_only_id;
+                //  Awaiting for exchange rate
+                this.bitrix_obj.PROPERTY_1249 = this.form.awaiting_for_exchange_rate_id;
+                //  Modified By
+                this.bitrix_obj.MODIFIED_BY = this.sharedState.bitrix_user_id;
+                //  Reason
+                this.bitrix_obj.PROPERTY_1276 = this.form.reason;
+            }
+            if(this.form.action === '2'){
+                //  Status
+                this.bitrix_obj.PROPERTY_943 = 1659 // Cancelled;
+                //  Modified By
+                this.bitrix_obj.MODIFIED_BY = this.sharedState.bitrix_user_id;
+                //  Reason
+                this.bitrix_obj.PROPERTY_1276 = this.form.reason;
+            }
 
             const requestData = qs.stringify({
                 IBLOCK_TYPE_ID: 'bitrix_processes',
@@ -317,7 +352,6 @@ export default {
     async mounted() {
         if (this.obj){
             this.form = this.obj;
-            console.log(this.obj,"this.obj");
             this.form.action = '1';
             this.form.new_amount = 0;
             this.form.awaiting_for_exchange_rate_id = "2269";
