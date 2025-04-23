@@ -2,7 +2,10 @@
 
 use Carbon\Carbon;
 
-
+function getCurrentDateAndTime()
+{
+    return Carbon::now()->format('Y-m-d H:i:s');
+}
 
 function getDateOFLast60Days()
 {
