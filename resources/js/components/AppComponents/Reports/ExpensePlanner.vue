@@ -1,7 +1,7 @@
 <template>
     <div class="px-3 container-fluid">
-        <!-- Left Hover Area -->
-        <div class="transition-all duration-500 hover-area hover-area-left group">
+        <!-- Left Hover Area (Previous Button) -->
+        <div class="transition-all duration-500 hover-area hover-area-left group" v-if="week_off_set != 0">
             <button
                 class="prev-week-btn group-hover:w-16 group-hover:h-16 group-hover:bg-black"
                 @click="navigateWeeks(-1)"
@@ -9,7 +9,8 @@
                 <i class="text-black ki-solid ki-to-left group-hover:text-white"></i>
             </button>
         </div>
-        <!-- Right Hover Area -->
+
+        <!-- Right Hover Area (Next Button) -->
         <div class="transition-all duration-500 hover-area hover-area-right group">
             <button
                 class="next-week-btn group-hover:w-16 group-hover:h-16 group-hover:right-0 group-hover:bg-black"
@@ -39,21 +40,9 @@
                     </select>
                 </div>
                 <div class="flex">
-                    <select class="w-40 select select-sm select-input" v-model="filters.currency">
+                    <select v-model="filters.currency" class="w-40 select select-sm select-input">
                         <option value="" selected>Filter by Currency</option>
-                        <option value="USD">USD</option>
-                        <option value="AED">AED</option>
-                        <option value="AUD">AUD</option>
-                        <option value="CNY">CNY</option>
-                        <option value="GBP">GBP</option>
-                        <option value="EUR">EUR</option>
-                        <option value="CHF">CHF</option>
-                        <option value="PHP">PHP</option>
-                        <option value="INR">INR</option>
-                        <option value="SCR">SCR</option>
-                        <option value="CRC">CRC</option>
-                        <option value="BRL">BRL</option>
-                        <option value="RUB">RUB</option>
+                        <option v-for="(cur, k) in currencies"  :value="cur.CURRENCY" :key="k">{{ cur.FULL_NAME }}</option>
                     </select>
                 </div>
                 <div class="flex">
@@ -335,6 +324,7 @@ export default {
             payment_modes: [],
             cash_pools: [],
             cash_release_locations: [],
+            currencies: [],
             week_off_set: 0,
             selected_obj: null,
             modal_type: null,
@@ -348,6 +338,7 @@ export default {
                 this.loading = true;
                 this.data = [];
 
+                await this.getCurrencyList();
                 // Fetch payment modes
                 await this.fetchPaymentModesFromBitrix();
                 await this.fetchCashPoolsFromBitrix();
@@ -456,6 +447,17 @@ export default {
                 }
             } catch (error) {
                 console.error(`Error fetching filter data for cash release locations list:`, error);
+            }
+        },
+        async getCurrencyList(){
+            try {
+                const response = await this.callBitrixAPI('crm.currency.list', this.sharedState.bitrix_user_id, this.sharedState.bitrix_webhook_token, {});
+                if(response.result) {
+                    this.currencies =  response.result;
+                }
+            } catch (error) {
+                console.error(error)
+                this.errorToast('Something went wrong. Please contact IT')
             }
         },
         async getCashRequestsData(){
@@ -821,57 +823,10 @@ export default {
                 return matchesSearch && matchesType && matchesCurrency && matchesAwaitingForExchangeRate;
             });
         },
-        // Dynamically filter and group data by week
-        // weekHeaders() {
-        //     const today = DateTime.now().plus({ weeks: this.week_off_set * 1 });;
-        //     const currentWeekStart = today.startOf("week");
-        //
-        //     // Generate 5 week headers based on the current offset
-        //     const weeks = Array.from({ length: 5 }).map((_, i) => {
-        //         const startDate = currentWeekStart.plus({ weeks: i });
-        //         return {
-        //             week_number: startDate.weekNumber,
-        //             start_date: startDate.toFormat("dd MMM yyyy"),
-        //             end_date: startDate.endOf("week").toFormat("dd MMM yyyy"),
-        //             data: [], // Will be populated based on filters
-        //         };
-        //     });
-        //
-        //     // Filter and group data by week number
-        //     const filteredGroupedData = _.groupBy(this.filteredData, (item) => {
-        //         const weekDate = DateTime.fromISO(item.week_date).startOf("week");
-        //         return weekDate.weekNumber;
-        //     });
-        //
-        //     // Populate data in the relevant week headers
-        //     weeks.forEach((week) => {
-        //         if (filteredGroupedData[week.week_number]) {
-        //             // week.data = filteredGroupedData[week.week_number];
-        //
-        //             // Sort data by due_date (purchase_invoice) or payment_date (cash_request)
-        //             week.data = filteredGroupedData[week.week_number].sort((a, b) => {
-        //                 const dateA = a.request_type === "purchase_invoice"
-        //                     ? (a.due_date ? DateTime.fromISO(a.due_date) : null)
-        //                     : (a.payment_date ? DateTime.fromISO(a.payment_date) : null);
-        //
-        //                 const dateB = b.request_type === "purchase_invoice"
-        //                     ? (b.due_date ? DateTime.fromISO(b.due_date) : null)
-        //                     : (b.payment_date ? DateTime.fromISO(b.payment_date) : null);
-        //
-        //                 if (!dateA) return 1; // Move null/undefined dates to the end
-        //                 if (!dateB) return -1;
-        //                 return dateA - dateB; // Ascending order
-        //             });
-        //         }
-        //     });
-        //
-        //     return weeks;
-        // },
         weekHeaders() {
             const today = DateTime.now().plus({ weeks: this.week_off_set * 1 });
             const currentWeekStart = today.startOf("week");
 
-            // Generate 5 week headers based on the current offset
             const weeks = Array.from({ length: 5 }).map((_, i) => {
                 const startDate = currentWeekStart.plus({ weeks: i });
                 return {
@@ -882,25 +837,21 @@ export default {
                 };
             });
 
-            // Assign filtered data to the appropriate week
             this.filteredData.forEach(item => {
                 const itemDate = DateTime.fromISO(item.week_date);
                 for (let i = 0; i < weeks.length; i++) {
                     const weekStart = DateTime.fromFormat(weeks[i].start_date, "dd MMM yyyy");
                     const weekEnd = DateTime.fromFormat(weeks[i].end_date, "dd MMM yyyy");
-                    if (i === 0 && itemDate <= weekEnd) {
-                        // Assign to first week if before or during the first week
-                        weeks[0].data.push(item);
+                    if (this.week_off_set <= 0 && i === 0 && itemDate <= weekEnd) {
+                        weeks[0].data.push(item); // Include all past data when current or past week
                         break;
                     } else if (itemDate >= weekStart && itemDate <= weekEnd) {
-                        // Assign to the corresponding week
-                        weeks[i].data.push(item);
+                        weeks[i].data.push(item); // Include only week's data for future weeks
                         break;
                     }
                 }
             });
 
-            // Sort data within each week by due_date or payment_date
             weeks.forEach(week => {
                 week.data.sort((a, b) => {
                     const dateA = a.request_type === "purchase_invoice"
@@ -911,9 +862,9 @@ export default {
                         ? (b.due_date ? DateTime.fromISO(b.due_date) : null)
                         : (b.payment_date ? DateTime.fromISO(b.payment_date) : null);
 
-                    if (!dateA) return 1; // Move null/undefined dates to the end
+                    if (!dateA) return 1;
                     if (!dateB) return -1;
-                    return dateA - dateB; // Ascending order
+                    return dateA - dateB;
                 });
             });
 
