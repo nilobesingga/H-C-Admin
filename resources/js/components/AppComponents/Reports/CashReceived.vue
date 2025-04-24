@@ -58,16 +58,6 @@
                         />
                     </div>
                 </div>
-                <!-- Warning Filter -->
-<!--                <div class="flex flex-shrink-0">-->
-<!--                    <button-->
-<!--                        :class="['btn btn-icon btn-sm relative px-3 h-10 !w-10 !rounded-none transition-all duration-300 hover:border-black', filters.is_warning ? 'bg-yellow-100 text-black border-black' : 'btn-light text-black']"-->
-<!--                        @click="filters.is_warning = !filters.is_warning"-->
-<!--                    >-->
-<!--                        <i class="ki-outline ki-information-1"></i>-->
-<!--                        <span class="absolute flex items-center justify-center text-xs font-bold text-white translate-x-1/2 -translate-y-1/2 bg-yellow-500 rounded-full shadow-md top-1 right-1 shadow-yellow-300 min-h-5 min-w-5">{{ warningCount }}</span>-->
-<!--                    </button>-->
-<!--                </div>-->
             </div>
             <!-- table -->
             <div class="relative flex-grow h-full overflow-auto border shadow-md reports-table-container border-brand">
@@ -277,24 +267,11 @@
             </div>
         </div>
     </div>
-<!--    &lt;!&ndash; show bank transfer detail modal &ndash;&gt;-->
-<!--    <view-bank-transfer-details-modal-->
-<!--        :obj_id="selected_obj.bitrix_bank_transfer_id"-->
-<!--        v-if="is_view_bank_transfer_details_modal"-->
-<!--        @closeModal="closeModal"-->
-<!--    />-->
-<!--    &lt;!&ndash; create transfer form modal &ndash;&gt;-->
-<!--    <create-bank-transfer-form-modal-->
-<!--        :obj="selected_obj"-->
-<!--        :bitrix_bank_transfer_company_ids="page_data.bitrix_bank_transfer_company_ids"-->
-<!--        v-if="is_create_bank_transfer_form_modal"-->
-<!--        type="cashRequest"-->
-<!--        @closeModal="closeModal"-->
-<!--    />-->
 </template>
 <script>
 import {DateTime} from "luxon";
 import _ from "lodash";
+import imageInput from "../../../../assets/theme/core/plugins/components/image-input.js";
 
 export default {
     name: "cash-received",
@@ -308,9 +285,8 @@ export default {
                 category_id: "",
                 sage_company_id: "",
                 status: "",
-                payment_mode: "",
-                charge_to_client: "",
-                charge_to_account: "",
+                pay_to_running_account: "",
+                transaction_type: "",
                 search: "",
                 is_warning: false,
             },
@@ -322,16 +298,19 @@ export default {
                     values: {}
                 },
                 {
-                    key: "charge_to_account",
-                    name: "Charge to Account",
+                    key: "pay_to_running_account",
+                    name: "Charge to Client",
                     field_id: "PROPERTY_1248",
+                    values: {}
+                },
+                {
+                    key: "transaction_type",
+                    name: "Transaction Type",
+                    field_id: "PROPERTY_1103",
                     values: {}
                 },
             ],
             totalAsPerReportingCurrency: 0,
-            selected_obj: null,
-            is_view_bank_transfer_details_modal: false,
-            is_create_bank_transfer_form_modal: false,
         }
     },
     methods: {
@@ -379,34 +358,6 @@ export default {
             try {
                 const response = await this.callBitrixAPI(endpoint, bitrixUserId, bitrixWebhookToken, requestData);
                 this.data = response.result;
-                // this.data.forEach((item) => {
-                //     item.doc_for_bank_list = [];
-                //     item.other_document_list = [];
-                //     item.cash_release_receipt_doc_list = [];
-                //     item.receipt_list = [];
-                //
-                //     if (item.doc_for_bank){
-                //         item.doc_for_bank_list = item.doc_for_bank.split(",");
-                //     }
-                //     if (item.other_documents){
-                //         item.other_document_list = item.other_documents.split(",");
-                //     }
-                //     if (item.cash_release_receipt_docs){
-                //         item.cash_release_receipt_doc_list = item.cash_release_receipt_docs.split(",");
-                //     }
-                //     if (item.receipt_id){
-                //         item.receipt_list = item.receipt_id.split(",");
-                //     }
-                //
-                //     if(item.supplier_id || item.supplier_crm_type || item.supplier_name) {
-                //         console.log('supplier_id', item.supplier_id)
-                //         console.log('supplier_crm_type', item.supplier_crm_type)
-                //         console.log('supplier_name', item.supplier_name)
-                //     }
-                //     if (item.linked_contact_id){
-                //         console.log('linked_contact_id', item.linked_contact_id)
-                //     }
-                // })
                 await this.calculateTotalAsPerReportingCurrency();
             } catch (error) {
                 if (error.status === 500){
@@ -417,93 +368,6 @@ export default {
         async calculateTotalAsPerReportingCurrency(){
                 this.totalAsPerReportingCurrency = await this.calculateTotalInBaseCurrency(this.groupedByCurrency)
             },
-        isOverTwoWorkingDays(fundAvailableDate) {
-            const now = DateTime.now();
-            const dateCreated = DateTime.fromSQL(fundAvailableDate);
-
-            const workingDays = this.calculateWorkingDays(dateCreated, now);
-
-            return workingDays > 2;
-        },
-        calculateWorkingDays(startDate, endDate) {
-            let count = 0;
-            let currentDate = startDate;
-
-            // Loop over the dates and count only Monday to Friday (working days)
-            while (currentDate <= endDate) {
-                const dayOfWeek = currentDate.weekday;
-                // Only count weekdays (Monday: 1, Friday: 5)
-                if (dayOfWeek >= 1 && dayOfWeek <= 5) {
-                    count++;
-                }
-                // Move to the next day
-                currentDate = currentDate.plus({ days: 1 });
-            }
-
-            return count;
-        },
-        isWarning(item) {
-            return (item.status_text === "Approved" && this.isOverTwoWorkingDays(item.funds_available_date));
-        },
-        showBankTransferDetails(){},
-        showCreateNewBankTransferModal(){},
-        createOffer(){},
-        openModal(type, obj){
-            this.selected_obj = obj;
-            if(type === 'view_bank_transfer'){
-                this.is_view_bank_transfer_details_modal = true
-            }
-            if(type === 'create_bank_transfer'){
-                this.is_create_bank_transfer_form_modal = true
-            }
-        },
-        closeModal(isForm = false){
-            this.is_view_bank_transfer_details_modal = false;
-            this.is_create_bank_transfer_form_modal = false;
-            this.selected_obj = null
-            this.removeModalBackdrop();
-            if (isForm){
-                this.getPageData()
-            }
-        },
-        downloadCashReleaseReceipt(item){
-            var fileName = `${item.amount_given} | ${item.currency} - ${item.requested_by_name} - Cash Request Receipt.pdf`;
-
-            axios({
-                url: `/cash-request/download-released-receipt`,
-                method: 'POST',
-                responseType: 'arraybuffer',
-                data: {
-                    'requestId': item.id,
-                    'requestCreateDate': DateTime.fromSQL(item.date_create).toFormat('dd LLL yyyy'),
-                    'requestPaymentDate': DateTime.fromISO(item.payment_date).toFormat('dd LLL yyyy'),
-                    'releaseDate': DateTime.fromISO(item.released_date).toFormat('dd LLL yyyy'),
-                    'requestedBy': item.requested_by_name,
-                    'releasedBy': item.released_by, //can be any employee not just accountant
-                    'project': item.project_name,
-                    'company': item.company_name,
-                    'remarks': item.detail_text,
-                    'amountReceived': item.amount_given,
-                    'currency': item.currency,
-                    'cashReleaseType': item.status_id == 1687 ? 2 : 1, // Partial cash released
-                    'balance': item.amount
-                },
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/pdf'
-                },
-            }).then(response => {
-                const url = window.URL.createObjectURL(new Blob([response.data]));
-                const link = document.createElement('a');
-                link.href = url;
-                link.setAttribute('download', fileName);
-                document.body.appendChild(link);
-                link.click();
-                link.remove();
-            }).catch(error => {
-                this.errorToast(error.response.data.message)
-            })
-        },
     },
     computed:{
         filteredData() {
@@ -512,24 +376,21 @@ export default {
             return this.data.filter(item => {
                 // Filter by search input (case insensitive)
                 const matchesSearch = [
-                    item.id, item.amount, item.name, item.detail_text,
-                    item.project_id, item.sage_payment_reference_id, item.company_name,
-                    item.status_text, item.requested_by_name, item.cash_release_location,
-                    item.project_name,
+                    item.id, item.amount, item.name, item.remarks,
+                    item.cash_received_location, item.category, item.cheque_number,
+                    item.created_by_text, item.customer, item.cash_release_location,
+                    item.pay_to_running_account, item.payment_source, item.sage_company,
+                    item.sage_reference, item.status
                 ].some(field => field?.toLowerCase().includes(searchTerm));
                 // Filter by status
                 const matchesStatus = this.filters.status ? item.status_id === this.filters.status : true;
-                // Filter by warning
-                const matchesWarning = this.filters.is_warning ? this.isWarning(item, today) : true;
-                // Filter by payment mode
-                const matchesPaymentMode = this.filters.payment_mode ? item.payment_mode_id === this.filters.payment_mode : true
-                // Filter by charge to client
-                const matchesChargeToClient = this.filters.charge_to_client ? item.charge_extra_to_client_id === this.filters.charge_to_client : true
-                // Filter by chargeToAccount
-                const matchesChargeToAccount = this.filters.charge_to_account ? item.charge_to_running_account_id === this.filters.charge_to_account : true;
+                // Filter by pay to running account
+                const matchesPayToRunningAccount = this.filters.pay_to_running_account ? item.pay_to_running_account_id === this.filters.pay_to_running_account : true;
+                // Filter by transaction_type
+                const matchesTransactionType = this.filters.transaction_type ? item.transaction_type_id === this.filters.transaction_type : true;
 
                 // Return true only if all filters match
-                return matchesSearch && matchesStatus && matchesWarning && matchesPaymentMode && matchesChargeToClient  && matchesChargeToAccount;
+                return matchesSearch && matchesStatus && matchesPayToRunningAccount && matchesTransactionType;
             });
         },
         groupedByCurrency() {
@@ -540,11 +401,6 @@ export default {
 
             return summedByCurrency;
         },
-        warningCount() {
-            return this.filteredData.filter(item => {
-                return item.status_text === "Approved" && this.isOverTwoWorkingDays(item.funds_available_date)
-            }).length;
-        }
     },
     watch: {
         groupedByCurrency(){
@@ -555,31 +411,6 @@ export default {
         },
     },
     created() {
-        let startDate = null;
-        let endDate = null;
-        const urlParams = new URLSearchParams(window.location.search);
-        if(urlParams.get("search")){
-            this.filters.search = urlParams.get("search");
-        }
-
-        if (urlParams.get('date')) {
-            const parsedDate = DateTime.fromFormat(urlParams.get('date'), 'dd.MM.yyyy');
-            if (parsedDate.isValid) {
-                let newDateRange = [
-                    parsedDate.startOf('month').toISODate(),
-                    DateTime.now().toISODate()
-                ];
-                // Set dateRange on the child component via ref
-                this.$nextTick(() => {
-                    this.$refs.filters?.setDateRangeExternally?.(newDateRange);
-                });
-                startDate = parsedDate.toFormat('yyyy-MM-dd');
-                endDate = parsedDate.toFormat('yyyy-MM-dd');
-
-                // Call getPageData with formatted date
-                this.getPageData(startDate, endDate);
-            }
-        }
         this.sharedState.bitrix_user_id = this.page_data.user.bitrix_user_id;
         this.sharedState.bitrix_webhook_token = this.page_data.user.bitrix_webhook_token;
     }
