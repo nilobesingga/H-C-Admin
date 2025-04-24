@@ -21,6 +21,13 @@
                 <!-- Modal Content -->
                 <div v-else>
                     <form @submit.prevent="submit">
+                        <!-- Warning Alert -->
+                        <div v-if="bitrix_obj.PROPERTY_1240 || bitrix_obj.PROPERTY_1237" class="flex items-center gap-2 p-3 mb-4 text-sm text-red-800 bg-red-100 border border-red-300 rounded-lg">
+                            <svg class="w-5 h-5 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span>A Sage entry has been identified for this transaction. Please coordinate with the accounting team to ensure it is updated in Sage.</span>
+                        </div>
                         <div class="flex mt-4 mb-2 text-2xl font-bold tracking-tight text-black">{{ formatAmount(obj.amount) }} {{ obj.currency }}</div>
                         <div class="flex gap-1">
                             <span>Requested By: </span>
