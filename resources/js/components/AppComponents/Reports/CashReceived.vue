@@ -76,31 +76,31 @@
                         <tr class="font-medium text-center bg-black text-neutral-900">
                             <th class="sticky top-0 w-10">#</th>
                             <th class="sticky top-0 w-[60px]">Id</th>
-                            <th class="sticky top-0 w-[60px]" data-tooltip="#Payment_Source">
+                            <th class="sticky top-0 w-[60px]" data-tooltip="#Payment_Source_tooltip">
                                 Source <i class="ki-outline ki-information-2"></i>
-                                <div class="transition-opacity duration-300 tooltip" id="Payment_Source">Payment Source</div>
+                                <div class="transition-opacity duration-300 tooltip" id="Payment_Source_tooltip">Payment Source</div>
                             </th>
                             <th class="sticky top-0 w-[100px] text-right">Amount</th>
                             <th class="sticky top-0 w-[80px]">Date Received</th>
-                            <th class="sticky top-0 w-[80px]" data-tooltip="#Transaction_Type">
+                            <th class="sticky top-0 w-[80px]" data-tooltip="#Transaction_Type_tooltip">
                                 Type <i class="ki-outline ki-information-2"></i>
-                                <div class="transition-opacity duration-300 tooltip" id="Transaction_Type">Transaction Type</div>
+                                <div class="transition-opacity duration-300 tooltip" id="Transaction_Type_tooltip">Transaction Type</div>
                             </th>
-                            <th class="sticky top-0 w-[80px]" data-tooltip="#Receipt_Number">
+                            <th class="sticky top-0 w-[80px]" data-tooltip="#Receipt_Number_tooltip">
                                 Receipt <i class="ki-outline ki-information-2"></i>
-                                <div class="transition-opacity duration-300 tooltip" id="Receipt_Number">Receipt Number (Auto)</div>
+                                <div class="transition-opacity duration-300 tooltip" id="Receipt_Number_tooltip">Receipt Number (Auto)</div>
                             </th>
                             <th class="sticky top-0 w-[80px]">Cash Pool</th>
-                            <th class="sticky top-0 w-[70px]" data-tooltip="#Cash_Received_Location">
+                            <th class="sticky top-0 w-[70px]" data-tooltip="#Cash_Received_Location_tooltip">
                                 Cash <i class="ki-outline ki-information-2"></i>
-                                <div class="transition-opacity duration-300 tooltip" id="Cash_Received_Location">Cash Received Location</div>
+                                <div class="transition-opacity duration-300 tooltip" id="Cash_Received_Location_tooltip">Cash Received Location</div>
                             </th>
-                            <th class="sticky top-0 w-[180px] text-left">Project</th>
-                            <th class="sticky top-0 w-[70px]" data-tooltip="#charge_to_client_tooltip">
+                            <th class="sticky top-0 w-[180px] text-left">Lead / Deal</th>
+                            <th class="sticky top-0 w-[70px]" data-tooltip="#pay_to_running_account_tooltip">
                                 Charge <i class="ki-outline ki-information-2"></i>
-                                <div class="transition-opacity duration-300 tooltip" id="charge_to_client_tooltip">Charge to Client</div>
+                                <div class="transition-opacity duration-300 tooltip" id="pay_to_running_account_tooltip">Pay to Running Account</div>
                             </th>
-                            <th class="sticky top-0 w-[150px] text-left">Request By & Remarks <i class="ki-outline ki-exit-down"></i></th>
+                            <th class="sticky top-0 w-[150px] text-left">Remarks <i class="ki-outline ki-exit-down"></i></th>
                             <th class="sticky top-0 w-[80px]">Status</th>
 <!--                            <th class="sticky top-0 w-[130px]">Documents</th>-->
 <!--                            <th class="sticky top-0 w-[130px]">Actions</th>-->
@@ -118,15 +118,16 @@
                             <td>{{ obj.cash_pool }}</td>
                             <td>{{ obj.cash_received_location }}</td>
                             <td class="text-left">
-                                <span class="font-bold text-black" v-if="obj.project_type">{{ obj.project_type }}:</span>
-                                <a class="btn btn-link !text-xs !text-black hover:!text-brand-active" target="_blank" v-if="obj.project_type" :href="getBitrixProjectLink(obj)">{{ obj.project_name }}</a>
+                                <div v-for="project in obj.lead_and_deal">
+                                    <span class="font-bold text-black" v-if="project.project_type">{{ project.project_type }}:</span>
+                                    <a class="btn btn-link !text-xs !text-black hover:!text-brand-active" target="_blank" v-if="project.project_type" :href="getBitrixProjectLink(project)">{{ project.project_name }}</a>
+                                </div>
                             </td>
-                            <td class="text-center">{{ obj.charge_extra_to_client }}</td>
+                            <td class="text-center">{{ obj.pay_to_running_account }}</td>
                             <td class="text-left break-words whitespace-normal group/request">
-                                <div class="font-bold text-black">{{ obj.requested_by_name }}</div>
                                 <div class="relative ">
                                     <div class="transition-all duration-500 line-clamp-2 group-hover/request:line-clamp-none">
-                                        {{ obj.detail_text }}
+                                        {{ obj.remarks }}
                                     </div>
                                 </div>
                             </td>
