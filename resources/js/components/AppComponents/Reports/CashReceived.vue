@@ -71,7 +71,7 @@
                                 <div class="transition-opacity duration-300 tooltip" id="Payment_Source_tooltip">Payment Source</div>
                             </th>
                             <th class="sticky top-0 w-[100px] text-right">Amount</th>
-                            <th class="sticky top-0 w-[80px]">Date Received</th>
+                            <th class="sticky top-0 w-[100px]">Date Received</th>
                             <th class="sticky top-0 w-[80px]" data-tooltip="#Transaction_Type_tooltip">
                                 Type <i class="ki-outline ki-information-2"></i>
                                 <div class="transition-opacity duration-300 tooltip" id="Transaction_Type_tooltip">Transaction Type</div>
@@ -82,16 +82,18 @@
                             </th>
                             <th class="sticky top-0 w-[80px]">Cash Pool</th>
                             <th class="sticky top-0 w-[70px]" data-tooltip="#Cash_Received_Location_tooltip">
-                                Cash <i class="ki-outline ki-information-2"></i>
+                                Location <i class="ki-outline ki-information-2"></i>
                                 <div class="transition-opacity duration-300 tooltip" id="Cash_Received_Location_tooltip">Cash Received Location</div>
                             </th>
-                            <th class="sticky top-0 w-[180px] text-left">Lead / Deal</th>
+                            <th class="sticky top-0 w-[180px] text-left">Project</th>
+                            <th class="sticky top-0 w-[100px] text-left">Customer</th>
                             <th class="sticky top-0 w-[70px]" data-tooltip="#pay_to_running_account_tooltip">
-                                Charge <i class="ki-outline ki-information-2"></i>
+                                Pay <i class="ki-outline ki-information-2"></i>
                                 <div class="transition-opacity duration-300 tooltip" id="pay_to_running_account_tooltip">Pay to Running Account</div>
                             </th>
                             <th class="sticky top-0 w-[150px] text-left">Remarks <i class="ki-outline ki-exit-down"></i></th>
-                            <th class="sticky top-0 w-[80px]">Status</th>
+                            <th class="sticky top-0 w-[130px]">Documents</th>
+<!--                            <th class="sticky top-0 w-[80px]">Status</th>-->
 <!--                            <th class="sticky top-0 w-[130px]">Documents</th>-->
 <!--                            <th class="sticky top-0 w-[130px]">Actions</th>-->
                         </tr>
@@ -102,7 +104,10 @@
                             <td><a class="btn btn-link !text-black hover:!text-brand-active" target="_blank" :href="'https://crm.cresco.ae/bizproc/processes/110/element/0/' + obj.id  + '/?list_section_id='">{{obj.id }}</a></td>
                             <td class="text-center">{{ obj.payment_source }}</td>
                             <td class="text-right">{{ formatAmount(obj.amount) }} <strong class="font-bold text-black">{{ obj.currency }}</strong></td>
-                            <td>{{ formatDate(obj.date_received)  }}</td>
+                            <td>
+                                <div>{{ formatDate(obj.date_received) }}</div>
+                                <div class="font-bold text-black">{{ obj.created_by_text }}</div>
+                            </td>
                             <td>{{ obj.transaction_type }}</td>
                             <td>{{ obj.receipt_number_auto }}</td>
                             <td>{{ obj.cash_pool }}</td>
@@ -113,6 +118,9 @@
                                     <a class="btn btn-link !text-xs !text-black hover:!text-brand-active" target="_blank" v-if="project.project_type" :href="getBitrixProjectLink(project)">{{ project.project_name }}</a>
                                 </div>
                             </td>
+                            <td class="text-left">
+                                <a class="btn btn-link !text-xs !text-black hover:!text-brand-active" target="_blank" v-if="obj.customer_id" :href="`https://crm.cresco.ae/crm/contact/details/${obj.customer_id}/`">{{ obj.customer }}</a>
+                            </td>
                             <td class="text-center">{{ obj.pay_to_running_account }}</td>
                             <td class="text-left break-words whitespace-normal group/request">
                                 <div class="relative ">
@@ -121,7 +129,19 @@
                                     </div>
                                 </div>
                             </td>
-                            <td>{{ obj.status }}</td>
+                            <td>
+                                <a
+                                    v-if="obj.attachments && obj.attachments.length > 0"
+                                    v-for="(documentId, index) in obj.attachments"
+                                    class="block w-full mb-1 secondary-btn"
+                                    target="_blank"
+                                    :href="`https://crm.cresco.ae/bitrix/tools/disk/uf.php?attachedId=${documentId}&action=download&ncc=1' + documentId + '&action=download&ncc=1`"
+                                >
+                                    {{ ++index }}. Document
+                                </a>
+                            </td>
+
+<!--                            <td>{{ obj.status }}</td>-->
 <!--                            <td>-->
 <!--                                <div :class="isWarning(obj) ? 'badge badge-warning' : ''">-->
 <!--                                    <div class="flex flex-col gap-0.5">-->
@@ -284,22 +304,29 @@ export default {
                 date: null,
                 category_id: "",
                 sage_company_id: "",
-                status: "",
+                // status: "",
+                payment_source: "",
                 pay_to_running_account: "",
                 transaction_type: "",
                 search: "",
                 is_warning: false,
             },
             page_filters: [
+                // {
+                //     key: "status",
+                //     name: "Status",
+                //     field_id: "PROPERTY_1057",
+                //     values: {}
+                // },
                 {
-                    key: "status",
-                    name: "Status",
-                    field_id: "PROPERTY_1057",
+                    key: "payment_source",
+                    name: "Payment Source",
+                    field_id: "PROPERTY_1064",
                     values: {}
                 },
                 {
                     key: "pay_to_running_account",
-                    name: "Charge to Client",
+                    name: "Pay To Running Account",
                     field_id: "PROPERTY_1248",
                     values: {}
                 },
@@ -358,6 +385,13 @@ export default {
             try {
                 const response = await this.callBitrixAPI(endpoint, bitrixUserId, bitrixWebhookToken, requestData);
                 this.data = response.result;
+                this.data.forEach((item) => {
+                    item.attachments = [];
+
+                    if (item.attachments){
+                        item.attachments = item.attachment_ids.split(",");
+                    }
+                })
                 await this.calculateTotalAsPerReportingCurrency();
             } catch (error) {
                 if (error.status === 500){
@@ -382,6 +416,8 @@ export default {
                     item.pay_to_running_account, item.payment_source, item.sage_company,
                     item.sage_reference, item.status
                 ].some(field => field?.toLowerCase().includes(searchTerm));
+                // Filter by payment source
+                const matchesPaymentSource = this.filters.payment_source ? item.payment_source_id === this.filters.payment_source : true;
                 // Filter by status
                 const matchesStatus = this.filters.status ? item.status_id === this.filters.status : true;
                 // Filter by pay to running account
@@ -390,7 +426,7 @@ export default {
                 const matchesTransactionType = this.filters.transaction_type ? item.transaction_type_id === this.filters.transaction_type : true;
 
                 // Return true only if all filters match
-                return matchesSearch && matchesStatus && matchesPayToRunningAccount && matchesTransactionType;
+                return matchesSearch && matchesStatus && matchesPayToRunningAccount && matchesTransactionType && matchesPaymentSource;
             });
         },
         groupedByCurrency() {
