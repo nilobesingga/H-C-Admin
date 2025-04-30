@@ -141,11 +141,19 @@
                             <td>
                                 <button
                                     v-for="pid in obj.purchase_invoice_ids"
-                                    @click="openModal(pid)"
+                                    @click="openModal('purchaseInvoice', pid)"
                                     data-modal-toggle="#view_purchase_invoice_details_modal"
                                     class="block w-full mb-1 secondary-btn"
                                 >
                                     View Invoice
+                                </button>
+                                <button
+                                    v-if="obj.cash_request_id"
+                                    @click="openModal('cashRequest', obj.cash_request_id)"
+                                    data-modal-toggle="#view_cash_request_details_modal"
+                                    class="block w-full mb-1 secondary-btn"
+                                >
+                                    View Cash Request
                                 </button>
                             </td>
                             <td>
@@ -219,6 +227,12 @@
         v-if="is_view_purchase_invoice_details_modal"
         @closeModal="closeModal"
     />
+    <!-- View Cash Request Details Modal -->
+    <view-cash-request-details-modal
+        :obj_id="obj_id"
+        v-if="is_view_cash_request_details_modal"
+        @closeModal="closeModal"
+    />
 </template>
 <script>
 import {DateTime} from "luxon";
@@ -248,6 +262,7 @@ export default {
             ],
             totalAsPerReportingCurrency: 0,
             is_view_purchase_invoice_details_modal: false,
+            is_view_cash_request_details_modal: false,
             obj_id: null,
         }
     },
@@ -347,13 +362,19 @@ export default {
             }
             return count;
         },
-        openModal(purchaseInvoiceId){
-            this.obj_id = purchaseInvoiceId;
-            this.is_view_purchase_invoice_details_modal = true
+        openModal(modal, objId){
+            this.obj_id = objId;
+            if (modal === 'purchaseInvoice'){
+                this.is_view_purchase_invoice_details_modal = true
+            }
+            if (modal === 'cashRequest'){
+                this.is_view_cash_request_details_modal = true
+            }
         },
         closeModal(){
             this.is_view_purchase_invoice_details_modal = false;
-            this.selected_obj = null
+            this.is_view_cash_request_details_modal = false;
+            this.obj_id = null
             this.removeModalBackdrop();
         },
     },
