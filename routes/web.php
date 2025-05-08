@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\Settings\AdminUserController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentSyncController;
+use App\Http\Controllers\Qashio\QashioController;
 use App\Http\Controllers\Reports\ReportsController;
 use App\Http\Controllers\ZiinaWebhookController;
 use App\Http\Middleware\IsAdminMiddleware;
@@ -61,7 +62,13 @@ Route::middleware(['auth'])->group(function(){
             Route::get('/cash-pool-report', [ReportsController::class, 'redirectToReports'])->name('cash-pool-report');
             Route::get('/cash-pool-expense-planner', [ReportsController::class, 'getExpensePlanner'])->name('cash-pool-expense-planner');
         });
+        // Qashio
+        Route::group(['prefix' => 'qashio', 'as' => 'qashio.'], function(){
+            Route::get('/', [QashioController::class, 'index'])->name('qashio');
+        });
     });
+    // Qashio get data
+    Route::post('/qashio/get-data', [QashioController::class, 'getData']);
 
     // Download Cash Release Receipt
     Route::post('/cash-request/download-released-receipt', [ReportsController::class, 'downloadCashReleasedReceipt']);

@@ -5,7 +5,7 @@
 @endphp
 @if(request()->is('reports*'))
     @if($cashReportsChildModules->isNotEmpty())
-        <div class="bg-[--tw-header-bg] dark:bg-[--tw-header-bg-dark] border-b border-b-neutral-200">
+        <div class="bg-[--tw-header-bg] dark:bg-[--tw-header-bg-dark] border-b border-b-neutral-200 header-navigation">
             <div class="container-fluid pl-3 pr-2 flex flex-wrap justify-between items-center gap-2">
                 <div class="grid">
                     <div class="scrollable-x-auto">

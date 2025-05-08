@@ -1,5 +1,5 @@
 <header
-    class="flex items-center transition-[height] shrink-0 bg-[--tw-header-bg] dark:bg-[--tw-header-bg-dark] h-[--tw-header-height] border-b border-b-neutral-200"
+    class="flex items-center transition-[height] shrink-0 bg-[--tw-header-bg] dark:bg-[--tw-header-bg-dark] h-[--tw-header-height] border-b border-b-neutral-200 top-header"
     data-sticky="true"
     data-sticky-class="transition-[height] fixed z-10 top-0 left-0 right-0 shadow-sm backdrop-blur-md bg-white/70 dark:bg-coal-500/70 dark:border-b dark:border-b-coal-100"
     data-sticky-name="header" data-sticky-offset="100px" id="header">

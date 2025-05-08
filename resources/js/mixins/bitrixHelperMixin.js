@@ -139,6 +139,12 @@ export default {
             }
             return "";
         },
+        formatDateTime24HoursISO(value){
+            if (value) {
+                return DateTime.fromISO(value).toFormat('dd LLL yyyy HH:mm');
+            }
+            return '';
+        },
         formatAmount(value) {
             if (value) {
                 let numericValue = typeof value === 'string' ? parseFloat(value) : value;
