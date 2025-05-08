@@ -47,7 +47,6 @@ class BitrixApiRepository
             throw new \Exception("Bitrix API call failed: {$e->getMessage()}");
         }
     }
-
     public function getAllBitrixUsers()
     {
         try {
@@ -330,6 +329,42 @@ class BitrixApiRepository
     public function getRelationshipRoles($companyId, $contactIds)
     {
         try {
+            $response = $this->call('crm.company.compliance', [
+                'action' => 'getContactRoleInCompany',
+                'company_id' => $companyId,
+                'contact_ids' => $contactIds->toArray()
+            ]);
+
+            if($response){
+                return collect($response['result']) ?? collect();
+            }
+
+        } catch (\Exception $e) {
+            Log::error("Error fetching relationships roles" . $e->getMessage());
+            return collect();
+        }
+    }
+    public function getQashioCreditCardByCardLastFourDigit($lastFourDigit)
+    {
+        try {
+            $response = $this->call('crm.company.reports_v2', [
+                'action' => 'getQashioCreditCardsByCardLastFourDigits',
+                'last_four_digit' => $lastFourDigit,
+            ]);
+
+            if($response){
+                return collect($response['result']) ?? collect();
+            }
+
+        } catch (\Exception $e) {
+            Log::error("Error fetching qashi credit card" . $e->getMessage());
+            return collect();
+        }
+    }
+    public function createCashRequisition($params)
+    {
+        try {
+            dd('from createCashRequisition repo', $params);
             $response = $this->call('crm.company.compliance', [
                 'action' => 'getContactRoleInCompany',
                 'company_id' => $companyId,
