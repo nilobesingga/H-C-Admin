@@ -88,7 +88,12 @@ class AdminSettingsController extends Controller
             DB::beginTransaction();
 
             foreach ($request->all() as $item) {
-                Module::where('id', $item['id'])->update(['order' => $item['order']]);
+                Module::where('id', $item['id'])
+                    ->update([
+                        'order' => $item['order'],
+                        'updated_by' => Auth::id(),
+                        'updated_at' => getCurrentDateAndTime(),
+                    ]);
             }
 
             DB::commit();
