@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentSyncController;
 use App\Http\Controllers\Reports\ReportsController;
+use App\Http\Controllers\ZiinaWebhookController;
 use App\Http\Middleware\IsAdminMiddleware;
 use Illuminate\Support\Facades\Route;
 
@@ -71,7 +72,6 @@ Route::middleware(['auth'])->group(function(){
     // Invoice Email Routes
     Route::controller(App\Http\Controllers\InvoiceEmailController::class)->prefix('invoice-emails')->name('invoice-emails.')->group(function() {
         Route::post('/send', 'sendInvoiceEmail')->name('send');
-        Route::post('/send-existing', 'sendExistingInvoiceEmail')->name('send-existing');
     });
 
     //########################################### ADMIN ###############################################################
@@ -100,7 +100,14 @@ Route::middleware(['auth'])->group(function(){
             Route::post('/user/{userId}/update-password', [AuthController::class, 'updatePassword']);
         });
     });
+    Route::get('/payment_logs/{invoice_id}', [ZiinaWebhookController::class, 'handlePaymentLogs'])->name('handlePaymentLogs');
+    Route::get('/payment_status', [ZiinaWebhookController::class, 'PaymentStatus'])->name('PaymentStatus');
 });
+
+Route::get('/ziina-webhook/{invoice_id}', [ZiinaWebhookController::class,'updateStatus'])->name('ziina-webhook');
+
+
+
 
 
 

@@ -2,16 +2,16 @@
     <div class="modal" data-modal="true" data-modal-backdrop-static="true" id="view_purchase_invoice_details_modal">
         <div class="modal-content top-[5%] lg:max-w-[1000px] max-h-[80vh]">
             <div class="modal-header">
-                <h3 class="modal-title capitalize text-xl font-bold tracking-tight">Purchase Invoice Details</h3>
+                <h3 class="text-xl font-bold tracking-tight capitalize modal-title">Purchase Invoice Details</h3>
                 <button class="btn btn-xs btn-icon btn-light" data-modal-dismiss="true" @click="$emit('closeModal')">
                     <i class="ki-outline ki-cross"></i>
                 </button>
             </div>
-            <div class="modal-body relative h-full overflow-auto">
+            <div class="relative h-full overflow-auto modal-body">
                 <!-- Loading Spinner -->
-                <div v-if="loading" class="data-loading absolute inset-0 bg-neutral-100 flex items-center justify-center z-100 pointer-events-none">
-                    <div class="flex items-center gap-2 px-4 py-2 font-medium leading-none text-sm text-brand-active">
-                        <svg class="animate-spin -ml-1 h-5 w-5 text-brand-active" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <div v-if="loading" class="absolute inset-0 flex items-center justify-center pointer-events-none data-loading bg-neutral-100 z-100">
+                    <div class="flex items-center gap-2 px-4 py-2 text-sm font-medium leading-none text-brand-active">
+                        <svg class="w-5 h-5 -ml-1 animate-spin text-brand-active" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
@@ -20,17 +20,17 @@
                 </div>
 
                 <!-- Modal Content -->
-                <div v-else class="flex flex-col justify-start items-start divide-y divide-neutral-200 w-full pb-5">
+                <div v-else class="flex flex-col items-start justify-start w-full pb-5 divide-y divide-neutral-200">
                     <!-- Bank Details -->
-                    <div class="grid grid-cols-7 gap-8 w-full">
-                        <div class="col-span-2 text-md font-semibold text-black text-right mt-4">
+                    <div class="grid w-full grid-cols-7 gap-8">
+                        <div class="col-span-2 mt-4 font-semibold text-right text-black text-md">
                             <a class="btn btn-link text-2xl !text-black hover:!text-brand-active font-bold tracking-tight" target="_blank" :href="`https://crm.cresco.ae/bizproc/processes/104/element/0/${obj.id}/?list_section_id=`">
                                 <span>{{ formatAmount(obj.amount) }}</span>
                                 <span>{{ obj.currency }}</span>
                             </a>
                         </div>
-                        <div class="content-box col-span-3 mb-4">
-                            <div class="uppercase tracking-wide text-neutral-500 mt-1 mb-3">Invoice Details</div>
+                        <div class="col-span-3 mb-4 content-box">
+                            <div class="mt-1 mb-3 tracking-wide uppercase text-neutral-500">Invoice Details</div>
                             <div>Number: {{ obj.invoice_number }}</div>
                             <div>Date: {{ formatDate(obj.invoice_date) }}</div>
                             <div>Due Date: {{ formatDate(obj.due_date) }}</div>
@@ -40,22 +40,22 @@
                     </div>
 
                     <!-- Purpose of Transfer -->
-                    <div class="grid grid-cols-7 gap-8 w-full py-4">
-                        <div class="col-span-2 text-md font-semibold text-black text-right py-4">Remarks</div>
-                        <div class="content-box col-span-5 pl-8 py-4">{{ obj.detail_text }}</div>
+                    <div class="grid w-full grid-cols-7 gap-8 py-4">
+                        <div class="col-span-2 py-4 font-semibold text-right text-black text-md">Remarks</div>
+                        <div class="col-span-5 py-4 pl-8 content-box">{{ obj.detail_text }}</div>
                     </div>
 
                     <!-- Documents -->
-                    <div class="grid grid-cols-7 gap-8 w-full pt-4 pb-0">
-                        <div class="col-span-2 text-md font-semibold text-black text-right py-4">Documents</div>
-                        <div v-if="obj.document_list.length" class="col-span-5 pl-8 py-4">
+                    <div class="grid w-full grid-cols-7 gap-8 pt-4 pb-0">
+                        <div class="col-span-2 py-4 font-semibold text-right text-black text-md">Documents</div>
+                        <div v-if="obj.document_list.length" class="col-span-5 py-4 pl-8">
                             <a v-for="(documentId, index) in obj.document_list" :key="'swift_' + index"
-                               class="secondary-btn mb-1" target="_blank"
+                               class="mb-1 secondary-btn" target="_blank"
                                :href="`https://crm.cresco.ae/bitrix/tools/disk/uf.php?attachedId=${documentId}&action=download&ncc=1`">
                                 Invoice doc {{ index + 1 }}
                             </a>
                         </div>
-                        <div v-else class="col-span-5 pl-8 py-4 text-md">No Documents</div>
+                        <div v-else class="col-span-5 py-4 pl-8 text-md">No Documents</div>
                     </div>
                 </div>
             </div>

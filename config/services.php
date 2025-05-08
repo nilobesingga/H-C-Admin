@@ -39,6 +39,12 @@ return [
         'base_url' => env('BITRIX_BASE_URL'),
         'admin_user_id' => env('BITRIX_ADMIN_USER_ID'),
         'admin_webhook_token' => env('BITRIX_ADMIN_WEBHOOK_TOKEN'),
+    ],
+
+    'ziina' => [
+        'base_url' => env('ZIINA_API_BASE_URL', 'https://api-v2.ziina.com/api'),
+        'api_token' => env('ZIINA_API_TOKEN'),
+        'test_mode' => env('ZIINA_TEST_MODE', false)
     ]
 
 ];

@@ -48,13 +48,8 @@ class InvoiceEmailNotification extends Notification implements ShouldQueue
     {
         $mail = (new MailMessage)
                     ->subject($this->subject)
-                    ->greeting('Hello!')
+                    ->greeting('Hello '.$this->data['recipient_name'].'!')
                     ->line('Please find attached invoice details.');
-
-        // Add any custom lines from data
-        if (isset($this->data['message'])) {
-            $mail->line($this->data['message']);
-        }
 
         // Add invoice details if provided
         if (isset($this->data['invoice_number'])) {
@@ -66,7 +61,25 @@ class InvoiceEmailNotification extends Notification implements ShouldQueue
         }
 
         if (isset($this->data['amount'])) {
-            $mail->line('Amount: ' . $this->data['amount']);
+            $mail->line('Invoice Amount: ' . $this->data['amount'] . ' ' . $this->data['currency']);
+        }
+
+        if (isset($this->data['service_charge'])) {
+            $mail->line('Service Fee: ' . $this->data['service_charge'] . ' ' . $this->data['currency']);
+        }
+
+        if (isset($this->data['total_amount'])) {
+            $mail->line('Total Amount: ' . $this->data['total_amount'] . ' ' . $this->data['currency']);
+        }
+        // Add any custom lines from data
+        // if (isset($this->data['message'])) {
+        //     $mail->line($this->data['message']);
+        // }
+
+        $mail->line('Click the button below to proceed payment.');
+
+        if (isset($this->data['payment_link'])) {
+            $mail->action('Pay Now', $this->data['payment_link']);
         }
 
         // Add a default closing line
