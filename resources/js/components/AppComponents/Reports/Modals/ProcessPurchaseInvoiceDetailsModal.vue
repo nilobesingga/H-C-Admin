@@ -584,15 +584,15 @@ export default {
                 this.generating = true;
             }
             await axios.post(
-                // 'https://forms.cresco.ae/api/invoice/download/' + this.obj.id,
-                'http://127.0.0.1:8001/api/invoice/download/' + this.obj.id,
+                'https://forms.cresco.ae/api/invoice/download/' + this.obj.id,
+                // 'http://127.0.0.1:8001/api/invoice/download/' + this.obj.id,
                 {
                     bank_code: this.form.bank_code
                 },
                 {
                     headers: {
                         // Authorization: 'Bearer Uif54oa7vciStwIuFpH7Q1cVBozqVFysrKyetb5w',
-                        Authorization: 'Bearer ua88c8LeLp4J2I1qrOFc1gGkq0iBxmkSgqS01jYe',
+                        // Authorization: 'Bearer ua88c8LeLp4J2I1qrOFc1gGkq0iBxmkSgqS01jYe',
                         'Content-Type': 'application/json',
                         Accept: 'application/json',
                     },
