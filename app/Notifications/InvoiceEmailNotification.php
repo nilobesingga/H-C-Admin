@@ -48,49 +48,62 @@ class InvoiceEmailNotification extends Notification implements ShouldQueue
     {
         $mail = (new MailMessage)
                     ->subject($this->subject)
-                    ->greeting('Hello '.$this->data['recipient_name'].'!')
-                    ->line('Please find attached invoice details.');
+                    ->view('emails.invoice-email', [
+                        'data' => $this->data,
+                        'preview_url' => $this->pdfPath,
+                    ]);
+
+                    // ->greeting('Hello '.$this->data['recipient_name'].'!')
+                    // ->line('Please find attached invoice details.');
 
         // Add invoice details if provided
-        if (isset($this->data['invoice_number'])) {
-            $mail->line('Invoice Number: ' . $this->data['invoice_number']);
-        }
+        // if (isset($this->data['invoice_number'])) {
+        //     $mail->line('Invoice Number: ' . $this->data['invoice_number']);
+        // }
 
-        if (isset($this->data['invoice_date'])) {
-            $mail->line('Invoice Date: ' . $this->data['invoice_date']);
-        }
+        // if (isset($this->data['invoice_date'])) {
+        //     $mail->line('Invoice Date: ' . $this->data['invoice_date']);
+        // }
 
-        if (isset($this->data['amount'])) {
-            $mail->line('Invoice Amount: ' . $this->data['amount'] . ' ' . $this->data['currency']);
-        }
+        // if (isset($this->data['amount'])) {
+        //     $mail->line('Invoice Amount: ' . $this->data['amount'] . ' ' . $this->data['currency']);
+        // }
 
-        if (isset($this->data['service_charge'])) {
-            $mail->line('Service Fee: ' . $this->data['service_charge'] . ' ' . $this->data['currency']);
-        }
+        // if (isset($this->data['service_charge'])) {
+        //     $mail->line('Service Fee: ' . $this->data['service_charge'] . ' ' . $this->data['currency']);
+        // }
 
-        if (isset($this->data['total_amount'])) {
-            $mail->line('Total Amount: ' . $this->data['total_amount'] . ' ' . $this->data['currency']);
-        }
+        // if (isset($this->data['total_amount'])) {
+        //     $mail->line('Total Amount: ' . $this->data['total_amount'] . ' ' . $this->data['currency']);
+        // }
         // Add any custom lines from data
         // if (isset($this->data['message'])) {
         //     $mail->line($this->data['message']);
         // }
 
-        $mail->line('Click the button below to proceed payment.');
+        // $mail->line('Click the button below to proceed payment.');
 
-        if (isset($this->data['payment_link'])) {
-            $mail->action('Pay Now', $this->data['payment_link']);
-        }
+        // if (isset($this->data['payment_link'])) {
+        //     $mail->action('Pay Now', $this->data['payment_link']);
+        // }
 
         // Add a default closing line
-        $mail->line('Thank you for your business!');
+        // $mail->line('Thank you for your business!');
 
         // Attach PDF if available
         if ($this->pdfPath && file_exists($this->pdfPath)) {
-            $mail->attach($this->pdfPath, [
-                'as' => basename($this->pdfPath),
-                'mime' => 'application/pdf',
-            ]);
+            // $mail->attach($this->pdfPath, [
+            //     'as' => basename($this->pdfPath),
+            //     'mime' => 'application/pdf',
+            // ]);
+            $mail->attachData(
+                file_get_contents($this->pdfPath),
+                basename($this->pdfPath),
+                [
+                    'mime' => 'application/pdf',
+                    'as' => basename($this->pdfPath),
+                ]
+            );
         }
 
         return $mail;

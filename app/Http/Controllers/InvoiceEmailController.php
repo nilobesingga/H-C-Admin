@@ -81,8 +81,10 @@ class InvoiceEmailController extends Controller
             $serviceFee = ($amount * 3) / 100;
             $totalAmount = $amount + $serviceFee;
             $invoiceData = [
+                'title' => $request->title ?? 'Payment Invoice',
+                'invoice_id' => $request->invoice_id,
                 'invoice_number' => $request->invoice_number,
-                'invoice_date' => date('M d, Y', strtotime($request->invoice_date)),
+                'invoice_date' => date('d M Y', strtotime($request->invoice_date)),
                 'amount' => number_format($request->amount,2),
                 'total_amount' => number_format($totalAmount,2),
                 'service_charge' => number_format($serviceFee,2),
@@ -94,20 +96,28 @@ class InvoiceEmailController extends Controller
             // Handle PDF file attachment
             $pdfPath = null;
             if ($request->hasFile('pdf_file')) {
-                // Store the PDF file in the storage
+                // Retrieve the uploaded file
                 $pdfFile = $request->file('pdf_file');
-                $pdfName = $request->filename ?? 'invoice_' . $request->invoice_number . '_' . time() . '.pdf';
-                // dd($pdfName);
-                $pdfPath = $pdfFile->storeAs('invoices', $pdfName, 'public');
 
-                // Get the full storage path
-                $pdfPath = Storage::disk('public')->path($pdfPath);
+                // Define the filename (with fallback)
+                $pdfName = $request->filename
+                    ?? 'invoice_' . ($request->invoice_number ?? 'unknown') . '_' . time() . '.pdf';
+
+                // Store the file in the 'public/invoices' directory
+                $storedPath = $pdfFile->storeAs('invoices', $pdfName, 'public');
+
+                // Full local path for attaching to email
+                $pdfPath = Storage::disk('public')->path($storedPath);
+
+                // Public URL for preview in email
+                $previewUrl = Storage::disk('public')->url($storedPath);
+                $invoiceData['preview_url'] = $previewUrl;
             }
 
             // Send the email with the EmailService
             $sent = $this->emailService->sendInvoiceEmail(
                 $invoiceData,
-                $request->subject,
+                $request->subject .' - ' . $request->title,
                 $request->recipients,
                 $pdfPath
             );
@@ -145,7 +155,7 @@ class InvoiceEmailController extends Controller
             $cancelUrl = $baseUrl . '/ziina-webhook/'.$encryptedId;
             $failureUrl = $baseUrl . '/ziina-webhook/'.$encryptedId;
             $message = $request->message;
-            $dt = new DateTime('+3 days');
+            $dt = new DateTime('+90 days');
             $expiry = $dt->getTimestamp() * 1000; // Convert to milliseconds
             //Total Amount && Service Fee 3 percent
             $amount = $request->amount;
@@ -165,6 +175,12 @@ class InvoiceEmailController extends Controller
             if (!$result || !isset($result['id'])) {
                 return $this->errorResponse('Failed to create payment intent ', null, 500);
             }
+            $counter = ZiinaPaymentLog::where('invoice_id', $request->invoice_id)->count();
+            $count = $counter;
+            if($counter >= 1){
+                $count = ($count == 1) ? 1 :  $count;
+            }
+
             $paymentData = [
                 'invoice_id' => $request->invoice_id,
                 'invoice_number' => $request->invoice_number,
@@ -175,7 +191,7 @@ class InvoiceEmailController extends Controller
                 'account_id' => $result['account_id'],
                 'operation_id' => $result['operation_id'],
                 'payment_link' => $result['redirect_url'],
-                'status' => 'initiated',
+                'status' => ($counter >= 1) ? 'reminder '. $count : 'initiated',
                 'currency' => $request->currency,
                 'amount' => $request->amount,
                 'service_charge' => $serviceFee ?? 0,
@@ -200,11 +216,12 @@ class InvoiceEmailController extends Controller
             ],$paymentData);
             // Log the payment intent creation
             ZiinaPaymentLog::create([
+                'invoice_id' => $request->invoice_id,
                 'payment_id' => $result['id'],
                 'account_id' => $result['account_id'],
                 'payment_link' => $result['redirect_url'],
                 'operation_id' => $result['operation_id'],
-                'status' => 'initiated',
+                'status' => ($counter >= 1) ? 'reminder '. $count : 'initiated',
                 'currency' => $request->currency,
                 'amount' => $request->amount,
                 'latest_error' => $result['latest_error'] ?? null,
@@ -217,5 +234,24 @@ class InvoiceEmailController extends Controller
             Log::error('Error creating payment intent: ' . $e->getMessage());
             return $this->errorResponse('Failed to create payment intent', null, 500);
         }
+    }
+
+    public function getFile($filename)
+    {
+        // Validate filename to prevent directory traversal attacks
+        if (strpos($filename, '/') !== false || strpos($filename, '\\') !== false) {
+            return response()->json(['error' => 'Invalid filename'], 400);
+        }
+
+        // Determine storage path (adjust this path to match your storage structure)
+        $path = storage_path('app/public/invoices/' . $filename);
+
+        // Check if file exists
+        if (!file_exists($path)) {
+            return response()->json(['error' => 'File not found'], 404);
+        }
+
+        // Return file as download
+        return response()->file($path);
     }
 }

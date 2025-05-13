@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('ziina_payment_log', function (Blueprint $table) {
             $table->id();
+            $table->string('invoice_id')->index();
             $table->string('payment_id')->index();
             $table->string('account_id')->index();
             $table->string('operation_id')->index();

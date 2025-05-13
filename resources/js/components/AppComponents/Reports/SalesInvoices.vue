@@ -131,7 +131,7 @@
                                 v-if="obj.status == 'Booked in SAGE' && obj.payment_status == null"
                                 data-modal-toggle="#process_purchase_invoice_details_modal"
                                 @click="openModal(obj)">
-                                    Pay Now
+                                    Send Payment Link
                                 </button>
                                 <button class="block w-full mb-1 secondary-btn"
                                 v-else-if="obj.payment_status != null"
@@ -142,7 +142,8 @@
                                     'text-green-500': obj.payment_status === 'completed',
                                     'text-yellow-500': obj.payment_status === 'pending',
                                     'text-red-500': obj.payment_status === 'canceled',
-                                    'text-gray-500': obj.payment_status === 'failed'
+                                    'text-orange-500': obj.payment_status === 'failed',
+                                    'text-orange-500': !['initiated','completed','pending','canceled','failed'].includes(obj.payment_status)
                                     }"></i>
                                 </button>
                             </td>
@@ -171,7 +172,6 @@
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
-                        Loading...
                     </div>
                 </div>
             </div>

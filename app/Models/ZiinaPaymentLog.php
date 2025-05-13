@@ -9,6 +9,7 @@ class ZiinaPaymentLog extends Model
     protected $table = 'ziina_payment_log';
     protected $primaryKey = 'id';
     protected $fillable = [
+        'invoice_id',
         'payment_id',
         'account_id',
         'operation_id',

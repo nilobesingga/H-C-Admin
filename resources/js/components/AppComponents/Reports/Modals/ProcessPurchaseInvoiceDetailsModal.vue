@@ -63,7 +63,9 @@
                                             'text-green-500': obj.payment_status === 'completed',
                                             'text-yellow-500': obj.payment_status === 'pending',
                                             'text-red-500': obj.payment_status === 'canceled',
-                                            'text-gray-500': obj.payment_status === 'failed'
+                                            'text-orange-500': obj.payment_status === 'failed',
+                                            'text-orange-500': !['initiated','completed','pending','canceled','failed'].includes(obj.payment_status)
+
                                         }">
                                             {{ obj.payment_status }}
                                         </span>
@@ -295,7 +297,8 @@
                                                     'bg-green-500': log.status === 'completed',
                                                     'bg-yellow-500': log.status === 'pending',
                                                     'bg-red-500': log.status === 'canceled',
-                                                    'bg-gray-500': log.status === 'failed'
+                                                    'bg-orange-700': log.status === 'failed',
+                                                    'bg-orange-500': !['initiated','completed','pending','canceled','failed'].includes(log.status),
                                                 }">
                                                 <svg v-if="log.status === 'initiated'" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                     <circle cx="12" cy="12" r="10"></circle>
@@ -312,6 +315,9 @@
                                                 </svg>
                                                 <svg v-else-if="log.status === 'failed'" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01" />
+                                                </svg>
+                                                <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5m-9-6h.008v.008H12v-.008ZM12 15h.008v.008H12V15Zm0 2.25h.008v.008H12v-.008ZM9.75 15h.008v.008H9.75V15Zm0 2.25h.008v.008H9.75v-.008ZM7.5 15h.008v.008H7.5V15Zm0 2.25h.008v.008H7.5v-.008Zm6.75-4.5h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V15Zm0 2.25h.008v.008h-.008v-.008Zm2.25-4.5h.008v.008H16.5v-.008Zm0 2.25h.008v.008H16.5V15Z" />
                                                 </svg>
                                             </div>
 
@@ -330,7 +336,8 @@
                                                         'text-green-500': log.status === 'completed',
                                                         'text-yellow-500': log.status === 'pending',
                                                         'text-red-500': log.status === 'canceled',
-                                                        'text-gray-500': log.status === 'failed'
+                                                        'text-orange-500': log.status === 'failed',
+                                                        'text-orange-500': !['initiated','completed','pending','canceled','failed'].includes(log.status)
                                                     }">{{ log.status }}</span></p>
                                             </div>
                                         </div>
@@ -347,17 +354,29 @@
                     <button class="secondary-btn !text-md font-semibold !border-2 !px-10" data-modal-dismiss="true" @click="$emit('closeModal')">
                         Cancel
                     </button>
-                    <button
+                    <button v-if="payment_logs.length ==0"
                         class="main-btn"
-                        type="submit"
-                        @click="submit"
+                        type="button"
+                        @click="submit('Payment Invoice')"
                         :disabled="loading"
                     >
                         <svg v-if="loading" class="w-5 h-5 text-white animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
-                        <span v-else>Send Payment Link via Email</span>
+                        <span v-else>Send Invoice Payment</span>
+                    </button>
+                    <button v-else
+                        class="main-btn"
+                        type="button"
+                        @click="submit('Payment Reminder')"
+                        :disabled="loading"
+                    >
+                        <svg v-if="loading" class="w-5 h-5 text-white animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span v-else>Send Payment Reminder</span>
                     </button>
                 </div>
                 <div class="flex gap-4" v-else>
@@ -417,7 +436,7 @@ export default {
         }
     },
     methods: {
-        async submit(){
+        async submit(title){
             const isFormCorrect = await this.v$.$validate();
             if (!isFormCorrect) return;
             this.loading = true;
@@ -427,6 +446,7 @@ export default {
                 const formData = new FormData();
                 const bitrixUserId = this.sharedState.bitrix_user_id ? this.sharedState.bitrix_user_id : this.page_data.user.bitrix_user_id;
                 // Add all the text fields
+                formData.append('title', title);
                 formData.append('invoice_id', this.obj.id);
                 formData.append('recipient_name', this.obj.contact);
                 formData.append('bitrixUserId', bitrixUserId);
@@ -526,16 +546,36 @@ export default {
                     this.obj.service_charge = response.data.data.service_charge;
                     this.obj.total_amount = response.data.data.total_amount;
                     this.obj.bank_code = response.data.data.bank_code ?? this.obj.bank_code;
+                    this.form.bank_code = response.data.data.bank_code ?? this.form.bank_code;
                     this.form.email = response.data.data.recipient_email;
+
                     this.form.filename = response.data.data.filename ?? this.form.filename;
+                    if (this.form.filename) {
+                        // Fetch the file from storage
+                         axios.get(`/api/invoice-emails/get-file/${this.form.filename}`, {
+                            responseType: 'blob'
+                        })
+                        .then(response => {
+                            // Convert the blob to a File object
+                            const blob = new Blob([response.data], { type: 'application/pdf' });
+                            const file = new File([blob], this.form.filename, { type: 'application/pdf' });
+
+                            // Assign to supporting_document
+                            this.form.supporting_document = file;
+                        })
+                        .catch(error => {
+                            console.error('Error fetching file:', error);
+                        });
+                    }
+                    //how to get uploaded base on filename laravel storage assigned to supporting_document
                     this.payment_logs = response.data.data.payment_logs.map(v => ({...v, created_at : DateTime.fromISO(v.created_at).toFormat('yyyy-MM-dd')})) ?? [];
-                    console.log(this.payment_logs,"this.payment_logs");
                 }
             })
             .catch(error => {
                 console.log(error.response)
             });
         },
+
         async generateInvoice(count){
             if(count === 1){
                 this.downloading = true;
@@ -544,12 +584,14 @@ export default {
                 this.generating = true;
             }
             await axios.post(
+                // 'https://forms.cresco.ae/api/invoice/download/' + this.obj.id,
                 'http://127.0.0.1:8001/api/invoice/download/' + this.obj.id,
                 {
                     bank_code: this.form.bank_code
                 },
                 {
                     headers: {
+                        // Authorization: 'Bearer Uif54oa7vciStwIuFpH7Q1cVBozqVFysrKyetb5w',
                         Authorization: 'Bearer ua88c8LeLp4J2I1qrOFc1gGkq0iBxmkSgqS01jYe',
                         'Content-Type': 'application/json',
                         Accept: 'application/json',

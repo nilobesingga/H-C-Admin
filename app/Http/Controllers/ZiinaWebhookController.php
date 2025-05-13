@@ -50,6 +50,7 @@ class ZiinaWebhookController extends Controller
 
             // Log the status update
             ZiinaPaymentLog::create([
+                'invoice_id' => $invoice_id,
                 'payment_id' => $payment->payment_id,
                 'account_id' => $payment->account_id,
                 'payment_link' => $payment->payment_link,

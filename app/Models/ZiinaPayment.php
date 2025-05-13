@@ -42,6 +42,6 @@ class ZiinaPayment extends Model
 
     public function paymentLogs()
     {
-        return $this->hasMany(ZiinaPaymentLog::class, 'payment_id', 'payment_id');
+        return $this->hasMany(ZiinaPaymentLog::class, 'invoice_id', 'invoice_id');
     }
 }
