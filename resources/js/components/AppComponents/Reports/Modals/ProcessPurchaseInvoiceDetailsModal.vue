@@ -591,7 +591,7 @@ export default {
                 },
                 {
                     headers: {
-                        // Authorization: 'Bearer Uif54oa7vciStwIuFpH7Q1cVBozqVFysrKyetb5w',
+                        Authorization: 'Bearer Uif54oa7vciStwIuFpH7Q1cVBozqVFysrKyetb5w',
                         // Authorization: 'Bearer ua88c8LeLp4J2I1qrOFc1gGkq0iBxmkSgqS01jYe',
                         'Content-Type': 'application/json',
                         Accept: 'application/json',
