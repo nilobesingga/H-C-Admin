@@ -49,7 +49,10 @@ export default {
         adjustReportsTableHeight() {
             const calculateHeight = () => {
                 this.$nextTick(() => {
-                    const headerHeight = 54 + 39 + 48;
+                    const topHeaderHeight = document.querySelector('.top-header').offsetHeight;
+                    const headerNavigationHeight = document.querySelector('.header-navigation') ? document.querySelector('.header-navigation').offsetHeight : 0;
+                    // const headerHeight = 54 + 39 + 48;
+                    const headerHeight = topHeaderHeight + (headerNavigationHeight ? headerNavigationHeight : 0) + 48;
                     const headerFilters = document.querySelector('.reports-header-filters');
                     const onlyFiltersElement = document.querySelector('.reports-only-filters');
                     const tableElement = document.querySelector('.reports-table-container');
