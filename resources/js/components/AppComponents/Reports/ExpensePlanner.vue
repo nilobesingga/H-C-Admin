@@ -40,6 +40,14 @@
                     </select>
                 </div>
                 <div class="flex">
+                    <select class="w-40 select select-sm select-input" v-model="filters.request_type" :disabled="filters.payment_mode !== ''">
+                        <option value="" selected>Filter by Type</option>
+                        <option value="cash_request">Cash Request</option>
+                        <option value="purchase_invoice">Purchase Invoice</option>
+                        <option value="budget_only">Budget Only</option>
+                    </select>
+                </div>
+                <div class="flex">
                     <select v-model="filters.payment_mode" class="select select-sm select-input w-[200px]" :disabled="filters.request_type === 'purchase_invoice'">
                         <option value="" selected>Filter by Payment Mode</option>
                         <option v-for="(mod, k) in payment_modes"  :value="mod.id" :key="k">{{ mod.name }}</option>
@@ -49,14 +57,6 @@
                     <select v-model="filters.currency" class="w-40 select select-sm select-input">
                         <option value="" selected>Filter by Currency</option>
                         <option v-for="(cur, k) in currencies"  :value="cur.CURRENCY" :key="k">{{ cur.FULL_NAME }}</option>
-                    </select>
-                </div>
-                <div class="flex">
-                    <select class="w-40 select select-sm select-input" v-model="filters.request_type" :disabled="filters.payment_mode !== ''">
-                        <option value="" selected>Filter by Type</option>
-                        <option value="cash_request">Cash Request</option>
-                        <option value="purchase_invoice">Purchase Invoice</option>
-                        <option value="budget_only">Budget Only</option>
                     </select>
                 </div>
                 <div class="flex">
