@@ -1,11 +1,17 @@
 /* *********************************************** APP ************************************************************** */
-.app .navbar .btn-clear.btn-primary:hover, .btn-clear.btn-primary:focus, .btn-clear.btn-primary:active, .btn-clear.btn-primary.active {
+.app .navbar .btn-clear.btn-primary:hover,
+.btn-clear.btn-primary:focus,
+.btn-clear.btn-primary:active,
+.btn-clear.btn-primary.active {
     color: white !important;
     background-color: #941301 !important;
     border-color: #941301 !important;
     box-shadow: none !important;
 }
-.app .sub-module .btn-clear.btn-primary:hover, .btn-clear.btn-primary:focus, .btn-clear.btn-primary:active, .btn-clear.btn-primary.active {
+.app .sub-module .btn-clear.btn-primary:hover,
+.btn-clear.btn-primary:focus,
+.btn-clear.btn-primary:active,
+.btn-clear.btn-primary.active {
     color: white !important;
     background-color: #941301 !important;
     border-color: #941301 !important;
@@ -29,17 +35,17 @@
 .app .table thead th,
 .app .table tfoot td,
 .app .table tfoot th {
-    background-color: #850F00 !important;
-    color: #FFF !important;
+    background-color: #850f00 !important;
+    color: #fff !important;
     padding: 7px 8px !important;
     z-index: 50 !important;
-    border:1px solid #8f3c3c !important;
-    font-weight: 600!important;
+    border: 1px solid #8f3c3c !important;
+    font-weight: 600 !important;
 }
 .app .table tbody tr td,
 .app .table tbody tr th {
     padding: 8px 8px !important;
-    border:1px solid #e7e7e7;
+    border: 1px solid #e7e7e7;
 }
 .app .table th:first-child {
     border-start-start-radius: unset !important;
@@ -52,6 +58,9 @@
 /*}*/
 .app .bank-summary-table-container {
     height: calc(100vh - (var(--tw-header-height) + 200px)) !important;
+}
+.app .form-container {
+    height: calc(100vh - (var(--tw-header-height) + 100px)) !important;
 }
 .app .expense-planner-columns {
     height: calc(100vh - (var(--tw-header-height) + 103px)) !important;
@@ -74,91 +83,93 @@
 }
 .app .btn-link:hover {
     text-decoration: underline;
-    color: #CA2C22;
+    color: #ca2c22;
 }
-.app .modal .modal-content{
-    height: calc(100vh - (var(--tw-header-height) + var(--tw-navbar-height))) !important;
+.app .modal .modal-content {
+    height: calc(
+        100vh - (var(--tw-header-height) + var(--tw-navbar-height))
+    ) !important;
 }
 
 /* *********************************************** Admin ************************************************************** */
-.admin  .table-container {
+.admin .table-container {
     height: calc(100vh - (var(--tw-header-height) + 140px)) !important;
     margin-bottom: 1rem !important;
 }
 
-.admin  .table.table-main thead td,
-.admin  .table.table-main thead th,
-.admin  .table.table-main tfoot td,
-.admin  .table.table-main tfoot th {
+.admin .table.table-main thead td,
+.admin .table.table-main thead th,
+.admin .table.table-main tfoot td,
+.admin .table.table-main tfoot th {
     background-color: #004080 !important;
-    color: #FFF !important;
+    color: #fff !important;
     z-index: 1 !important;
     padding: 7px 8px !important;
-    border:1px solid #1e62a8 !important;
-    font-weight: 600!important;
+    border: 1px solid #1e62a8 !important;
+    font-weight: 600 !important;
 }
-.admin  .table.table-main tbody tr td,
-.admin  .table.table-main tbody tr th {
+.admin .table.table-main tbody tr td,
+.admin .table.table-main tbody tr th {
     padding: 8px 8px !important;
-    border:1px solid #e7e7e7;
+    border: 1px solid #e7e7e7;
 }
-.admin  .table.table-main th:first-child {
+.admin .table.table-main th:first-child {
     border-start-start-radius: unset !important;
 }
-.admin  .table.table-main th:last-child {
+.admin .table.table-main th:last-child {
     border-start-end-radius: unset !important;
 }
-.admin  .table.table-main tr:nth-child(even) {
+.admin .table.table-main tr:nth-child(even) {
     background-color: #ececec;
 }
 /* Apply background color to odd rows */
 .admin .table.table-main tr:nth-child(odd) {
-    background-color: #F5F5F5;
+    background-color: #f5f5f5;
 }
 .admin .table.table-main tr:hover {
-    background: #FFF !important;
+    background: #fff !important;
 }
 .admin .nav-active,
 .admin .nav-active:focus,
 .admin .nav-active:active,
 .admin .nav-active:hover,
-.admin .nav-link:focus{
-    background: #004080!important;
+.admin .nav-link:focus {
+    background: #004080 !important;
 }
-.admin .nav-link.nav-active:hover{
-    background: #004080!important;
-    border-color: transparent!important;
+.admin .nav-link.nav-active:hover {
+    background: #004080 !important;
+    border-color: transparent !important;
 }
-.admin .nav-link:hover{
-    border-color: #01A4F7!important;
+.admin .nav-link:hover {
+    border-color: #01a4f7 !important;
 }
 .admin .bg-tec {
     background: #004080;
 }
 .admin .bg-tec-active {
-    background: #01A4F7;
+    background: #01a4f7;
 }
 .admin .border-tec-active {
-    border-color: #01A4F7;
+    border-color: #01a4f7;
 }
 .admin .main-btn:focus,
-.admin .main-btn:active{
+.admin .main-btn:active {
     box-shadow: 0 10px 15px -3px rgba(1, 164, 247, 0.3) !important;
 }
 
 /* *********************************************** Global ************************************************************** */
-.swal2-popup{
-    border-radius: 50px!important;
-    border:1px solid #000!important;
-    padding: 4px 16px!important;
+.swal2-popup {
+    border-radius: 50px !important;
+    border: 1px solid #000 !important;
+    padding: 4px 16px !important;
 }
 .swal2-container .swal2-html-container {
-    margin: 1.2em 0.6em .3em !important;
+    margin: 1.2em 0.6em 0.3em !important;
     font-weight: 600;
     color: #000;
     letter-spacing: -0.4px;
 }
-.is-invalid-text{
+.is-invalid-text {
     position: absolute;
     color: #f8295a;
     font-size: 0.75rem;

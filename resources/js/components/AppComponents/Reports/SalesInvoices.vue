@@ -92,7 +92,7 @@
                             <th class="sticky top-0 w-[70px]">Due Date</th>
                             <th class="sticky top-0 w-[70px]">Date Paid</th>
                             <th class="sticky top-0 w-[110px] text-left">Sage Reference</th>
-                            <th class="sticky top-0 w-[80px]">Payment</th>
+                            <th class="sticky top-0 w-[80px] hidden">Payment</th>
                         </tr>
                     </thead>
                     <tbody class="h-full text-xs tracking-tight text-center">
@@ -126,7 +126,7 @@
                                     <span>{{ obj.pay_voucher_num }}</span>
                                 </div>
                             </td>
-                            <td class="text-nowrap">
+                            <td class="hidden text-nowrap">
                                 <button class="block w-full mb-1 secondary-btn"
                                 v-if="obj.status == 'Booked in SAGE' && obj.payment_status == null"
                                 data-modal-toggle="#process_purchase_invoice_details_modal"
@@ -250,7 +250,7 @@ export default {
             this.loading = true;
             try {
                 await this.fetchFiltersValuesFromBitrix();
-                await this.getPaymentStatus();
+                // await this.getPaymentStatus();
                 await this.getPageData();
             } finally {
                 this.loading = false;
