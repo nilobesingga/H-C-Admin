@@ -273,7 +273,6 @@ export default {
                     ];
             }
             this.selected_date_range = newDateRange;
-            console.log('newDateRange',newDateRange)
         },
         async getCompanies(){
             const dateRange = this.selected_date_range;

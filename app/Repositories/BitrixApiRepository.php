@@ -47,7 +47,6 @@ class BitrixApiRepository
             throw new \Exception("Bitrix API call failed: {$e->getMessage()}");
         }
     }
-
     public function getAllBitrixUsers()
     {
         try {
@@ -343,6 +342,135 @@ class BitrixApiRepository
         } catch (\Exception $e) {
             Log::error("Error fetching relationships roles" . $e->getMessage());
             return collect();
+        }
+    }
+    public function getQashioCreditCardByCardLastFourDigit($lastFourDigit)
+    {
+        try {
+            $response = $this->call('crm.company.reports_v2', [
+                'action' => 'getQashioCreditCardsByCardLastFourDigits',
+                'last_four_digit' => $lastFourDigit,
+            ]);
+
+            if($response){
+                return collect($response['result']) ?? collect();
+            }
+
+        } catch (\Exception $e) {
+            Log::error("Error fetching qashi credit card" . $e->getMessage());
+            return collect();
+        }
+    }
+    public function createCashRequisition($params)
+    {
+        try {
+            $fields = [
+                "IBLOCK_TYPE_ID" => "bitrix_processes",
+                "IBLOCK_ID" => "105",
+                "ELEMENT_CODE" => "element_1",
+                "FIELDS" => $params
+            ];
+
+            $response = $this->call('lists.element.add', $fields);
+
+            if (isset($response['result'])) {
+                return $response['result'];
+            }
+
+            Log::error('Failed to create Bitrix cash request item: ' . json_encode($response));
+            return false;
+
+        } catch (\Exception $e) {
+            Log::error("Error creating Bitrix Cash Requisition : " . $e->getMessage());
+            return false;
+        }
+    }
+    public function uploadDocumentToBitrixDriveByURLsArray($storageId, array $urls)
+    {
+        $uploadedFiles = [];
+
+        // Get folder ID from storage ID
+        $folderInfo = $this->call('disk.storage.get', ['id' => $storageId]);
+        $folderId = $folderInfo['result']['ROOT_OBJECT_ID'] ?? null;
+
+        if (!$folderId) {
+            Log::error("Failed to get folder ID from storage ID: $storageId");
+            return [['status' => 'failed', 'error' => 'Invalid storage ID']];
+        }
+
+        foreach ($urls as $url) {
+            try {
+                $fileName = basename(parse_url($url, PHP_URL_PATH));
+                $tempPath = sys_get_temp_dir() . '/' . $fileName;
+
+                // Download the file to temp
+                file_put_contents($tempPath, fopen($url, 'r'));
+
+                // Get upload URL and field name from Bitrix
+                $uploadInfo = $this->call('disk.folder.uploadfile', [
+                    'id' => $folderId,
+                    'data' => ['NAME' => $fileName],
+                    'generateUniqueName' => true
+                ]);
+
+                if (!isset($uploadInfo['result']['uploadUrl'], $uploadInfo['result']['field'])) {
+                    Log::error("Failed to get upload URL for file $fileName | Response: " . json_encode($uploadInfo));
+                    $uploadedFiles[] = ['file' => $fileName, 'status' => 'failed', 'error' => 'No upload URL'];
+                    continue;
+                }
+
+                $uploadUrl = $uploadInfo['result']['uploadUrl'];
+                $fieldName = $uploadInfo['result']['field'];
+
+                // Upload the file using multipart/form-data
+                $ch = curl_init($uploadUrl);
+                $postFields = [$fieldName => new \CURLFile($tempPath, mime_content_type($tempPath), $fileName)];
+
+                curl_setopt_array($ch, [
+                    CURLOPT_POST => true,
+                    CURLOPT_POSTFIELDS => $postFields,
+                    CURLOPT_RETURNTRANSFER => true
+                ]);
+
+                $response = curl_exec($ch);
+                $curlError = curl_error($ch);
+                curl_close($ch);
+
+                if ($curlError) {
+                    Log::error("cURL upload error for file $fileName: $curlError");
+                    $uploadedFiles[] = ['file' => $fileName, 'status' => 'failed', 'error' => $curlError];
+                    continue;
+                }
+
+                $result = json_decode($response, true);
+                if (isset($result['result']['ID'])) {
+                    Log::info("Successfully uploaded file to Bitrix: $fileName | File ID: " . $result['result']['ID']);
+                    $uploadedFiles[] = ['file' => $fileName, 'status' => 'success', 'id' => $result['result']['ID']];
+                } else {
+                    Log::error("Upload failed for $fileName | Response: " . json_encode($result));
+                    $uploadedFiles[] = ['file' => $fileName, 'status' => 'failed', 'error' => json_encode($result)];
+                }
+
+                // Clean up temp file
+                unlink($tempPath);
+
+            } catch (\Exception $e) {
+                Log::error("Exception uploading $url: " . $e->getMessage());
+                $uploadedFiles[] = ['file' => $url, 'status' => 'failed', 'error' => $e->getMessage()];
+            }
+        }
+
+        return $uploadedFiles;
+    }
+    public function getProjectByDealPrefixNumber($prefixNumber)
+    {
+        try{
+            $response = $this->call('crm.deal.list', [
+                'filter' => ['=%TITLE' => $prefixNumber. '%'],
+            ]);
+            return $response['result'] ?? [];
+        } catch (\Exception $e) {
+            Log::error("Error fetching contact list: " . $e->getMessage());
         }
     }
 }

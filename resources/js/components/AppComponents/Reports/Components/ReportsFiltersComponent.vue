@@ -139,6 +139,7 @@ export default {
             localStorage.setItem("dateRange", JSON.stringify(newDateRange));
         },
         setDateRangeExternally(newRange) {
+            console.log(newRange);
             if (Array.isArray(newRange) && newRange.length === 2) {
                 this.dateRange = newRange;
                 localStorage.setItem("dateRange", JSON.stringify(newRange));
