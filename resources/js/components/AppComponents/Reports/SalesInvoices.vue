@@ -92,6 +92,7 @@
                             <th class="sticky top-0 w-[70px]">Due Date</th>
                             <th class="sticky top-0 w-[70px]">Date Paid</th>
                             <th class="sticky top-0 w-[110px] text-left">Sage Reference</th>
+                            <th class="sticky top-0 w-[80px]">Payment</th>
                         </tr>
                     </thead>
                     <tbody class="h-full text-xs tracking-tight text-center">
@@ -125,6 +126,27 @@
                                     <span>{{ obj.pay_voucher_num }}</span>
                                 </div>
                             </td>
+                            <td class="text-nowrap">
+                                <button class="block w-full mb-1 secondary-btn"
+                                v-if="obj.status == 'Booked in SAGE' && obj.payment_status == null"
+                                data-modal-toggle="#process_purchase_invoice_details_modal"
+                                @click="openModal(obj)">
+                                    Send Payment Link
+                                </button>
+                                <button class="block w-full mb-1 secondary-btn"
+                                v-else-if="obj.payment_status != null"
+                                data-modal-toggle="#process_purchase_invoice_details_modal"
+                                data-toggle="tooltip" :title="obj.payment_status.toUpperCase()"
+                                @click="openModal(obj)">
+                                    View Payment <i class="text-sm ki-outline ki-information-1" :class="{'text-blue-500': obj.payment_status === 'initiated',
+                                    'text-green-500': obj.payment_status === 'completed',
+                                    'text-yellow-500': obj.payment_status === 'pending',
+                                    'text-red-500': obj.payment_status === 'canceled',
+                                    'text-orange-500': obj.payment_status === 'failed',
+                                    'text-orange-500': !['initiated','completed','pending','canceled','failed'].includes(obj.payment_status)
+                                    }"></i>
+                                </button>
+                            </td>
                         </tr>
                         <tr v-show="filteredData.length > 0">
                             <td colspan="4" class="text-sm font-bold text-center text-black">Total per currency</td>
@@ -150,7 +172,6 @@
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
-                        Loading...
                     </div>
                 </div>
             </div>
@@ -171,6 +192,15 @@
             </div>
         </div>
     </div>
+
+    <!-- View Purchase Invoice Details Modal -->
+    <process-purchase-invoice-details-modal
+        :obj_id="obj_id"
+        :obj_data="obj"
+        :page_data="page_data"
+        v-if="is_process_purchase_invoice_details_modal"
+        @closeModal="closeModal"
+    />
 
 </template>
 
@@ -210,6 +240,9 @@ export default {
                 },
             ],
             totalAsPerReportingCurrency: 0,
+            is_process_purchase_invoice_details_modal: false,
+            obj_id: null,
+            payment : []
         }
     },
     methods: {
@@ -217,6 +250,7 @@ export default {
             this.loading = true;
             try {
                 await this.fetchFiltersValuesFromBitrix();
+                await this.getPaymentStatus();
                 await this.getPageData();
             } finally {
                 this.loading = false;
@@ -271,6 +305,13 @@ export default {
             try {
                 const response = await this.callBitrixAPI(endpoint, bitrixUserId, bitrixWebhookToken, requestData);
                 this.data = response.result;
+                if(this.payment.length > 0){
+                    this.data = this.data.map((item) => {
+                        const paymentStatus = this.payment.find((payment) => payment.invoice_id == item.id);
+                        return { ...item, payment_status: ((paymentStatus) ? paymentStatus.status : null) , payment_completed_at : ((paymentStatus) ? paymentStatus.payment_completed_at : null) };
+                    });
+                }
+                // console.log("data", this.data);
                 await this.calculateTotalAsPerReportingCurrency();
             } catch (error) {
                 this.loading = false
@@ -312,6 +353,26 @@ export default {
                 return item.status_id === "D" || item.status_id === "1"
             }
             return true;
+        },
+        openModal(obj){
+            console.log("openModal", obj);
+            this.obj_id = obj.id;
+            this.obj = obj;
+            this.is_process_purchase_invoice_details_modal = true
+        },
+        closeModal(){
+            this.is_process_purchase_invoice_details_modal = false;
+            this.selected_obj = null
+            this.removeModalBackdrop();
+        },
+        async getPaymentStatus(){
+            await axios.get('payment_status')
+            .then((response) => {
+                this.payment = response.data.data;
+            })
+            .catch(error => {
+                console.log(error.response)
+            });
         }
     },
     computed:{

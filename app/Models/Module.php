@@ -33,6 +33,8 @@ class Module extends Model
                 return 'cash-pool.' . $child->slug;
             } elseif (str_contains($child->route, 'qashio')) {
                 return 'qashio.' . $child->slug;
+            } elseif (str_contains($child->route, 'file-manager')) {
+                return 'file-manager.' . $child->slug;
             } elseif (str_contains($child->route, 'reports')) {
                 return 'reports.' . $child->slug;
             }
@@ -43,6 +45,8 @@ class Module extends Model
             return 'cash-pool.' . $this->slug;
         } elseif (str_contains($this->route, 'qashio')) {
             return 'qashio.' . $this->slug;
+        } elseif (str_contains($this->route, 'file-manager')) {
+            return 'file-manager.' . $this->slug;
         } elseif (str_contains($this->route, 'reports')) {
             return 'reports.' . $this->slug;
         }

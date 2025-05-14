@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Default Filesystem Disk
@@ -29,7 +28,6 @@ return [
     */
 
     'disks' => [
-
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app/private'),
@@ -67,6 +65,26 @@ return [
             'timeout' => 30,
         ],
 
+        'file_server' => [
+            'driver' => 'sftp',
+            'host' => '10.0.1.15',
+            'username' => 'Nilo',
+            'password' => 'upgrade@gretel3CORA',
+            'root' => '/',
+            'port' => 22,
+            'timeout' => 30,
+        ],
+
+        'holding_smb' => [
+            'driver' => 'local',
+            'host' => '10.0.1.16',
+            'username' => 'Nilo',
+            'password' => 'upgrade@gretel3CORA',
+            'root' => '/Volumes/Holding',
+            'port' => 22,
+            'timeout' => 30,
+            'throw' => false,
+        ],
     ],
 
     /*
@@ -83,5 +101,4 @@ return [
     'links' => [
         public_path('storage') => storage_path('app/public'),
     ],
-
 ];
