@@ -52,9 +52,24 @@ class QashioController extends Controller
 
             $data = $query->get();
 
-            dd($data);
-
             return $this->successResponse('Data fetched successfully', $data, 200);
+
+        } catch (\Exception $e){
+            return $this->errorResponse('Something went wrong! Please contact IT.', env('APP_ENV') !== 'production' ? $e->getMessage() : null, 500);
+        }
+    }
+    public function saveBitrixCashRequest(Request $request, $type)
+    {
+        try {
+            if (($type === 'create' && $request['bitrix_cash_request_id'] === null && $request['transactionCategory'] === 'purchase') && ($request['clearingStatus'] === 'pending' || $request['clearingStatus'] === 'cleared')) {
+                $bitrixId = $this->qashioService->createBitrixCashRequest($request->all());
+                if ($bitrixId){
+                    QashioTransaction::where('qashioId', $request['qashioId'])->update([
+                       'bitrix_cash_request_id' => $bitrixId,
+                    ]);
+                }
+                return $this->successResponse('Cash Requisition created successfully', null, 201);
+            }
 
         } catch (\Exception $e){
             return $this->errorResponse('Something went wrong! Please contact IT.', env('APP_ENV') !== 'production' ? $e->getMessage() : null, 500);

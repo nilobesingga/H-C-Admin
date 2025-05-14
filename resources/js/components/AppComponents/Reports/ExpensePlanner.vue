@@ -40,13 +40,19 @@
                     </select>
                 </div>
                 <div class="flex">
+                    <select v-model="filters.payment_mode" class="select select-sm select-input w-[200px]" :disabled="filters.request_type === 'purchase_invoice'">
+                        <option value="" selected>Filter by Payment Mode</option>
+                        <option v-for="(mod, k) in payment_modes"  :value="mod.id" :key="k">{{ mod.name }}</option>
+                    </select>
+                </div>
+                <div class="flex">
                     <select v-model="filters.currency" class="w-40 select select-sm select-input">
                         <option value="" selected>Filter by Currency</option>
                         <option v-for="(cur, k) in currencies"  :value="cur.CURRENCY" :key="k">{{ cur.FULL_NAME }}</option>
                     </select>
                 </div>
                 <div class="flex">
-                    <select class="w-40 select select-sm select-input" v-model="filters.request_type">
+                    <select class="w-40 select select-sm select-input" v-model="filters.request_type" :disabled="filters.payment_mode !== ''">
                         <option value="" selected>Filter by Type</option>
                         <option value="cash_request">Cash Request</option>
                         <option value="purchase_invoice">Purchase Invoice</option>
@@ -316,6 +322,7 @@ export default {
                 date: null,
                 category_id: "",
                 sage_company_code: "",
+                payment_mode: "",
                 request_type: "",
                 currency: "",
                 awaiting_for_exchange_rate: "",
@@ -800,7 +807,7 @@ export default {
     },
     computed:{
         filteredData() {
-            let today = DateTime.now();
+            const paymentMode = this.filters.payment_mode;
             return this.data.filter(item => {
                 // Filter by search input (case insensitive)
                 const matchesSearch =
@@ -810,17 +817,25 @@ export default {
                     (item.cash_amount && item.cash_amount.includes(this.filters.search)) ||
                     (item.project_name && item.project_name.toLowerCase().includes(this.filters.search.toLowerCase()));
 
+                // Request Type Logic
+                const effectiveRequestType = paymentMode ? 'cash_request' : this.filters.request_type;
                 // Filter by type
-                const matchesType = this.filters.request_type ? (this.filters.request_type === 'budget_only' ? item.is_budget_only === '1937' : item.request_type === this.filters.request_type) : true;
-
+                // const matchesType = this.filters.request_type ? (this.filters.request_type === 'budget_only' ? item.is_budget_only === '1937' : item.request_type === this.filters.request_type) : true;
+                const matchesType = effectiveRequestType
+                    ? (effectiveRequestType === 'budget_only'
+                        ? item.is_budget_only === '1937'
+                        : item.request_type === effectiveRequestType)
+                    : true;
+                // Payment Mode Filter only applies to cash_request
+                const matchesPaymentMode = paymentMode && effectiveRequestType === 'cash_request'
+                    ? item.payment_mode_id === paymentMode
+                    : true;
                 // Filter by currency
                 const matchesCurrency = this.filters.currency ? item.currency === this.filters.currency : true;
-
                 // Filter by Awaiting for Exchange Rate
                 const matchesAwaitingForExchangeRate = this.filters.awaiting_for_exchange_rate === 'only' ? item.awaiting_for_exchange_rate_id === '2268' : true;
-
                 // Return true only if all filters match
-                return matchesSearch && matchesType && matchesCurrency && matchesAwaitingForExchangeRate;
+                return matchesSearch && matchesType && matchesPaymentMode && matchesCurrency && matchesAwaitingForExchangeRate;
             });
         },
         weekHeaders() {
@@ -854,22 +869,58 @@ export default {
 
             weeks.forEach(week => {
                 week.data.sort((a, b) => {
-                    const dateA = a.request_type === "purchase_invoice"
-                        ? (a.due_date ? DateTime.fromISO(a.due_date) : null)
-                        : (a.payment_date ? DateTime.fromISO(a.payment_date) : null);
+                    if (a.request_type === 'cash_request' && b.request_type !== 'cash_request') {
+                        return -1;
+                    }
+                    if (a.request_type !== 'cash_request' && b.request_type === 'cash_request') {
+                        return 1;
+                    }
 
-                    const dateB = b.request_type === "purchase_invoice"
-                        ? (b.due_date ? DateTime.fromISO(b.due_date) : null)
-                        : (b.payment_date ? DateTime.fromISO(b.payment_date) : null);
+                    if (a.request_type === 'cash_request' && b.request_type === 'cash_request') {
+                        const dateA = a.payment_date ? DateTime.fromSQL(a.payment_date, { zone: 'utc' }) : null;
+                        const dateB = b.payment_date ? DateTime.fromSQL(b.payment_date, { zone: 'utc' }) : null;
+                        if (!dateA && !dateB) return 0;
+                        if (!dateA) return 1;
+                        if (!dateB) return -1;
+                        return dateA.toMillis() - dateB.toMillis();
+                    }
 
-                    if (!dateA) return 1;
-                    if (!dateB) return -1;
-                    return dateA - dateB;
+                    if (a.request_type === 'purchase_invoice' && b.request_type === 'purchase_invoice') {
+                        const dateA = a.due_date ? DateTime.fromSQL(a.due_date, { zone: 'utc' }) : null;
+                        const dateB = b.due_date ? DateTime.fromSQL(b.due_date, { zone: 'utc' }) : null;
+                        if (!dateA && !dateB) return 0;
+                        if (!dateA) return 1;
+                        if (!dateB) return -1;
+                        return dateA.toMillis() - dateB.toMillis();
+                    }
+
+                    return 0;
                 });
             });
 
+            // weeks.forEach(week => {
+            //     week.data.sort((a, b) => {
+            //         const dateA = a.request_type === "purchase_invoice"
+            //             ? (a.due_date ? DateTime.fromISO(a.due_date) : null)
+            //             : (a.payment_date ? DateTime.fromISO(a.payment_date) : null);
+            //
+            //         const dateB = b.request_type === "purchase_invoice"
+            //             ? (b.due_date ? DateTime.fromISO(b.due_date) : null)
+            //             : (b.payment_date ? DateTime.fromISO(b.payment_date) : null);
+            //
+            //         if (!dateA) return 1;
+            //         if (!dateB) return -1;
+            //         return dateA - dateB;
+            //     });
+            // });
+
             return weeks;
         },
+    },
+    watch: {
+        'filters.payment_mode'(newVal) {
+            this.filters.request_type = newVal ? 'cash_request' : '';
+        }
     },
     created() {
         this.sharedState.bitrix_user_id = this.page_data.user.bitrix_user_id;

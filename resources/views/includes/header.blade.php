@@ -25,33 +25,25 @@
                         >
                            Dashboard
                         </a>
-                        @if(($page->user->modules->isNotEmpty() && (request()->is('reports*') || request()->is('cash-pool*'))))
+                        @if($page->user->modules->isNotEmpty())
                             @php
-                                $currentPath = request()->path();
-                                $normalizedPath = '/' . ltrim($currentPath, '/');
-                                $currentModule = $page->user->modules->firstWhere('route', $normalizedPath);
-                                if ($currentModule) {
-                                    $parentModule = $currentModule->parent;
-
-                                    $href = $parentModule->children->isNotEmpty()
-                                    ? str_contains($parentModule->children->first()->route, 'cash-pool') ? 'cash-pool.' . $parentModule->children->first()->slug : 'reports.' . $parentModule->children->first()->slug
-                                    : route('reports.' . $parentModule->slug);
-                                }
+                                $userModules = $page->user->modules;
+                                $segment = request()->segment(2) ?: request()->segment(1);
+                                $currentModule = $userModules->firstWhere('slug', $segment);
+                                $parentModule = $currentModule?->parent;
+                                $linkModule = $parentModule?->children
+                                ->filter(fn($mod) => $userModules->contains('id', $mod->id))
+                                ->sortBy('order')
+                                ->first();
                             @endphp
-                            <a class="nav-link nav-active" href="{{ route($href) }}">{{ $parentModule->name }}</a>
+
+                            @if($parentModule && $linkModule)
+                                <a class="nav-link nav-active" href="{{ route($linkModule->route_name) }}">
+                                    {{ $parentModule->name }}
+                                </a>
+                            @endif
                         @endif
-
-
-{{--                        @if(request()->is('reports*') && $page->user->modules->isNotEmpty())--}}
-{{--                            <a class="nav-link {{ request()->is('reports*') ? 'nav-active' : '' }}"--}}
-{{--                               href="{{ route('reports.' . $page->user->modules->first()->slug) }}"--}}
-{{--                            >--}}
-{{--                                Cash Reports--}}
-{{--                            </a>--}}
-{{--                        @endif--}}
                     </div>
-
-
                 </div>
             </div>
             <!-- End of Navs -->

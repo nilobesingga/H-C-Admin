@@ -577,7 +577,7 @@ export default {
             if (parsedDate.isValid) {
                 let newDateRange = [
                     parsedDate.startOf('month').toISODate(),
-                    DateTime.now().toISODate()
+                    parsedDate.endOf('month').toISODate(),
                 ];
                 // Set dateRange on the child component via ref
                 this.$nextTick(() => {
