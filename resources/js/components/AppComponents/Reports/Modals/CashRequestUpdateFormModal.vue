@@ -3,7 +3,7 @@
         <div class="modal-content top-[5%] lg:max-w-[1000px]">
             <div class="modal-header">
                 <h3 class="text-xl font-bold tracking-tight capitalize modal-title">Update Cash Request</h3>
-                <button class="btn btn-xs btn-icon btn-light" data-modal-dismiss="true" @click="$emit('closeModal')">
+                <button class="btn btn-xs btn-icon btn-light" data-modal-dismiss="true">
                     <i class="ki-outline ki-cross" ></i>
                 </button>
             </div>
@@ -184,7 +184,6 @@
                     <button
                         class="secondary-btn !text-md font-semibold !border-2 !px-10"
                         data-modal-dismiss="true"
-                        @click="$emit('closeModal')"
                     >
                         Cancel
                     </button>

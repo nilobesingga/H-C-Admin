@@ -54,6 +54,20 @@
                             <option value="null">Null</option>
                         </select>
                     </div>
+                    <!-- Transaction Category -->
+                    <div class="flex flex-shrink-0 w-[230px]">
+                        <select
+                            class="select select-sm select-input w-[230px]"
+                            v-model="filters.transaction_category"
+                        >
+                            <option value="" selected>Filter by Transaction Category</option>
+                            <option value="purchase">Purchase</option>
+                            <option value="card_loading">Card Loading</option>
+                            <option value="account_verification">Account Verification</option>
+                            <option value="reversal">Reversal</option>
+                            <option value="deposit">Deposit</option>
+                        </select>
+                    </div>
                 </div>
                 <!-- Search Input -->
                 <div class="flex grow">
@@ -90,7 +104,7 @@
                             <th class="sticky top-0 w-[150px]">ERP</th>
                             <th class="sticky top-0 w-[140px]">Card</th>
                             <th class="sticky top-0 w-[200px]">Other</th>
-                            <th class="sticky top-0 w-[100px]">Actions</th>
+                            <th class="sticky top-0 w-[150px]">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="text-xs tracking-tight text-center">
@@ -119,7 +133,7 @@
                                 <hr class="my-1 border-gray-400">
                                 <div class="flex justify-between py-0.5">
                                     <span class="font-semibold">ID:</span>
-                                    <strong>{{ obj.string_id }}</strong>
+                                    <strong>{{ obj.stringId }}</strong>
                                 </div>
                                 <hr class="my-1 border-gray-400">
                                 <div class="text-center text-lg mt-5"><strong>Cetrix</strong></div>
@@ -140,7 +154,7 @@
                                 <hr class="my-1 border-gray-400">
                                 <div class="flex justify-between py-0.5">
                                     <span class="font-semibold">Cash Requisition Id:</span>
-                                    <span>{{ obj.bitrix_qashio_credit_card ? obj.bitrix_qashio_credit_card.bitrix_cash_request_id : '' }}</span>
+                                    <span><a class="btn btn-link !text-black hover:!text-brand-active" target="_blank" :href="'https://crm.cresco.ae/bizproc/processes/105/element/0/' + obj.bitrix_cash_request_id  + '/?list_section_id='">{{obj.bitrix_cash_request_id }}</a></span>
                                 </div>
                                 <hr class="my-1 border-gray-400">
                             </td>
@@ -388,11 +402,18 @@
                             </td>
                             <td class="text-center p-1.5">
                                 <button
-                                    v-if="obj.clearingAmount"
-                                    @click="downloadCashReleaseReceipt(obj)"
+                                    v-if="(!obj.bitrix_cash_request_id && obj.transactionCategory === 'purchase') && (obj.clearingStatus === 'pending' || obj.clearingStatus === 'cleared')"
+                                    @click="saveCashRequest('create', obj)"
                                     class="block w-full mb-1 secondary-btn"
                                 >
                                     Create Request
+                                </button>
+                                <button
+                                    v-if="(obj.bitrix_cash_request_id && obj.transactionCategory === 'purchase') && (obj.clearingStatus === 'cleared' || obj.clearingStatus === 'reversed' || obj.clearingStatus === 'updated')"
+                                    @click="saveCashRequest('create', obj)"
+                                    class="block w-full mb-1 secondary-btn"
+                                >
+                                    Update Request
                                 </button>
                             </td>
                         </tr>
@@ -455,6 +476,7 @@ export default {
                 from_date: null,
                 to_date: null,
                 clearing_status: "",
+                transaction_category: "",
                 search: null,
             },
             qashio_credit_cards: [],
@@ -462,15 +484,11 @@ export default {
     },
     methods: {
         async getData() {
-            this.loading = true;
-            try {
-                await this.fetchQashioCreditCardsFromBitrix();
-                await this.getPageData(false);
-            } finally {
-                this.loading = false;
-            }
+            await this.fetchQashioCreditCardsFromBitrix();
+            await this.getPageData();
         },
         async fetchQashioCreditCardsFromBitrix() {
+            this.loading = true;
             const bitrixUserId = this.page_data.user.bitrix_user_id ? this.page_data.user.bitrix_user_id : null;
             const bitrixWebhookToken = this.page_data.user.bitrix_webhook_token ? this.page_data.user.bitrix_webhook_token : null;
             const endpoint = 'crm.company.reports_v2';
@@ -480,6 +498,7 @@ export default {
             try {
                 const response = await this.callBitrixAPI(endpoint, bitrixUserId, bitrixWebhookToken, requestData);
                 if (response.result){
+                    this.loading = false
                     this.qashio_credit_cards = response.result
                 }
             } catch (error) {
@@ -489,6 +508,7 @@ export default {
             }
         },
         async getPageData(isSync = false){
+            this.loading = true;
             this.filters.from_date = this.selected_date_range[0];
             this.filters.to_date = this.selected_date_range[1];
             this.data = []
@@ -514,11 +534,13 @@ export default {
                         bitrix_qashio_credit_card: matchingCard || null
                     };
                 });
+                this.loading = false
 
                 if (isSync) {
-                    this.successToast('User sync successfully');
+                    this.successToast('Qashio data sync successfully');
                 }
             } catch (error) {
+                this.loading = false
                 if (this.appEnv === 'local') {
                     this.errorToast(error.response.data.exception);
                 } else {
@@ -590,6 +612,20 @@ export default {
             }
             this.selected_date_range = newDateRange;
         },
+        saveCashRequest(type, obj){
+            axios({
+                url: `/qashio/transaction/save/${type}`,
+                method: 'POST',
+                data: obj,
+            }).then(response => {
+                if (response.data){
+                    this.successToast(response.data.message)
+                    this.getPageData();
+                }
+            }).catch(error => {
+                console.log(error)
+            })
+        }
     },
     computed: {
         dateRangePickerText(){
@@ -612,8 +648,11 @@ export default {
                 // Filter by Clearing Status
                 const matchesStatus = this.filters.clearing_status === 'null' ? item.clearingStatus === null : this.filters.clearing_status ? item.clearingStatus === this.filters.clearing_status : true;
 
+                // Filter by Transaction Category
+                const matchesCategory = this.filters.transaction_category ? item.transactionCategory === this.filters.transaction_category : true;
+
                 // Return true only if all filters match
-                return matchesSearch && matchesStatus;
+                return matchesSearch && matchesStatus && matchesCategory;
             });
         },
     },
