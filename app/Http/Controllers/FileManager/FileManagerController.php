@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\FileManager;
 
 use App\Http\Controllers\Controller;
+use App\Models\Bitrix\BitrixListsSageCompanyMapping;
 use App\Services\UserServices;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
@@ -15,11 +16,13 @@ class FileManagerController extends Controller
 
     protected $userService;
     protected $user;
+    protected $userCategoryIds;
 
     public function __construct(UserServices $userService)
     {
         $this->userService = $userService;
         $this->user = $userService->getAuthUserModulesAndCategories();
+        $this->userCategoryIds = $userService->getUserCategoryIds();
     }
 
     /**
@@ -29,10 +32,18 @@ class FileManagerController extends Controller
      */
     public function index()
     {
+        $bitrixListCategories = BitrixListsSageCompanyMapping::select('category_id', 'bitrix_list_id', 'bitrix_category_id', 'bitrix_category_name')
+            ->where('bitrix_list_id', 1)
+            ->whereNotNull('bitrix_category_id')
+            ->whereIn('category_id', $this->userCategoryIds)
+            ->distinct()
+            ->get();
+
         $page = (object) [
             'title' => 'File Manager',
             'identifier' => 'file-manager',
             'user' => $this->user,
+            'bitrix_list_categories' => $bitrixListCategories
         ];
 
         return view('filemanager.file-manager', compact('page'));
@@ -176,27 +187,27 @@ class FileManagerController extends Controller
                     if (!$disk->exists($filePath)) {
                         return $this->errorResponse('File not found', null, 404);
                     }
-                    
+
                     // Get file information using individual methods instead of getMetadata()
                     $fileSize = null;
                     $lastModified = null;
                     $mimeType = null;
                     $type = null;
-                    
+
                     try {
                         $fileSize = $disk->size($filePath);
                     } catch (\Exception $e) {
                         $fileSize = 0;
                         Log::warning("Could not get file size for info: {$e->getMessage()}");
                     }
-                    
+
                     try {
                         $lastModified = $disk->lastModified($filePath);
                     } catch (\Exception $e) {
                         $lastModified = time();
                         Log::warning("Could not get last modified time for info: {$e->getMessage()}");
                     }
-                    
+
                     try {
                         $mimeType = $disk->mimeType($filePath);
                         // Determine if it's a file or directory based on mime type
@@ -382,7 +393,7 @@ class FileManagerController extends Controller
 
             // Generate target path - use the current path from request
             $targetPath = rtrim($path, '/') . '/' . $file->getClientOriginalName();
-            
+
             // Check if file already exists
             if ($disk->exists($targetPath)) {
                 // Generate a unique filename by appending a timestamp
@@ -400,21 +411,21 @@ class FileManagerController extends Controller
             // Get file information using individual methods instead of getMetadata()
             $fileSize = null;
             $lastModified = null;
-            
+
             try {
                 $fileSize = $disk->size($targetPath);
             } catch (\Exception $e) {
                 $fileSize = $file->getSize();
                 Log::warning("Could not get file size from storage: {$e->getMessage()}");
             }
-            
+
             try {
                 $lastModified = $disk->lastModified($targetPath);
             } catch (\Exception $e) {
                 $lastModified = time();
                 Log::warning("Could not get last modified time: {$e->getMessage()}");
             }
-            
+
             // Log successful upload
             Log::info("File uploaded successfully", [
                 'path' => $targetPath,
