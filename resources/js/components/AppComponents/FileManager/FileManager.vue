@@ -197,7 +197,7 @@ import { required } from '@vuelidate/validators';
 import vSelect from 'vue-select';
 import 'vue-select/dist/vue-select.css';
 import { debounce } from 'lodash';
-import Dropzone from 'dropzone';
+// import Dropzone from 'dropzone';
 const bitrixUserId = "";
 const bitrixWebhookToken = "";
 import qs from 'qs';
