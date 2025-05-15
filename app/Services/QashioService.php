@@ -28,16 +28,16 @@ Class QashioService
             $lastSync = QashioTransaction::max('transactionTime');
 
             // Prepare API parameters
-            $params = ['limit' => 5000];
+            $params = ['limit' => 50000];
 
             if ($lastSync) {
                 // Incremental sync: fetch only new transactions after last sync
                 $params['transactionTimeFrom'] = Carbon::parse($lastSync)->addSecond()->toIso8601String();
-                $params['transactionTimeTo'] = Carbon::now()->toIso8601String();
             } else {
                 Log::info('Performing initial sync of all Qashio transactions.');
                 $params['transactionTimeFrom'] = "2025-05-01T00:00:00.000Z";
             }
+            $params['transactionTimeTo'] = Carbon::now()->toIso8601String();
 
             // Fetch transactions
             $response = $this->qashioRepo->getTransactions($params);
@@ -53,7 +53,7 @@ Class QashioService
                 ];
             }
 
-            // $this->processTransactions($transactions);
+//            $this->processTransactions($transactions);
             // Only Sync to database no bitrix cash requisitions creating.
             $upsertData = [];
 
