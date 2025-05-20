@@ -65,7 +65,8 @@ Route::middleware(['auth'])->group(function(){
         });
         // Qashio
         Route::group(['prefix' => 'qashio', 'as' => 'qashio.'], function(){
-            Route::get('/', [QashioController::class, 'index'])->name('qashio');
+            Route::get('/qashio-admin', [QashioController::class, 'adminIndex'])->name('qashio-admin');
+            Route::get('/qashio-transactions', [QashioController::class, 'transactionsIndex'])->name('qashio-transactions');
         });
         // File Manager
         Route::group(['prefix' => 'file-manager', 'as' => 'file-manager.'], function(){
@@ -75,9 +76,12 @@ Route::middleware(['auth'])->group(function(){
     });
     // Qashio get data
     Route::post('/qashio/get-data', [QashioController::class, 'getData']);
+    // Qashio Merchants
+    Route::post('/qashio/merchants/get-data', [QashioController::class, 'getMerchantsData']);
+    Route::post('/qashio/merchants/get-data', [QashioController::class, 'getMerchantsData']);
     // save request from qashio transaction
     Route::post('/qashio/transaction/save/{type}', [QashioController::class, 'saveBitrixCashRequest']);
-  
+
     Route::get('/file-manager/get-data', [FileManagerController::class, 'getData'])->name('file-manager.get-data');
     Route::get('/file-manager/deep-search', [FileManagerController::class, 'deepSearch'])->name('file-manager.deep-search');
     Route::post('/file-manager/upload', [FileManagerController::class, 'uploadFile'])->name('file-manager.upload');
