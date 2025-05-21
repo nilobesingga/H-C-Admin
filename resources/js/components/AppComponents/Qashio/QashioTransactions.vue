@@ -40,6 +40,30 @@
             <!-- Filters Section -->
             <div class="flex flex-wrap items-center gap-2 reports-only-filters">
                 <div class="flex gap-2">
+                    <!-- Category Filter -->
+                    <div class="flex flex-shrink-0">
+                        <select
+                            class="w-48 select select-sm select-input"
+                            v-model="filters.category_id"
+                        >
+                            <option value="" selected>Filter by Category</option>
+                            <option v-for="obj in page_data.bitrix_list_categories" :key="obj.id" :value="obj.bitrix_category_id">
+                                {{ obj.bitrix_category_name }}
+                            </option>
+                        </select>
+                    </div>
+                    <!-- Sage Company Filter -->
+                    <div class="flex flex-shrink-0">
+                        <select
+                            class="select select-sm select-input w-96"
+                            v-model="filters.sage_company_id"
+                        >
+                            <option value="" selected>Filter by Sage Company</option>
+                            <option v-for="obj in page_data.bitrix_list_sage_companies" :key="obj.id" :value="obj.bitrix_sage_company_id">
+                                {{ obj.bitrix_sage_company_name }}
+                            </option>
+                        </select>
+                    </div>
                     <!-- Clearing Status -->
                     <div class="flex flex-shrink-0">
                         <select
@@ -52,20 +76,6 @@
                             <option value="reversed">Reversed</option>
                             <option value="updated">Updated</option>
                             <option value="null">Null</option>
-                        </select>
-                    </div>
-                    <!-- Transaction Category -->
-                    <div class="flex flex-shrink-0 w-[230px]">
-                        <select
-                            class="select select-sm select-input w-[230px]"
-                            v-model="filters.transaction_category"
-                        >
-                            <option value="" selected>Filter by Transaction Category</option>
-                            <option value="purchase">Purchase</option>
-                            <option value="card_loading">Card Loading</option>
-                            <option value="account_verification">Account Verification</option>
-                            <option value="reversal">Reversal</option>
-                            <option value="deposit">Deposit</option>
                         </select>
                     </div>
                 </div>
@@ -81,330 +91,44 @@
                         />
                     </div>
                 </div>
-                <div class="flex flex-shrink-0">
-                    <button
-                        class="main-btn !bg-white !border !py-2 !px-5 !min-w-[120px] !text-sm focus:!border-tec-active"
-                        :disabled="loading"
-                        @click="getPageData(true)"
-                    >
-                        Sync Transactions
-                    </button>
-                </div>
             </div>
             <!-- table -->
             <div class="relative flex-grow h-full overflow-auto border shadow-md reports-table-container border-brand">
                 <table class="table w-full text-xs align-middle table-fixed c-table table-border" :class="filteredData.length === 0 ? 'h-full' : ''">
                     <thead>
-                        <tr class="font-medium text-center bg-gray-800 text-white">
-                            <th class="sticky top-0 w-10">#</th>
-                            <th class="sticky top-0 w-[280px]">ID</th>
-                            <th class="sticky top-0 w-[150px]">Transactions</th>
-                            <th class="sticky top-0 w-[150px]">Clearing</th>
-                            <th class="sticky top-0 w-[180px]">Status</th>
-                            <th class="sticky top-0 w-[150px]">ERP</th>
-                            <th class="sticky top-0 w-[140px]">Card</th>
-                            <th class="sticky top-0 w-[200px]">Other</th>
-                            <th class="sticky top-0 w-[150px]">Actions</th>
-                        </tr>
+                    <tr class="font-medium text-center bg-black text-neutral-900">
+                        <th class="sticky top-0 w-10">#</th>
+                        <th class="sticky top-0 w-[60px]">Id</th>
+                        <th class="sticky top-0 w-[80px]" data-tooltip="#Transaction_Amount">
+                            Amount <i class="ki-outline ki-information-2"></i>
+                            <div class="transition-opacity duration-300 tooltip" id="Transaction_Amount">Transaction Amount</div>
+                        </th>
+                        <th class="sticky top-0 w-[100px]">Payment Date</th>
+                        <th class="sticky top-0 w-[80px]">Status</th>
+                        <th class="sticky top-0 w-[120px]">Memo</th>
+                        <th class="sticky top-0 w-[120px]">Merchant / Supplier</th>
+                        <th class="sticky top-0 w-[130px]">Actions</th>
+                    </tr>
                     </thead>
-                    <tbody class="text-xs tracking-tight text-center">
-                        <tr v-for="(obj, index) in filteredData" :key="index" class="transition-all duration-300 hover:bg-gray-50">
-                            <td class="font-medium">{{ index + 1 }}</td>
-                            <td class="text-left p-1.5">
-                                <div class="flex justify-between py-0.5">
-                                    <span class="font-semibold">Table ID:</span>
-                                    <strong>{{ obj.id }}</strong>
-                                </div>
-                                <hr class="my-1 border-gray-400">
-                                <div class="flex justify-between py-0.5">
-                                    <span class="font-semibold">Qashio ID:</span>
-                                    <strong>{{ obj.qashioId }}</strong>
-                                </div>
-                                <hr class="my-1 border-gray-400">
-                                <div class="flex justify-between py-0.5">
-                                    <span class="font-semibold">RRN:</span>
-                                    <span>{{ obj.rrn }}</span>
-                                </div>
-                                <hr class="my-1 border-gray-400">
-                                <div class="flex justify-between py-0.5">
-                                    <span class="font-semibold">Parent ID:</span>
-                                    <span>{{ obj.parentId }}</span>
-                                </div>
-                                <hr class="my-1 border-gray-400">
-                                <div class="flex justify-between py-0.5">
-                                    <span class="font-semibold">ID:</span>
-                                    <strong>{{ obj.stringId }}</strong>
-                                </div>
-                                <hr class="my-1 border-gray-400">
-                                <div class="text-center text-lg mt-5"><strong>Cetrix</strong></div>
-                                <div class="flex justify-between py-0.5 mt-5">
-                                    <span class="font-semibold">Last Four Digits:</span>
-                                    <span>{{ obj.bitrix_qashio_credit_card ? obj.bitrix_qashio_credit_card.last_four_digits : '' }}</span>
-                                </div>
-                                <hr class="my-1 border-gray-400">
-                                <div class="flex justify-between py-0.5">
-                                    <span class="font-semibold">Category:</span>
-                                    <span>{{ obj.bitrix_qashio_credit_card ? obj.bitrix_qashio_credit_card.category : '' }}</span>
-                                </div>
-                                <hr class="my-1 border-gray-400">
-                                <div class="flex justify-between py-0.5">
-                                    <span class="font-semibold">Sage Company:</span>
-                                    <span class="text-[09px]">{{ obj.bitrix_qashio_credit_card ? obj.bitrix_qashio_credit_card.sage_company : '' }}</span>
-                                </div>
-                                <hr class="my-1 border-gray-400">
-                                <div class="flex justify-between py-0.5">
-                                    <span class="font-semibold">Cash Requisition Id:</span>
-                                    <span><a class="btn btn-link !text-black hover:!text-brand-active" target="_blank" :href="'https://crm.cresco.ae/bizproc/processes/105/element/0/' + obj.bitrix_cash_request_id  + '/?list_section_id='">{{obj.bitrix_cash_request_id }}</a></span>
-                                </div>
-                                <hr class="my-1 border-gray-400">
-                            </td>
-                            <td class="text-left p-1.5">
-                                <div class="flex justify-between py-0.5">
-                                    <span class="font-semibold">Amount:</span>
-                                    <strong>{{ formatAmount(obj.transactionAmount) }} {{ obj.transactionCurrency }}</strong>
-                                </div>
-                                <hr class="my-1 border-gray-400">
-                                <div class="flex justify-between py-0.5">
-                                    <span class="font-semibold">Fee:</span>
-                                    <span>{{ obj.transactionFeeAmount }}</span>
-                                </div>
-                                <hr class="my-1 border-gray-400">
-                                <div class="flex justify-between py-0.5">
-                                    <span class="font-semibold">Currency:</span>
-                                    <span>{{ obj.transactionCurrency }}</span>
-                                </div>
-                                <hr class="my-1 border-gray-400">
-                                <div class="flex justify-between py-0.5">
-                                    <span class="font-semibold">Time:</span>
-                                    <span>{{ formatDateTime24HoursISO(obj.transactionTime) }}</span>
-                                </div>
-                                <hr class="my-1 border-gray-400">
-                                <div class="flex justify-between py-0.5">
-                                    <span class="font-semibold">Status:</span>
-                                    <strong>{{ obj.transactionStatus }}</strong>
-                                </div>
-                                <hr class="my-1 border-gray-400">
-                                <div class="flex justify-between py-0.5">
-                                    <span class="font-semibold">Description:</span>
-                                    <span>{{ obj.transactionDescription }}</span>
-                                </div>
-                                <hr class="my-1 border-gray-400">
-                                <div class="flex justify-between py-0.5">
-                                    <span class="font-semibold">Type:</span>
-                                    <span>{{ obj.transactionType }}</span>
-                                </div>
-                                <hr class="my-1 border-gray-400">
-                                <div class="flex justify-between py-0.5">
-                                    <span class="font-semibold">Category:</span>
-                                    <span>{{ obj.transactionCategory }}</span>
+                    <tbody class="h-full text-xs tracking-tight text-center">
+                        <tr v-for="(obj, index) in filteredData" :key="index" class="transition-all duration-300 text-neutral-800">
+                            <td>{{ ++index }}</td>
+                            <td><a class="btn btn-link !text-black hover:!text-brand-active" target="_blank" :href="'https://crm.cresco.ae/bizproc/processes/105/element/0/' + obj.bitrix_cash_request_id  + '/?list_section_id='">{{obj.bitrix_cash_request_id }}</a></td>
+                            <td class="text-right">{{ formatAmount(obj.transactionAmount) }} <strong class="font-bold text-black">{{ obj.transactionCurrency }}</strong></td>
+                            <td>{{ formatDateTime24HoursISO(obj.transactionTime)  }}</td>
+                            <td>
+                                <div class="capitalize" :class="obj.clearingStatus === 'cleared' ? 'badge badge-success' : obj.clearingStatus === 'pending' ? 'badge badge-warning' : ''">
+                                    {{ obj.clearingStatus  }}
                                 </div>
                             </td>
-                            <td class="text-left p-1.5">
-                                <div class="flex justify-between py-0.5">
-                                    <span class="font-semibold">Amount:</span>
-                                    <span class="!text-primary">{{ formatAmount(obj.clearingAmount) }}</span>
-                                </div>
-                                <hr class="my-1 border-gray-400">
-                                <div class="flex justify-between py-0.5">
-                                    <span class="font-semibold">Fee:</span>
-                                    <span>{{ obj.clearingFee }}</span>
-                                </div>
-                                <hr class="my-1 border-gray-400">
-                                <div class="flex justify-between py-0.5">
-                                    <span class="font-semibold">Status:</span>
-                                    <strong :class="obj.clearingStatus === 'cleared' ? 'badge badge-success' : obj.clearingStatus === 'pending' ? 'badge badge-warning' : ''">{{ obj.clearingStatus }}</strong>
-                                </div>
-                                <hr class="my-1 border-gray-400">
-                                <div class="flex justify-between py-0.5">
-                                    <span class="font-semibold">VAT:</span>
-                                    <span>{{ formatAmount(obj.vatAmount) }}</span>
-                                </div>
-                                <hr class="my-1 border-gray-400">
-                                <div class="flex justify-between py-0.5">
-                                    <span class="font-semibold">Cleared:</span>
-                                    <span>{{ formatDateTime24HoursISO(obj.clearedAt) }}</span>
-                                </div>
-                            </td>
-                            <td class="text-left p-1.5">
-                                <div class="flex justify-between py-0.5">
-                                    <span class="font-semibold">Billing Amount:</span>
-                                    <strong>{{ formatAmount(obj.billingAmount) }} {{ obj.billingCurrency }}</strong>
-                                </div>
-                                <hr class="my-1 border-gray-400">
-                                <div class="flex justify-between py-0.5">
-                                    <span class="font-semibold">Billing Currency:</span>
-                                    <span>{{ obj.billingCurrency }}</span>
-                                </div>
-                                <hr class="my-1 border-gray-400">
-                                <div class="flex justify-between py-0.5">
-                                    <span class="font-semibold">Code:</span>
-                                    <strong>{{ obj.status_code }}</strong>
-                                </div>
-                                <hr class="my-1 border-gray-400">
-                                <div class="flex justify-between py-0.5">
-                                    <span class="font-semibold">Message:</span>
-                                    <span>{{ obj.messageType }}</span>
-                                </div>
-                                <hr class="my-1 border-gray-400">
-                                <div class="flex justify-between py-0.5">
-                                    <span class="font-semibold">Settlement:</span>
-                                    <span>{{ obj.settlementStatus }}</span>
-                                </div>
-                                <hr class="my-1 border-gray-400">
-                                <div class="flex justify-between py-0.5">
-                                    <span class="font-semibold">Approval:</span>
-                                    <span>{{ obj.approvalStatus }}</span>
-                                </div>
-                                <hr class="my-1 border-gray-400">
-                            </td>
-                            <td class="text-left p-1.5">
-                                <div class="flex justify-between py-0.5">
-                                    <span class="font-semibold">Sync Status:</span>
-                                    <strong>{{ obj.erpSyncStatus }}</strong>
-                                </div>
-                                <hr class="my-1 border-gray-400">
-                                <div class="flex justify-between py-0.5">
-                                    <span class="font-semibold">Sync Type:</span>
-                                    <span>{{ obj.erpSyncType }}</span>
-                                </div>
-                                <hr class="my-1 border-gray-400">
-                                <div class="flex justify-between py-0.5">
-                                    <span class="font-semibold">Supplier:</span>
-                                    <span class="text-wrap">{{ obj.erpSupplierName }}</span>
-                                </div>
-                                <hr class="my-1 border-gray-400">
-                                <div class="flex justify-between py-0.5">
-                                    <span class="font-semibold">Supplier ID:</span>
-                                    <span class="text-wrap">{{ obj.erpSupplierRemoteId }}</span>
-                                </div>
-                                <hr class="my-1 border-gray-400">
-                                <div class="flex justify-between py-0.5">
-                                    <span class="font-semibold">Tax Rate:</span>
-                                    <span>{{ obj.erpTaxRateName }}</span>
-                                </div>
-                                <hr class="my-1 border-gray-400">
-                                <div class="flex justify-between py-0.5">
-                                    <span class="font-semibold">Tax Rate ID:</span>
-                                    <span>{{ obj.erpTaxRateRemoteId }}</span>
-                                </div>
-                                <hr class="my-1 border-gray-400">
-                                <div class="flex justify-between py-0.5">
-                                    <span class="font-semibold">Account:</span>
-                                    <span>{{ obj.erpChatOfAccountName }}</span>
-                                </div>
-                                <hr class="my-1 border-gray-400">
-                                <div class="flex justify-between py-0.5">
-                                    <span class="font-semibold">Account ID:</span>
-                                    <span>{{ obj.erpChatOfAccountRemoteId }}</span>
-                                </div>
-                            </td>
-                            <td class="text-left p-1.5">
-                                <div class="flex justify-between py-0.5">
-                                    <span class="font-semibold">Name:</span>
-                                    <strong class="text-wrap">{{ obj.cardName }}</strong>
-                                </div>
-                                <hr class="my-1 border-gray-400">
-                                <div class="flex justify-between py-0.5">
-                                    <span class="font-semibold">Last Four:</span>
-                                    <span>{{ obj.cardLastFour }}</span>
-                                </div>
-                                <hr class="my-1 border-gray-400">
-                                <div class="flex justify-between py-0.5">
-                                    <span class="font-semibold">Holder:</span>
-                                    <span>{{ obj.cardHolderName }}</span>
-                                </div>
-                                <hr class="my-1 border-gray-400">
-                                <div class="flex justify-between py-0.5">
-                                    <span class="font-semibold">Email:</span>
-                                    <span class="text-wrap">{{ obj.cardHolderEmail }}</span>
-                                </div>
-                            </td>
-                            <td class="text-left p-1.5">
-                                <div class="flex justify-between py-0.5">
-                                    <span class="font-semibold">Memo:</span>
-                                    <strong class="text-wrap">{{ obj.memo }}</strong>
-                                </div>
-                                <hr class="my-1 border-gray-400">
-                                <div class="flex justify-between py-0.5">
-                                    <span class="font-semibold">Vendor TRN:</span>
-                                    <span>{{ obj.vendorTrn }}</span>
-                                </div>
-                                <hr class="my-1 border-gray-400">
-                                <div class="flex justify-between py-0.5">
-                                    <span class="font-semibold">PO Number:</span>
-                                    <span>{{ obj.purchaseOrderNumber }}</span>
-                                </div>
-                                <hr class="my-1 border-gray-400">
-                                <div class="flex justify-between py-0.5">
-                                    <span class="font-semibold">Visible:</span>
-                                    <strong>{{ obj.visible }}</strong>
-                                </div>
-                                <hr class="my-1 border-gray-400">
-                                <div class="flex justify-between py-0.5">
-                                    <span class="font-semibold">Exclude Sync:</span>
-                                    <span>{{ obj.excludeFromSync }}</span>
-                                </div>
-                                <hr class="my-1 border-gray-400">
-                                <div class="flex justify-between py-0.5">
-                                    <span class="font-semibold">Sync Errors:</span>
-                                    <span>{{ obj.syncErrors }}</span>
-                                </div>
-                                <hr class="my-1 border-gray-400">
-                                <div class="flex justify-between py-0.5">
-                                    <span class="font-semibold">Segments:</span>
-                                    <span>{{ obj.segments }}</span>
-                                </div>
-                                <hr class="my-1 border-gray-400">
-                                <div class="flex justify-between py-0.5">
-                                    <span class="font-semibold">Merchant:</span>
-                                    <span class="text-wrap text-[9px]">{{ obj.merchantName }}</span>
-                                </div>
-                                <hr class="my-1 border-gray-400">
-                                <div class="flex justify-between py-0.5">
-                                    <span class="font-semibold">Expense:</span>
-                                    <span class="text-wrap text-[8px]">{{ obj.expenseCategoryName }}</span>
-                                </div>
-                                <hr class="my-1 border-gray-400">
-                                <div class="flex justify-between py-0.5">
-                                    <span class="font-semibold">Pool Account:</span>
-                                    <span>{{ obj.poolAccountName }}</span>
-                                </div>
-                                <hr class="my-1 border-gray-400">
-                                <div class="flex justify-between py-0.5">
-                                    <span class="font-semibold">Receipts:</span>
-                                    <div class="flex flex-col gap-1 p-0">
-                                        <a
-                                            v-if="obj.receipts && obj.receipts.length > 0"
-                                            v-for="(receipt, index) in obj.receipts"
-                                            class="block btn-xs secondary-btn other-doc-btn"
-                                            target="_blank"
-                                            :href="receipt"
-                                        >
-                                            Receipt {{ index + 1 }}
-                                        </a>
-                                    </div>
-                                </div>
-                                <hr class="my-1 border-gray-400">
-                                <div class="flex justify-between py-0.5">
-                                    <span class="font-semibold">Created:</span>
-                                    <span>{{ formatDateTime24HoursISO(obj.createdAt) }}</span>
-                                </div>
-                                <hr class="my-1 border-gray-400">
-                                <div class="flex justify-between py-0.5">
-                                    <span class="font-semibold">Updated:</span>
-                                    <span>{{ formatDateTime24HoursISO(obj.updatedAt) }}</span>
-                                </div>
-                                <hr class="my-1 border-gray-400">
-                                <div class="flex justify-between py-0.5">
-                                    <span class="font-semibold">Line Items:</span>
-                                    <span>{{ obj.lineItems }}</span>
-                                </div>
-                            </td>
+                            <td>{{ obj.memo  }}</td>
+                            <td>{{ obj.merchantName  }}</td>
                             <td class="text-center p-1.5">
                                 <button
                                     v-if="(!obj.bitrix_cash_request_id && obj.transactionCategory === 'purchase') && (obj.clearingStatus === 'pending' || obj.clearingStatus === 'cleared')"
-                                    @click="saveCashRequest('create', obj)"
+                                    data-modal-toggle="#create_cash_request_form_modal"
                                     class="block w-full mb-1 secondary-btn"
+                                    @click="openModal(obj)"
                                 >
                                     Create Request
                                 </button>
@@ -418,7 +142,7 @@
                             </td>
                         </tr>
                         <tr class="h-full table-no-data-available" v-if="filteredData.length === 0">
-                            <td class="text-center text-md text-red-400 !border-none h-full" colspan="10">
+                            <td class="text-center text-md text-red-400 !border-none h-full">
                                 <div class="flex flex-col items-center justify-center w-full h-full">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="mb-4 size-10">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636" />
@@ -448,26 +172,31 @@
             </div>
         </div>
     </div>
+    <!-- create transfer form modal -->
+    <create-cash-request-form-modal
+        :obj="selected_obj"
+        v-if="is_create_cash_request_form_modal"
+        @closeModal="closeModal"
+    />
 </template>
-
 <script>
 import {DateTime} from "luxon";
-import _, {debounce} from "lodash";
+import _ from "lodash";
 
 export default {
     name: "qashio-transactions",
     props: ['page_data'],
-    data(){
+    data() {
         return {
             periods: [
-                { key: "this_week", value: "This week" },
-                { key: "last_week", value: "Last week" },
-                { key: "this_month", value: "This month" },
-                { key: "last_month", value: "Last month" },
-                { key: "last_month_plusplus", value: "This month ++" },
-                { key: "last_60_days_plusplus", value: "Last 60 days ++" },
-                { key: "this_year", value: "This Year" },
-                { key: "last_year", value: "Last Year" },
+                {key: "this_week", value: "This week"},
+                {key: "last_week", value: "Last week"},
+                {key: "this_month", value: "This month"},
+                {key: "last_month", value: "Last month"},
+                {key: "last_month_plusplus", value: "This month ++"},
+                {key: "last_60_days_plusplus", value: "Last 60 days ++"},
+                {key: "this_year", value: "This Year"},
+                {key: "last_year", value: "Last Year"},
             ],
             selected_period: 'last_60_days_plusplus',
             data: [],
@@ -475,39 +204,17 @@ export default {
             filters: {
                 from_date: null,
                 to_date: null,
+                category_id: "",
+                sage_company_id: "",
                 clearing_status: "",
-                transaction_category: "",
-                search: null,
+                search: "",
             },
-            qashio_credit_cards: [],
+            is_create_cash_request_form_modal: false,
+            selected_obj: null,
         }
     },
     methods: {
-        async getData() {
-            await this.fetchQashioCreditCardsFromBitrix();
-            await this.getPageData();
-        },
-        async fetchQashioCreditCardsFromBitrix() {
-            this.loading = true;
-            const bitrixUserId = this.page_data.user.bitrix_user_id ? this.page_data.user.bitrix_user_id : null;
-            const bitrixWebhookToken = this.page_data.user.bitrix_webhook_token ? this.page_data.user.bitrix_webhook_token : null;
-            const endpoint = 'crm.company.reports_v2';
-            const requestData = {
-                action: "getQashioCreditCards",
-            }
-            try {
-                const response = await this.callBitrixAPI(endpoint, bitrixUserId, bitrixWebhookToken, requestData);
-                if (response.result){
-                    this.loading = false
-                    this.qashio_credit_cards = response.result
-                }
-            } catch (error) {
-                if (error.status === 500){
-                    this.errorToast('Something went wrong! Please refresh the page or contact support if this keeps happening.')
-                }
-            }
-        },
-        async getPageData(isSync = false){
+        async getData(isSync = false) {
             this.loading = true;
             this.filters.from_date = this.selected_date_range[0];
             this.filters.to_date = this.selected_date_range[1];
@@ -522,23 +229,19 @@ export default {
                     }
                 });
 
-                this.data = response.data.data;
+                let fetchedData = response.data.data;
+                // Filter data by user categories and sage companies
+                const userCategoryIds = this.page_data.bitrix_list_categories.map(cat => cat.bitrix_category_id);
+                const userSageCompanyIds = this.page_data.bitrix_list_sage_companies.map(cat => cat.bitrix_sage_company_id);
 
-                // Map through this.data and add matching bitrix_qashio_credit_cards
-                this.data = this.data.map(item => {
-                    const matchingCard = this.qashio_credit_cards.find(card =>
-                        card.last_four_digits === item.cardLastFour
-                    );
-                    return {
-                        ...item,
-                        bitrix_qashio_credit_card: matchingCard || null
-                    };
-                });
+                this.data = fetchedData.filter(item =>
+                    item.transactionCategory === 'purchase' &&
+                    userCategoryIds.includes(item.bitrix_qashio_credit_card_category_id) &&
+                    userSageCompanyIds.includes(item.bitrix_qashio_credit_card_sage_company_id)
+                );
+
                 this.loading = false
 
-                if (isSync) {
-                    this.successToast('Qashio data sync successfully');
-                }
             } catch (error) {
                 this.loading = false
                 if (this.appEnv === 'local') {
@@ -546,12 +249,8 @@ export default {
                 } else {
                     this.errorToast(error.response.data.message);
                 }
-                throw error; // Rethrow to handle in getData
             }
         },
-        // debouncedSearch: debounce(function(){
-        //     this.getData(false);
-        // }, 500),
         updateDateRangeForPeriod(period) {
             const now = DateTime.now();
             let newDateRange;
@@ -583,13 +282,13 @@ export default {
                 case "last_month_plusplus":
                     newDateRange = [
                         now.startOf("month").toISODate(),
-                        now.plus({ years: 3 }).endOf("year").toISODate(),
+                        now.plus({years: 3}).endOf("year").toISODate(),
                     ];
                     break;
                 case "last_60_days_plusplus":
                     newDateRange = [
                         now.minus({days: 60}).startOf("day").toISODate(),
-                        now.plus({ years: 3 }).endOf("year").toISODate()
+                        now.plus({years: 3}).endOf("year").toISODate()
                     ];
                     break;
                 case "this_year":
@@ -612,23 +311,22 @@ export default {
             }
             this.selected_date_range = newDateRange;
         },
-        saveCashRequest(type, obj){
-            axios({
-                url: `/qashio/transaction/save/${type}`,
-                method: 'POST',
-                data: obj,
-            }).then(response => {
-                if (response.data){
-                    this.successToast(response.data.message)
-                    this.getPageData();
-                }
-            }).catch(error => {
-                console.log(error)
-            })
-        }
+        openModal(obj){
+            this.selected_obj = obj;
+            this.is_create_cash_request_form_modal = true
+        },
+        closeModal(isForm = false){
+            this.is_view_bank_transfer_details_modal = false;
+            this.is_create_bank_transfer_form_modal = false;
+            this.selected_obj = null
+            this.removeModalBackdrop();
+            if (isForm){
+                this.getPageData()
+            }
+        },
     },
     computed: {
-        dateRangePickerText(){
+        dateRangePickerText() {
             if (!this.selected_date_range[0] || !this.selected_date_range[1]) {
                 return "No date selected";
             }
@@ -637,7 +335,6 @@ export default {
             return `${formattedStart} - ${formattedEnd}`;
         },
         filteredData() {
-            let today = DateTime.now();
             const searchTerm = this.filters.search?.toLowerCase() || '';
             return this.data.filter(item => {
                 // Filter by search input (case insensitive)
@@ -647,23 +344,20 @@ export default {
 
                 // Filter by Clearing Status
                 const matchesStatus = this.filters.clearing_status === 'null' ? item.clearingStatus === null : this.filters.clearing_status ? item.clearingStatus === this.filters.clearing_status : true;
-
-                // Filter by Transaction Category
-                const matchesCategory = this.filters.transaction_category ? item.transactionCategory === this.filters.transaction_category : true;
+                // Filter by selected Category ID
+                const matchesCategory = this.filters.category_id ? item.bitrix_qashio_credit_card_category_id === this.filters.category_id : true;
+                // Filter by selected Sage Company ID
+                const matchesSageCompany = this.filters.sage_company_id ? item.bitrix_qashio_credit_card_sage_company_id === this.filters.sage_company_id : true;
 
                 // Return true only if all filters match
-                return matchesSearch && matchesStatus && matchesCategory;
+                return matchesSearch && matchesStatus && matchesCategory && matchesSageCompany;
             });
         },
     },
     watch: {
-        selected_period(){
+        selected_period() {
             this.updateDateRangeForPeriod(this.selected_period);
         },
-        // 'filters.search': {
-        //     handler: 'debouncedSearch',
-        //     immediate: false
-        // }
     },
     created() {
         this.updateDateRangeForPeriod(this.selected_period);
@@ -673,39 +367,6 @@ export default {
     }
 }
 </script>
-
 <style scoped>
-.table {
-    border-collapse: collapse;
-    width: 100%;
-}
-.table td {
-    border: 1px solid #e5e7eb;
-    padding: 6px 8px;
-    vertical-align: top;
-}
 
-.table-no-data-available td {
-    background-color: #fef2f2;
-}
-
-.font-semibold {
-    font-weight: 600;
-    color: #1f2937;
-}
-
-strong {
-    font-weight: 700;
-    color: #111827;
-}
-
-.text-wrap {
-    word-break: break-word;
-    white-space: normal;
-}
-.badge-success {
-    background-color: rgb(119, 214, 146);
-    --tw-text-opacity: 1;
-    color: rgb(38 38 38 / var(--tw-text-opacity, 1));
-}
 </style>

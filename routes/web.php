@@ -64,12 +64,16 @@ Route::middleware(['auth'])->group(function(){
         });
         // Qashio
         Route::group(['prefix' => 'qashio', 'as' => 'qashio.'], function(){
-            Route::get('/', [QashioController::class, 'index'])->name('qashio');
+            Route::get('/qashio-admin', [QashioController::class, 'adminIndex'])->name('qashio-admin');
+            Route::get('/qashio-transactions', [QashioController::class, 'transactionsIndex'])->name('qashio-transactions');
         });
 
     });
     // Qashio get data
     Route::post('/qashio/get-data', [QashioController::class, 'getData']);
+    // Qashio Merchants
+    Route::post('/qashio/merchants/get-data', [QashioController::class, 'getMerchantsData']);
+    Route::post('/qashio/merchants/get-data', [QashioController::class, 'getMerchantsData']);
     // save request from qashio transaction
     Route::post('/qashio/transaction/save/{type}', [QashioController::class, 'saveBitrixCashRequest']);
     // Download Cash Release Receipt

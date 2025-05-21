@@ -7,6 +7,7 @@ use App\Models\Qashio\QashioTransaction;
 use App\Repositories\BitrixApiRepository;
 use App\Repositories\QashioApiRepository;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use PhpParser\Node\Expr\Cast\Object_;
 
@@ -28,22 +29,22 @@ Class QashioService
             $lastSync = QashioTransaction::max('transactionTime');
 
             // Prepare API parameters
-            $params = ['limit' => 5000];
+            $params = ['limit' => 50000];
 
             if ($lastSync) {
                 // Incremental sync: fetch only new transactions after last sync
                 $params['transactionTimeFrom'] = Carbon::parse($lastSync)->addSecond()->toIso8601String();
-                $params['transactionTimeTo'] = Carbon::now()->toIso8601String();
             } else {
                 Log::info('Performing initial sync of all Qashio transactions.');
                 $params['transactionTimeFrom'] = "2025-05-01T00:00:00.000Z";
             }
+            $params['transactionTimeTo'] = Carbon::now()->toIso8601String();
 
             // Fetch transactions
             $response = $this->qashioRepo->getTransactions($params);
             $transactions = $response['data'] ?? [];
 
-            Log::info('Fetched ' . count($transactions) . ' transactions from ' . $params['transactionTimeFrom']);
+            Log::info('Fetched ' . count($transactions) . ' transactions from ' . $params['transactionTimeFrom'] . ' transactions to ' . $params['transactionTimeTo']);
 
             if (empty($transactions)) {
                 Log::warning('No transactions found to sync.');
@@ -53,7 +54,7 @@ Class QashioService
                 ];
             }
 
-            // $this->processTransactions($transactions);
+//            $this->processTransactions($transactions);
             // Only Sync to database no bitrix cash requisitions creating.
             $upsertData = [];
 
@@ -112,7 +113,7 @@ Class QashioService
             } else {
                 $upsertData[] = $transactionData;
                 if ($transaction['transactionCategory'] === 'purchase' && in_array($transaction['clearingStatus'], ['pending', 'cleared'])) {
-                    $bitrixId = $this->createBitrixCashRequest($transaction);
+                    $bitrixId = $this->createBitrixCashRequest('sync', $transaction);
                     if ($bitrixId) {
                         $transactionData['bitrix_cash_request_id'] = $bitrixId;
                     }
@@ -132,6 +133,7 @@ Class QashioService
     }
     protected function prepareTransactionData($transaction)
     {
+        $bitrixQashioCreditCard = $this->bitrixApiRepo->getQashioCreditCardByCardLastFourDigit($transaction['cardLastFour']);
         return [
             'qashioId' => $transaction['qashioId'],
             'stringId' => $transaction['id'],
@@ -175,7 +177,7 @@ Class QashioService
             'erpChatOfAccountRemoteId' => $transaction['erpChatOfAccountRemoteId'] ?? null,
             'poolAccountName' => $transaction['poolAccountName'] ?? null,
             'cardName' => $transaction['cardName'] ?? null,
-            'cardLastFour' => $transaction['cardLastFour'] ?? null,
+            'cardLastFour' => $transaction['cardLastFour'] ?? 0,
             'cardHolderName' => $transaction['cardHolderName'] ?? null,
             'cardHolderEmail' => $transaction['cardHolderEmail'] ?? null,
             'receipts' => isset($transaction['receipts']) ? json_encode($transaction['receipts']) : null,
@@ -183,11 +185,13 @@ Class QashioService
             'createdAt' => $transaction['createdAt'] ?? null,
             'updatedAt' => $transaction['updatedAt'] ?? null,
             'last_sync' => now(),
+            'bitrix_qashio_credit_card_category_id' => $bitrixQashioCreditCard['category_id'] ?? null,
+            'bitrix_qashio_credit_card_sage_company_id' => $bitrixQashioCreditCard['sage_company_id'] ?? null,
             'created_at' => now(),
             'updated_at' => now(),
         ];
     }
-    public function createBitrixCashRequest($transaction)
+    public function createBitrixCashRequest($mode, $transaction)
     {
         try {
             $bitrixCashRequestData = $this->makingBitrixCashRequestData('add', $transaction);
@@ -223,13 +227,6 @@ Class QashioService
     public function makingBitrixCashRequestData($type, $qashioTransaction)
     {
         if ($type === 'add'){
-            $bitrixQashioCreditCard = $this->bitrixApiRepo->getQashioCreditCardByCardLastFourDigit($qashioTransaction['cardLastFour']);
-            $mapping = BitrixListsSageCompanyMapping::select('bitrix_category_id', 'bitrix_sage_company_id')
-                ->where([
-                    'sage_company_code' => $bitrixQashioCreditCard['sage_database'],
-                    'bitrix_list_id' => 2
-                ])
-                ->first();
             $amount = $qashioTransaction['clearingStatus'] === 'pending' ? $qashioTransaction['transactionAmount'] : $qashioTransaction['clearingAmount'];
             $currency = $qashioTransaction['clearingStatus'] === 'pending' ? $qashioTransaction['transactionCurrency'] : $qashioTransaction['billingCurrency'];
 
@@ -267,9 +264,9 @@ Class QashioService
             return (Object)[
                 'NAME' => "Cash Request - {$amount}|{$currency}",
                 // Company / Category
-                'PROPERTY_938' => $mapping->bitrix_category_id,
+                'PROPERTY_938' => $qashioTransaction['bitrix_qashio_credit_card_category_id'],
                 // Sage Company
-                'PROPERTY_951' => $mapping->bitrix_sage_company_id,
+                'PROPERTY_951' => $qashioTransaction['bitrix_qashio_credit_card_sage_company_id'],
                 // Vatable 2219 yes and 2218 No
                 'PROPERTY_1236' => $qashioTransaction['erpTaxRateName'] === "Standard Rate" ? '2219' : '2218',
                 // Amount
@@ -297,7 +294,7 @@ Class QashioService
                 // Qashio Id
                 'PROPERTY_1284' => $qashioTransaction['qashioId'],
                 // Modified By
-                'MODIFIED_BY' => env('BITRIX_ADMIN_USER_ID'),
+                'MODIFIED_BY' => Auth::user()->bitrix_user_id,
                 // Created Date
                 'DATE_CREATE' => Carbon::now()->format('d.m.Y H:i:s'),
             ];

@@ -357,7 +357,7 @@ class BitrixApiRepository
             }
 
         } catch (\Exception $e) {
-            Log::error("Error fetching qashi credit card" . $e->getMessage());
+            Log::error("Error fetching qashio credit card" . $e->getMessage());
             return collect();
         }
     }

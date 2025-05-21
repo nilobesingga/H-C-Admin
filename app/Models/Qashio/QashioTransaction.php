@@ -17,7 +17,8 @@ class QashioTransaction extends Model
         'segments', 'merchantName', 'erpSupplierName', 'erpSupplierRemoteId', 'expenseCategoryName',
         'erpTaxRateName', 'erpTaxRateRemoteId', 'erpChatOfAccountName', 'erpChatOfAccountRemoteId',
         'poolAccountName', 'cardName', 'cardLastFour', 'cardHolderName', 'cardHolderEmail',
-        'receipts', 'lineItems', 'createdAt', 'updatedAt', 'last_sync', 'bitrix_cash_request_id',
+        'receipts', 'lineItems', 'createdAt', 'updatedAt', 'last_sync', 'bitrix_cash_request_id', 'bitrix_qashio_credit_card_category_id',
+        'bitrix_qashio_credit_card_sage_company_id'
     ];
 
     protected $casts = [
