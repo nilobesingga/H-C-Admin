@@ -7,7 +7,6 @@ use App\Http\Controllers\Admin\Settings\AdminUserController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentSyncController;
-use App\Http\Controllers\FileManager\FileManagerController;
 use App\Http\Controllers\Qashio\QashioController;
 use App\Http\Controllers\Reports\ReportsController;
 use App\Http\Controllers\ZiinaWebhookController;
@@ -68,10 +67,6 @@ Route::middleware(['auth'])->group(function(){
             Route::get('/qashio-admin', [QashioController::class, 'adminIndex'])->name('qashio-admin');
             Route::get('/qashio-transactions', [QashioController::class, 'transactionsIndex'])->name('qashio-transactions');
         });
-        // File Manager
-        Route::group(['prefix' => 'file-manager', 'as' => 'file-manager.'], function(){
-            Route::get('/', [FileManagerController::class, 'index'])->name('file-manager');
-        });
 
     });
     // Qashio get data
@@ -81,11 +76,6 @@ Route::middleware(['auth'])->group(function(){
     Route::post('/qashio/merchants/get-data', [QashioController::class, 'getMerchantsData']);
     // save request from qashio transaction
     Route::post('/qashio/transaction/save/{type}', [QashioController::class, 'saveBitrixCashRequest']);
-
-    Route::get('/file-manager/get-data', [FileManagerController::class, 'getData'])->name('file-manager.get-data');
-    Route::get('/file-manager/deep-search', [FileManagerController::class, 'deepSearch'])->name('file-manager.deep-search');
-    Route::post('/file-manager/upload', [FileManagerController::class, 'uploadFile'])->name('file-manager.upload');
-
     // Download Cash Release Receipt
     Route::post('/cash-request/download-released-receipt', [ReportsController::class, 'downloadCashReleasedReceipt']);
     // Sync FSA / DS2
@@ -128,13 +118,6 @@ Route::middleware(['auth'])->group(function(){
 });
 
 Route::get('/ziina-webhook/{invoice_id}', [ZiinaWebhookController::class,'updateStatus'])->name('ziina-webhook');
-
-// File Manager Routes
-Route::get('/file-manager/data', [FileManagerController::class, 'getData'])->name('file-manager.data');
-Route::get('/file-manager/test-connection', [FileManagerController::class, 'testConnection'])->name('file-manager.test-connection');
-
-
-
 
 
 

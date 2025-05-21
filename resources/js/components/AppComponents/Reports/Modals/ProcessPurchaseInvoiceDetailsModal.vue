@@ -508,7 +508,7 @@ export default {
                     this.emails = response.result.EMAIL;
 
                     this.emails.push({VALUE: 'nilo.besingga@crescotec.com'});
-                    console.log(this.emails, "this.emails");
+                    // console.log(this.emails, "this.emails");
                     this.form.email = "nilo.besingga@crescotec.com";//response.result.EMAIL[0].VALUE ?? '';
                 }
             })
@@ -522,7 +522,7 @@ export default {
                 this.form[field] = file;
                 this.form.filename = file.name;
             }
-            console.log(this.form[field]);
+            // console.log(this.form[field]);
         },
         async getBankList() {
             const response = await axios.get('https://10.0.1.17/CrescoSage/api/v1/Mapping/CompanyMap/' + this.obj.sage_company_id + '?mapType=2');
