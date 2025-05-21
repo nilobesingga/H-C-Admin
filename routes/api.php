@@ -11,5 +11,4 @@ Route::controller(App\Http\Controllers\InvoiceEmailController::class)->prefix('i
     Route::post('/paymentLink', 'createPaymentIntent')->name('paymentLink');
     Route::get('/get-file/{filename}', 'getFile')->name('get-file');
 });
-Route::post('webhook/ziina', [ZiinaWebhookController::class, 'handle']);
 

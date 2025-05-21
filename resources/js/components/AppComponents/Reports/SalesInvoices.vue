@@ -92,7 +92,7 @@
                             <th class="sticky top-0 w-[70px]">Due Date</th>
                             <th class="sticky top-0 w-[70px]">Date Paid</th>
                             <th class="sticky top-0 w-[110px] text-left">Sage Reference</th>
-                            <th class="sticky top-0 w-[80px] hidden">Payment</th>
+                            <th class="sticky top-0 w-[80px]">Payment</th>
                         </tr>
                     </thead>
                     <tbody class="h-full text-xs tracking-tight text-center">
@@ -126,15 +126,15 @@
                                     <span>{{ obj.pay_voucher_num }}</span>
                                 </div>
                             </td>
-                            <td class="hidden text-nowrap">
+                            <td class="text-nowrap">
                                 <button class="block w-full mb-1 secondary-btn"
-                                v-if="obj.status == 'Booked in SAGE' && obj.payment_status == null"
+                                v-if="obj.status == 'Booked in SAGE' && obj.payment_status == null && obj.category_id == 858"
                                 data-modal-toggle="#process_purchase_invoice_details_modal"
                                 @click="openModal(obj)">
                                     Send Payment Link
                                 </button>
                                 <button class="block w-full mb-1 secondary-btn"
-                                v-else-if="obj.payment_status != null"
+                                v-else-if="obj.payment_status != null && obj.category_id == 858"
                                 data-modal-toggle="#process_purchase_invoice_details_modal"
                                 data-toggle="tooltip" :title="obj.payment_status.toUpperCase()"
                                 @click="openModal(obj)">
