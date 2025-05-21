@@ -126,8 +126,9 @@
                             <td class="text-center p-1.5">
                                 <button
                                     v-if="(!obj.bitrix_cash_request_id && obj.transactionCategory === 'purchase') && (obj.clearingStatus === 'pending' || obj.clearingStatus === 'cleared')"
-                                    @click="saveCashRequest('create', obj)"
+                                    data-modal-toggle="#create_cash_request_form_modal"
                                     class="block w-full mb-1 secondary-btn"
+                                    @click="openModal(obj)"
                                 >
                                     Create Request
                                 </button>
@@ -171,6 +172,12 @@
             </div>
         </div>
     </div>
+    <!-- create transfer form modal -->
+    <create-cash-request-form-modal
+        :obj="selected_obj"
+        v-if="is_create_cash_request_form_modal"
+        @closeModal="closeModal"
+    />
 </template>
 <script>
 import {DateTime} from "luxon";
@@ -202,6 +209,8 @@ export default {
                 clearing_status: "",
                 search: "",
             },
+            is_create_cash_request_form_modal: false,
+            selected_obj: null,
         }
     },
     methods: {
@@ -301,6 +310,19 @@ export default {
                     ];
             }
             this.selected_date_range = newDateRange;
+        },
+        openModal(obj){
+            this.selected_obj = obj;
+            this.is_create_cash_request_form_modal = true
+        },
+        closeModal(isForm = false){
+            this.is_view_bank_transfer_details_modal = false;
+            this.is_create_bank_transfer_form_modal = false;
+            this.selected_obj = null
+            this.removeModalBackdrop();
+            if (isForm){
+                this.getPageData()
+            }
         },
     },
     computed: {
