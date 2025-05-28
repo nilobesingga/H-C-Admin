@@ -287,6 +287,8 @@ class InvoiceEmailController extends Controller
                 'expiry' =>  $expiry,
                 'created_by' => $request->bitrixUserId,
                 'invoice_id' => $request->invoice_id,
+                'deal' => $request->deal ?? null,
+                'deal_id' => $request->deal_id ?? null,
                 'invoice_number' => $request->invoice_number,
                 'invoice_date' => date('Y-m-d',strtotime($request->invoice_date)),
                 'recipient_name' => $request->recipient_name,

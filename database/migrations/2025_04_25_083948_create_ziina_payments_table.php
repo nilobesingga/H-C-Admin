@@ -31,6 +31,8 @@ return new class extends Migration
             $table->string('updated_by')->nullable();
             $table->dateTime('payment_completed_at')->nullable();
             $table->json('latest_error')->nullable();
+            $table->bigInteger('deal_id')->nullable();
+            $table->text('deal')->nullable();
             $table->string('invoice_id')->nullable();
             $table->string('invoice_number')->nullable();
             $table->string('invoice_date')->nullable();

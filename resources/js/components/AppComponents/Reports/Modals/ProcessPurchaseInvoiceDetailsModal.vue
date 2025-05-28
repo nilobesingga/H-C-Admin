@@ -352,6 +352,8 @@ export default {
                 formData.append('bank_code', this.form.bank_code);
                 formData.append('pdf_file', this.form.supporting_document);
                 formData.append('category_id', this.obj.category_id);
+                formData.append('deal_id', this.obj.deal_id);
+                formData.append('deal', this.obj.deal);
                 const response = await axios.post('/api/invoice-emails/send', formData);
                 if (response.data.status === 'success') {
                     this.successToast(response.data.message);
@@ -456,6 +458,13 @@ export default {
 
                             // Assign to supporting_document
                             this.form.supporting_document = file;
+
+                            const dataTransfer = new DataTransfer();
+                            dataTransfer.items.add(file);
+                            const fileInput = document.getElementById('supporting_document');
+                            if (fileInput) {
+                                fileInput.files = dataTransfer.files;
+                            }
                         })
                         .catch(error => {
                             console.error('Error fetching file:', error);
