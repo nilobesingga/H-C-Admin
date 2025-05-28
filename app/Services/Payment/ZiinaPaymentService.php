@@ -27,6 +27,9 @@ class ZiinaPaymentService
      */
     protected $testMode;
     protected $ziinaWebhookSecret;
+    protected $userId;
+    protected $webhook;
+    protected $bitrixWebhookUrl;
 
     /**
      * Constructor
@@ -37,6 +40,9 @@ class ZiinaPaymentService
         $this->apiToken = config('services.ziina.api_token');
         $this->testMode = config('services.ziina.test_mode', false);
         $this->ziinaWebhookSecret = config('services.ziina.webhook_secret');
+        $this->userId = 1;
+        $this->webhook = "gifsocgxnsit098f";
+        $this->bitrixWebhookUrl = "https://crm.cresco.ae/rest/";
 
     }
 
@@ -162,9 +168,7 @@ class ZiinaPaymentService
     public function updateBitrixInvoiceStatus($invoiceId)
     {
         try {
-            $webhook = "gifsocgxnsit098f";
-            $userId = 1;
-            $baseUrl = 'https://crm.cresco.ae/rest/' . $userId . '/' . $webhook . '/';
+            $baseUrl = $this->bitrixWebhookUrl. $this->userId . '/' . $this->webhook . '/';
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
                 'Accept' => 'application/json'
@@ -190,6 +194,46 @@ class ZiinaPaymentService
             }
         } catch (Exception $e) {
             Log::error('Ziina Bitrix invoice status update failed: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    public function createBitrixDealTask($dealId, $taskTitle, $taskDescription, $responsibleId = 1)
+    {
+        try {
+            $baseUrl = $this->bitrixWebhookUrl. $this->userId . '/' . $this->webhook . '/';
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'Accept' => 'application/json'
+            ])
+            ->withOptions([
+                'verify' => false
+            ])
+            ->post($baseUrl . 'tasks.task.add', [
+                'fields' => [
+                    'TITLE' => $taskTitle,
+                    'DESCRIPTION' => $taskDescription,
+                    'RESPONSIBLE_ID' => $responsibleId,
+                    'UF_CRM_TASK' => ['D_' . $dealId], // Links task to the deal
+                    'GROUP_ID' => 0, // Set to appropriate project/group ID if needed
+                    'DEADLINE' => date('Y-m-d', strtotime('+1 day')), // Set deadline to tomorrow
+                    'PRIORITY' => 2, // Regular priority
+                ]
+            ]);
+
+            if ($response->successful() && isset($response->json()['result'])) {
+                return response()->json([
+                    'message' => 'Task created successfully',
+                    'task_id' => $response->json()['result']
+                ]);
+            } else {
+                return response()->json([
+                    'error' => 'Failed to create task',
+                    'details' => $response->json()
+                ], $response->status());
+            }
+        } catch (Exception $e) {
+            Log::error('Bitrix deal task creation failed: ' . $e->getMessage());
             return null;
         }
     }

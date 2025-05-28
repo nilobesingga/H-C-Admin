@@ -131,38 +131,26 @@
                             </td>
                             <td class="text-nowrap">
                                 <button class="block w-full mb-1 secondary-btn"
-                                v-if="obj.status == 'Booked in SAGE' && obj.payment_status == null && obj.category_id == 858"
+                                v-if="obj.status == 'Booked in SAGE' && obj.payment_status == null && (obj.category_id == 858 || obj.category_id == 1445)"
                                 data-modal-toggle="#process_purchase_invoice_details_modal"
                                 @click="openModal(obj)">
                                     Send Invoice
                                 </button>
                                 <button class="block w-full mb-1 secondary-btn"
-                                v-else-if="obj.payment_status != null && obj.category_id == 858 && obj.payment_status != 'completed'"
+                                v-else-if="obj.payment_status != null && (obj.category_id == 858 || obj.category_id == 1445) && obj.payment_status != 'completed'"
                                 data-modal-toggle="#process_purchase_invoice_details_modal"
                                 data-toggle="tooltip" :title="obj.payment_status"
                                 @click="openModal(obj)">
-                                    Send Remider <i class="text-sm ki-outline ki-information-1" :class="{'text-blue-500': obj.payment_status === 'initiated',
-                                    'text-green-500': obj.payment_status === 'completed',
-                                    'text-yellow-500': obj.payment_status === 'pending',
-                                    'text-red-500': obj.payment_status === 'canceled',
-                                    'text-orange-500': obj.payment_status === 'failed',
-                                    'text-orange-500': !['initiated','completed','pending','canceled','failed'].includes(obj.payment_status)
-                                    }"></i>
+                                    Send Remider
                                 </button>
                                 <button class="block w-full mb-1 secondary-btn"
-                                v-else-if="obj.payment_status != null && obj.category_id == 858 && obj.payment_status == 'completed'"
+                                v-else-if="obj.payment_status != null && (obj.category_id == 858 || obj.category_id == 1445) && obj.payment_status == 'completed'"
                                 data-modal-toggle="#process_purchase_invoice_details_modal"
                                 data-toggle="tooltip" :title="obj.payment_status"
                                 @click="openModal(obj)">
-                                    View Payment <i class="text-sm ki-outline ki-information-1" :class="{'text-blue-500': obj.payment_status === 'initiated',
-                                    'text-green-500': obj.payment_status === 'completed',
-                                    'text-yellow-500': obj.payment_status === 'pending',
-                                    'text-red-500': obj.payment_status === 'canceled',
-                                    'text-orange-500': obj.payment_status === 'failed',
-                                    'text-orange-500': !['initiated','completed','pending','canceled','failed'].includes(obj.payment_status)
-                                    }"></i>
+                                    View Payment
                                 </button>
-                                <div v-if="obj.payment_status != null && obj.category_id == 858" class="mb-1 text-white capitalize badge" :class="
+                                <div v-if="obj.payment_status != null && (obj.category_id == 858 || obj.category_id == 1445)" class="mb-1 text-white capitalize badge" :class="
                                 {'bg-blue-500': obj.payment_status === 'initiated',
                                 'bg-green-500': obj.payment_status === 'completed',
                                 'bg-yellow-500': obj.payment_status === 'pending',
@@ -170,7 +158,10 @@
                                 'bg-orange-500': obj.payment_status === 'failed',
                                 'bg-orange-500': !['initiated','completed','pending','canceled','failed'].includes(obj.payment_status)
                                 }
-                                ">{{ obj.payment_status }}</div>
+                                "
+                                data-toggle="tooltip" :title="obj.counter"
+                                >{{ obj.payment_status }} <i class="ml-1 text-xs ki-outline ki-information-1"></i>
+                                </div>
                             </td>
                         </tr>
                         <tr v-show="filteredData.length > 0">
@@ -333,7 +324,11 @@ export default {
                 if(this.payment.length > 0){
                     this.data = this.data.map((item) => {
                         const paymentStatus = this.payment.find((payment) => payment.invoice_id == item.id);
-                        return { ...item, payment_status: ((paymentStatus) ? paymentStatus.status : null) , payment_completed_at : ((paymentStatus) ? paymentStatus.payment_completed_at : null) };
+                        return { ...item,
+                            payment_status: ((paymentStatus) ? paymentStatus.status : null) ,
+                            payment_completed_at : ((paymentStatus) ? paymentStatus.payment_completed_at : null),
+                            counter : ((paymentStatus) ? paymentStatus.counter : null)
+                        };
                     });
                 }
                 // console.log("data", this.data);

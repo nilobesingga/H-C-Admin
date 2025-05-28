@@ -45,6 +45,7 @@ class ZiinaWebhookController extends Controller
             ];
             if ($paymentStatus['status'] === 'completed') {
                 // $this->ziinaService->updateBitrixInvoiceStatus($invoice_id);
+                $this->ziinaService->createBitrixDealTask($payment->deal_id, 'Paid via Ziina', 'Payment for invoice : ' . $payment->invoice_number);
                 $data['payment_completed_at'] = now();
             } elseif ($paymentStatus['status'] === 'failed') {
                 $data['latest_error'] = $paymentStatus['latest_error'];
@@ -86,9 +87,18 @@ class ZiinaWebhookController extends Controller
     }
     public function PaymentStatus()
     {
-        $payment = ZiinaPayment::select('status','invoice_id','payment_completed_at')->get();
+        $payment = ZiinaPayment::select('status','invoice_id','payment_completed_at','updated_at')->get();
         if (!$payment) {
             return response()->json(['error' => 'Payment not found','data' => []], 200);
+        }
+        foreach ($payment as &$pay) {
+            $diff = $pay->updated_at->diff(now());
+            $pay->counter = 'Sent '. sprintf(
+                '%d days %d hrs %d min',
+                $diff->days,
+                $diff->h,
+                $diff->i
+            );
         }
         return response()->json(['message' => 'Payment Status', 'data' => $payment], 200);
     }
