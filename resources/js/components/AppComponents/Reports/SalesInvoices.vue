@@ -114,7 +114,10 @@
                                 </div>
                             </td>
                             <td><div :class="isNotBooked(obj) ? 'badge badge-warning' : ''">{{ formatDate(obj.date_bill)  }}</div></td>
-                            <td><div :class="isOverDueDate(obj) ? 'badge badge-warning' : ''">{{ formatDate(obj.date_pay_before) }}</div></td>
+                            <td>
+                                <div :class="isOverDueDate(obj) ? 'mb-1 badge badge-warning' : ''">{{ formatDate(obj.date_pay_before) }}</div>
+                                <div v-if="isOverDueDate(obj)" class="text-red-900">Over {{ noOfdaysDue(obj) }} days</div>
+                            </td>
                             <td>{{ formatDate(obj.date_payed) }}</td>
                             <td class="text-left">
                                 <div v-if="obj.sage_invoice_number">
@@ -131,12 +134,25 @@
                                 v-if="obj.status == 'Booked in SAGE' && obj.payment_status == null && obj.category_id == 858"
                                 data-modal-toggle="#process_purchase_invoice_details_modal"
                                 @click="openModal(obj)">
-                                    Send Payment Link
+                                    Send Invoice
                                 </button>
                                 <button class="block w-full mb-1 secondary-btn"
-                                v-else-if="obj.payment_status != null && obj.category_id == 858"
+                                v-else-if="obj.payment_status != null && obj.category_id == 858 && obj.payment_status != 'completed'"
                                 data-modal-toggle="#process_purchase_invoice_details_modal"
-                                data-toggle="tooltip" :title="obj.payment_status.toUpperCase()"
+                                data-toggle="tooltip" :title="obj.payment_status"
+                                @click="openModal(obj)">
+                                    Send Remider <i class="text-sm ki-outline ki-information-1" :class="{'text-blue-500': obj.payment_status === 'initiated',
+                                    'text-green-500': obj.payment_status === 'completed',
+                                    'text-yellow-500': obj.payment_status === 'pending',
+                                    'text-red-500': obj.payment_status === 'canceled',
+                                    'text-orange-500': obj.payment_status === 'failed',
+                                    'text-orange-500': !['initiated','completed','pending','canceled','failed'].includes(obj.payment_status)
+                                    }"></i>
+                                </button>
+                                <button class="block w-full mb-1 secondary-btn"
+                                v-else-if="obj.payment_status != null && obj.category_id == 858 && obj.payment_status == 'completed'"
+                                data-modal-toggle="#process_purchase_invoice_details_modal"
+                                data-toggle="tooltip" :title="obj.payment_status"
                                 @click="openModal(obj)">
                                     View Payment <i class="text-sm ki-outline ki-information-1" :class="{'text-blue-500': obj.payment_status === 'initiated',
                                     'text-green-500': obj.payment_status === 'completed',
@@ -146,6 +162,15 @@
                                     'text-orange-500': !['initiated','completed','pending','canceled','failed'].includes(obj.payment_status)
                                     }"></i>
                                 </button>
+                                <div v-if="obj.payment_status != null && obj.category_id == 858" class="mb-1 text-white capitalize badge" :class="
+                                {'bg-blue-500': obj.payment_status === 'initiated',
+                                'bg-green-500': obj.payment_status === 'completed',
+                                'bg-yellow-500': obj.payment_status === 'pending',
+                                'bg-red-500': obj.payment_status === 'canceled',
+                                'bg-orange-500': obj.payment_status === 'failed',
+                                'bg-orange-500': !['initiated','completed','pending','canceled','failed'].includes(obj.payment_status)
+                                }
+                                ">{{ obj.payment_status }}</div>
                             </td>
                         </tr>
                         <tr v-show="filteredData.length > 0">
@@ -250,7 +275,7 @@ export default {
             this.loading = true;
             try {
                 await this.fetchFiltersValuesFromBitrix();
-                // await this.getPaymentStatus();
+                await this.getPaymentStatus();
                 await this.getPageData();
             } finally {
                 this.loading = false;
@@ -336,6 +361,11 @@ export default {
             const invoiceDate = DateTime.fromSQL(item.date_bill);
             return ((item.status_id === "N" || item.status_id === "S") && invoiceDate < today);
         },
+        noOfdaysDue(item){
+            const today = DateTime.now();
+            const dueDate = DateTime.fromSQL(item.date_pay_before)
+            return Math.floor(today.diff(dueDate, 'days').days);
+        },
         customStatusFilter(item, status){
             if (status === 'P'){
                 return item.status_id === "P"
@@ -420,7 +450,7 @@ export default {
             this.calculateTotalAsPerReportingCurrency();
         },
     },
-    created() {
+    async created() {
         let startDate = null;
         let endDate = null;
         const urlParams = new URLSearchParams(window.location.search);
@@ -443,7 +473,7 @@ export default {
                 endDate = parsedDate.toFormat('yyyy-MM-dd');
 
                 // Call getPageData with formatted date
-                this.getPageData(startDate, endDate);
+                await this.getPageData(startDate, endDate);
             }
         }
     }

@@ -5,6 +5,7 @@ namespace App\Services\Payment;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Config;
 use Exception;
+use Illuminate\Support\Facades\Http;
 
 class ZiinaPaymentService
 {
@@ -72,7 +73,6 @@ class ZiinaPaymentService
                 'transaction_source' => 'directApi',
                 'expiry' => $expiry,
             ];
-            // dd($data);
             return $this->makeRequest('payment_intent', 'POST', $data);
         } catch (Exception $e) {
             Log::error('Ziina payment intent creation failed: ' . $e->getMessage());
@@ -155,6 +155,41 @@ class ZiinaPaymentService
             return $this->makeRequest("payment_intent/{$paymentIntentId}", 'GET');
         } catch (Exception $e) {
             Log::error('Ziina payment status check failed: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    public function updateBitrixInvoiceStatus($invoiceId)
+    {
+        try {
+            $webhook = "gifsocgxnsit098f";
+            $userId = 1;
+            $baseUrl = 'https://crm.cresco.ae/rest/' . $userId . '/' . $webhook . '/';
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+                'Accept' => 'application/json'
+            ])
+            ->withOptions([
+                'verify' => false
+            ])
+            ->post($baseUrl . 'crm.invoice.update', [
+                'ID' => $invoiceId,
+                'FIELDS' => [
+                    'STATUS_ID' => 3
+                ]
+            ]);
+
+            // Optional: Handle the response
+            if ($response->successful() && $response->json('result') === true) {
+                return response()->json(['message' => 'Invoice status updated successfully.']);
+            } else {
+                return response()->json([
+                    'error' => 'Failed to update invoice status',
+                    'details' => $response->json()
+                ], $response->status());
+            }
+        } catch (Exception $e) {
+            Log::error('Ziina Bitrix invoice status update failed: ' . $e->getMessage());
             return null;
         }
     }

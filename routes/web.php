@@ -9,7 +9,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentSyncController;
 use App\Http\Controllers\Qashio\QashioController;
 use App\Http\Controllers\Reports\ReportsController;
-use App\Http\Controllers\ZiinaWebhookController;
+use App\Http\Controllers\Ziina\ZiinaWebhookController;
 use App\Http\Middleware\IsAdminMiddleware;
 use Illuminate\Support\Facades\Route;
 
@@ -83,7 +83,7 @@ Route::middleware(['auth'])->group(function(){
     Route::get('/sync/FSA/documents/progress', [DocumentSyncController::class, 'getSyncFSADocumentsProgress'])->name('sync.FSA.documents.progress');
 
     // Invoice Email Routes
-    Route::controller(App\Http\Controllers\InvoiceEmailController::class)->prefix('invoice-emails')->name('invoice-emails.')->group(function() {
+    Route::controller(App\Http\Controllers\Ziina\InvoiceEmailController::class)->prefix('invoice-emails')->name('invoice-emails.')->group(function() {
         Route::post('/send', 'sendInvoiceEmail')->name('send');
     });
 

@@ -63,8 +63,8 @@
     }
     .btn-pay {
       color: white;
-      background-color: #8B2500;
-      border: 1px solid #8B2500;
+      background-color: #CC6633;
+      border: 1px solid #CC6633;
     }
     .footer {
       font-style: italic;
@@ -81,14 +81,14 @@
       display: inline-block;
       width: 30px;
       height: 30px;
-      background-color: #8B2500;
+      background-color: #CC6633;
       margin: 5px !important;
       border-radius: 3px;
       line-height: 30px;
       text-align: center;
     }
     .warning {
-      color: #8B2500;
+      color: #CC6633;
       font-weight: bold;
     }
   </style>
@@ -99,10 +99,10 @@
         <table width="100%" cellpadding="0" cellspacing="0" border="0">
           <tr>
             <td style="padding: 10px 0;">
-              <img src="{{ asset('img/Hensley.png') }}" alt="Hensley&Cook" style="width: 150px; height: auto;">
+              <img src="{{ asset($data['logo']) }}" alt="Hensley&Cook" style="width: 150px; height: auto;">
             </td>
             <td style="text-align: right; padding: 10px 0;">
-              <a href="https://forms.cresco.ae/invoice/{{ $data['invoice_id'] }}" style="color: #333333; text-decoration: underline; font-size: 12px;">View in Browser</a>
+              <a href="{{ $data['preview_url'] }}" style="color: #333333; text-decoration: underline; font-size: 12px;">View in Browser</a>
             </td>
           </tr>
         </table>
@@ -129,7 +129,7 @@
       <p class="invoice-details">To ensure accurate processing, kindly use <strong style="text-decoration: underline;">Invoice No: {{ $data['invoice_number'] }}</strong> as your payment reference. If you choose to pay via the online payment link, <span class="warning">please note that a 3% ( {{ $data['service_charge'] . ' ' .  $data['currency']}} ) service fee will apply</span>.</p>
 
       <p>Warm regards,<br>
-      <strong>CRESCO</strong></p>
+      <strong>{{ $data['company'] }}</strong></p>
       <br/>
       <hr style="width: 50%; margin: 20px auto; border: 0.1px solid #e0e0e0;">
       <div class="buttons">
