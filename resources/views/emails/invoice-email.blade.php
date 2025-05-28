@@ -116,7 +116,7 @@
       <hr style="width: 50%; margin: 0px auto; border: 0.1px solid #e0e0e0;">
       <br/>
       <br/>
-      <strong>Hi {{ $data['recipient_name'] ?? '' }},</strong>
+      <strong>Dear {{ $data['recipient_name'] ?? '' }},</strong>
       <br/>
       <br/>
         @if($data['title'] != 'Payment Reminder')
@@ -128,7 +128,7 @@
 
       <p class="invoice-details">To ensure accurate processing, kindly use <strong style="text-decoration: underline;">Invoice No: {{ $data['invoice_number'] }}</strong> as your payment reference. If you choose to pay via the online payment link, <span class="warning">please note that a 3% ( {{ $data['service_charge'] . ' ' .  $data['currency']}} ) service fee will apply</span>.</p>
 
-      <p>Warm regards,<br>
+      <p><span style="text-decoration: underline !important;">With best regards,</span><br>
       <strong>{{ $data['company'] }}</strong></p>
       <br/>
       <hr style="width: 50%; margin: 20px auto; border: 0.1px solid #e0e0e0;">
