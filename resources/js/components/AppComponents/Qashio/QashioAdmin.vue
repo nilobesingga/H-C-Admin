@@ -6,6 +6,10 @@
                 <div class="flex flex-col justify-start w-1/2 text-2xl font-bold tracking-tight text-black">
                     {{ dateRangePickerText }}
                 </div>
+                <!-- Last Sync -->
+                <div class="flex flex-col w-1/2 text-xs text-center font-bold tracking-tight text-black">
+                    {{ formatDateTime12Hours(last_sync) }}
+                </div>
                 <!-- Right Side Controls -->
                 <div class="flex flex-wrap items-center justify-end w-1/2 gap-2">
                     <!-- Date Picker -->
@@ -483,6 +487,7 @@ export default {
             },
             qashio_credit_cards: [],
             is_merchant_mapping_modal: false,
+            last_sync: null
         }
     },
     methods: {
@@ -525,7 +530,8 @@ export default {
                     }
                 });
 
-                this.data = response.data.data;
+                this.data = response.data.transactions;
+                this.last_sync = response.data.last_sync;
 
                 // Map through this.data and add matching bitrix_qashio_credit_cards
                 this.data = this.data.map(item => {
@@ -552,9 +558,6 @@ export default {
                 throw error; // Rethrow to handle in getData
             }
         },
-        // debouncedSearch: debounce(function(){
-        //     this.getData(false);
-        // }, 500),
         updateDateRangeForPeriod(period) {
             const now = DateTime.now();
             let newDateRange;
