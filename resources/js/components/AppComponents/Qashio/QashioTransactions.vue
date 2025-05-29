@@ -96,19 +96,22 @@
             <div class="relative flex-grow h-full overflow-auto border shadow-md reports-table-container border-brand">
                 <table class="table w-full text-xs align-middle table-fixed c-table table-border" :class="filteredData.length === 0 ? 'h-full' : ''">
                     <thead>
-                    <tr class="font-medium text-center bg-black text-neutral-900">
-                        <th class="sticky top-0 w-10">#</th>
-                        <th class="sticky top-0 w-[60px]">Id</th>
-                        <th class="sticky top-0 w-[80px]" data-tooltip="#Transaction_Amount">
-                            Amount <i class="ki-outline ki-information-2"></i>
-                            <div class="transition-opacity duration-300 tooltip" id="Transaction_Amount">Transaction Amount</div>
-                        </th>
-                        <th class="sticky top-0 w-[100px]">Payment Date</th>
-                        <th class="sticky top-0 w-[80px]">Status</th>
-                        <th class="sticky top-0 w-[120px]">Memo</th>
-                        <th class="sticky top-0 w-[120px]">Merchant / Supplier</th>
-                        <th class="sticky top-0 w-[130px]">Actions</th>
-                    </tr>
+                        <tr class="font-medium text-center bg-black text-neutral-900">
+                            <th class="sticky top-0 w-10">#</th>
+                            <th class="sticky top-0 w-[50px]">Id</th>
+                            <th class="sticky top-0 w-[80px]" data-tooltip="#Transaction_Amount">
+                                Amount <i class="ki-outline ki-information-2"></i>
+                                <div class="transition-opacity duration-300 tooltip" id="Transaction_Amount">Transaction Amount</div>
+                            </th>
+                            <th class="sticky top-0 w-[80px]">Payment Date</th>
+                            <th class="sticky top-0 w-[50px]">Status</th>
+                            <th class="sticky top-0 w-[120px]">Memo</th>
+                            <th class="sticky top-0 w-[120px]">Merchant / Supplier</th>
+                            <th class="sticky top-0 w-[150px]">Card</th>
+                            <th class="sticky top-0 w-[50px]">Receipts</th>
+                            <th class="sticky top-0 w-[150px]">Clearing Detail</th>
+                            <th class="sticky top-0 w-[80px]" v-if="page_data.permission === 'full_access'">Actions</th>
+                        </tr>
                     </thead>
                     <tbody class="h-full text-xs tracking-tight text-center">
                         <tr v-for="(obj, index) in filteredData" :key="index" class="transition-all duration-300 text-neutral-800">
@@ -123,7 +126,56 @@
                             </td>
                             <td>{{ obj.memo  }}</td>
                             <td>{{ obj.merchantName  }}</td>
-                            <td class="text-center p-1.5">
+                            <td>
+                                <div class="flex justify-between py-0.5">
+                                    <span>Name:</span>
+                                    <strong class="text-wrap">{{ obj.cardName }}</strong>
+                                </div>
+                                <hr class="my-1 border-gray-400">
+                                <div class="flex justify-between py-0.5">
+                                    <span>Last Four:</span>
+                                    <span>{{ obj.cardLastFour }}</span>
+                                </div>
+                                <hr class="my-1 border-gray-400">
+                                <div class="flex justify-between py-0.5">
+                                    <span>Holder:</span>
+                                    <span>{{ obj.cardHolderName }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <a
+                                    v-if="obj.receipts && obj.receipts.length > 0"
+                                    v-for="(receipt, index) in obj.receipts"
+                                    class="block btn-xs secondary-btn other-doc-btn"
+                                    :class="{'mb-2': obj.receipts.length > 1}"
+                                    target="_blank"
+                                    :href="receipt"
+                                >
+                                    Receipt {{ index + 1 }}
+                                </a>
+                            </td>
+                            <td>
+                                <div class="flex justify-between py-0.5">
+                                    <span>Amount:</span>
+                                    <span>{{ formatAmount(obj.clearingAmount) }} <strong class="font-bold text-black">{{ obj.billingCurrency }}</strong></span>
+                                </div>
+                                <hr class="my-1 border-gray-400">
+                                <div class="flex justify-between py-0.5">
+                                    <span>Fee:</span>
+                                    <span>{{ formatAmount(obj.clearingFee) }} <strong class="font-bold text-black">{{ obj.billingCurrency }}</strong></span>
+                                </div>
+                                <hr class="my-1 border-gray-400">
+                                <div class="flex justify-between py-0.5">
+                                    <span>Total:</span>
+                                    <span>{{ formatAmount(parseFloat(obj.clearingAmount) + parseFloat(obj.clearingFee)) }} <strong class="font-bold text-black">{{ obj.billingCurrency }}</strong></span>
+                                </div>
+                                <hr class="my-1 border-gray-400">
+                                <div class="flex justify-between py-0.5">
+                                    <span>Cleared At:</span>
+                                    <span>{{ formatDateTime24HoursISO(obj.clearedAt) }}</span>
+                                </div>
+                            </td>
+                            <td class="text-center p-1.5" v-if="page_data.permission === 'full_access'">
                                 <button
                                     v-if="(!obj.bitrix_cash_request_id && obj.transactionCategory === 'purchase') && (obj.clearingStatus === 'pending' || obj.clearingStatus === 'cleared')"
                                     data-modal-toggle="#create_cash_request_form_modal"
@@ -132,13 +184,13 @@
                                 >
                                     Create Request
                                 </button>
-                                <button
-                                    v-if="(obj.bitrix_cash_request_id && obj.transactionCategory === 'purchase') && (obj.clearingStatus === 'cleared' || obj.clearingStatus === 'reversed' || obj.clearingStatus === 'updated')"
-                                    @click="saveCashRequest('create', obj)"
-                                    class="block w-full mb-1 secondary-btn"
-                                >
-                                    Update Request
-                                </button>
+<!--                                <button-->
+<!--                                    v-if="(obj.bitrix_cash_request_id && obj.transactionCategory === 'purchase') && (obj.clearingStatus === 'cleared' || obj.clearingStatus === 'reversed' || obj.clearingStatus === 'updated')"-->
+<!--                                    @click="saveCashRequest('create', obj)"-->
+<!--                                    class="block w-full mb-1 secondary-btn"-->
+<!--                                >-->
+<!--                                    Update Request-->
+<!--                                </button>-->
                             </td>
                         </tr>
                         <tr class="h-full table-no-data-available" v-if="filteredData.length === 0">
@@ -174,6 +226,7 @@
     </div>
     <!-- create transfer form modal -->
     <create-cash-request-form-modal
+        :page_data="page_data"
         :obj="selected_obj"
         v-if="is_create_cash_request_form_modal"
         @closeModal="closeModal"
@@ -315,14 +368,11 @@ export default {
             this.selected_obj = obj;
             this.is_create_cash_request_form_modal = true
         },
-        closeModal(isForm = false){
-            this.is_view_bank_transfer_details_modal = false;
-            this.is_create_bank_transfer_form_modal = false;
+        closeModal(){
+            this.is_create_cash_request_form_modal = false;
             this.selected_obj = null
             this.removeModalBackdrop();
-            if (isForm){
-                this.getPageData()
-            }
+            this.getData(false);
         },
     },
     computed: {
@@ -339,7 +389,10 @@ export default {
             return this.data.filter(item => {
                 // Filter by search input (case insensitive)
                 const matchesSearch = [
-                    item.string_id, item.parentId, item.rrn, item.qashioId,
+                    item.qashioId, item.string_id, item.parentId, item.rrn, item.bitrix_cash_request_id,
+                    item.bitrix_qashio_credit_card_category_id, item.bitrix_qashio_credit_card_sage_company_id,
+                    item.cardHolderName, item.cardLastFour, item.cardName, item.clearingAmount, item.clearingStatus,
+                    item.merchantName,
                 ].some(field => field?.toLowerCase().includes(searchTerm));
 
                 // Filter by Clearing Status

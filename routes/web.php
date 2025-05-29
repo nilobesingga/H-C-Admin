@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Admin\ACL\ACLController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\Settings\AdminSettingsController;
 use App\Http\Controllers\Admin\Settings\AdminUserController;
@@ -73,15 +72,13 @@ Route::middleware(['auth'])->group(function(){
     Route::post('/qashio/get-data', [QashioController::class, 'getData']);
     // Qashio Merchants
     Route::post('/qashio/merchants/get-data', [QashioController::class, 'getMerchantsData']);
-    Route::post('/qashio/merchants/get-data', [QashioController::class, 'getMerchantsData']);
     // save request from qashio transaction
-    Route::post('/qashio/transaction/save/{type}', [QashioController::class, 'saveBitrixCashRequest']);
+    Route::post('/qashio/transaction/save', [QashioController::class, 'saveBitrixCashRequest'])
     // Download Cash Release Receipt
     Route::post('/cash-request/download-released-receipt', [ReportsController::class, 'downloadCashReleasedReceipt']);
     // Sync FSA / DS2
     Route::get('/sync/FSA/documents', [DocumentSyncController::class, 'syncFSADocuments'])->name('sync.FSA.documents');
     Route::get('/sync/FSA/documents/progress', [DocumentSyncController::class, 'getSyncFSADocumentsProgress'])->name('sync.FSA.documents.progress');
-
     // Invoice Email Routes
     Route::controller(App\Http\Controllers\Ziina\InvoiceEmailController::class)->prefix('invoice-emails')->name('invoice-emails.')->group(function() {
         Route::post('/send', 'sendInvoiceEmail')->name('send');
