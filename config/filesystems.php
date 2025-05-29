@@ -77,13 +77,22 @@ return [
 
         'holding_smb' => [
             'driver' => 'local',
-            'host' => '10.0.1.16',
+            'host' => '10.0.1.15',
             'username' => 'Nilo',
             'password' => 'upgrade@gretel3CORA',
-            'root' => '/Volumes/Holding',
-            'port' => 22,
-            'timeout' => 30,
-            'throw' => false,
+            'root' => '/Volumes',
+            'port' => 445,
+            'timeout' => 10,
+            'visibility' => 'public',
+            'directoryPerm' => 0755,
+            'permPublic' => 0644,
+            'throw' => true,
+            'connectTimeout' => 5,
+            'retry' => [
+                'max_attempts' => 3,
+                'delay' => 1000,
+                'multiplier' => 2
+            ]
         ],
     ],
 

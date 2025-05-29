@@ -67,6 +67,8 @@ return new class extends Migration
             $table->string('createdAt')->nullable();
             $table->string('updatedAt')->nullable();
             $table->dateTime('last_sync');
+            $table->string('bitrix_qashio_credit_card_category_id')->nullable();
+            $table->string('bitrix_qashio_credit_card_sage_company_id')->nullable();
             $table->string('bitrix_cash_request_id')->nullable();
             // Timestamps
             $table->timestamps();

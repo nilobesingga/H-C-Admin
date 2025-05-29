@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Ziina;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -25,6 +25,8 @@ class ZiinaPayment extends Model
         'updated_by',
         'payment_completed_at',
         'latest_error',
+        'deal_id',
+        'deal',
         'invoice_id',
         'invoice_number',
         'invoice_date',
