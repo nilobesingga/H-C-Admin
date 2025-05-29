@@ -1,11 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Ziina;
+use App\Http\Controllers\Controller;
 
-use App\Models\ZiinaPayment;
-use App\Models\ZiinaPaymentLog;
+use App\Models\Ziina\ZiinaPayment;
+use App\Models\Ziina\ZiinaPaymentLog;
 use App\Services\Payment\ZiinaPaymentService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class ZiinaWebhookController extends Controller
@@ -18,6 +20,7 @@ class ZiinaWebhookController extends Controller
     }
     public function updateStatus($invoice_id)
     {
+        DB::beginTransaction();
         try {
             if(!isset($invoice_id)) {
                 return response()->json(['error' => 'Invoice ID is required'], 400);
@@ -32,7 +35,6 @@ class ZiinaWebhookController extends Controller
 
             // Check payment status from Ziina
             $paymentStatus = $this->ziinaService->checkPaymentStatus($payment->payment_id);
-
             if (!$paymentStatus) {
                 return response()->json(['error' => 'Failed to check payment status'], 500);
             }
@@ -42,6 +44,8 @@ class ZiinaWebhookController extends Controller
                 'status' => $paymentStatus['status']
             ];
             if ($paymentStatus['status'] === 'completed') {
+                // $this->ziinaService->updateBitrixInvoiceStatus($invoice_id);
+                $this->ziinaService->createBitrixDealTask($payment->deal_id, 'Paid via Ziina', 'Payment for invoice : ' . $payment->invoice_number);
                 $data['payment_completed_at'] = now();
             } elseif ($paymentStatus['status'] === 'failed') {
                 $data['latest_error'] = $paymentStatus['latest_error'];
@@ -61,8 +65,10 @@ class ZiinaWebhookController extends Controller
                 'latest_error' => $paymentStatus['latest_error'] ?? null,
             ]);
             // Redirect to the redirect_url
+            DB::commit();
             return redirect($paymentStatus['redirect_url']);
         } catch (\Exception $e) {
+            DB::rollBack();
             Log::error('Payment status update failed: ' . $e->getMessage());
             return response()->json(['error' => 'Failed to update payment status'], 400);
         }
@@ -81,9 +87,18 @@ class ZiinaWebhookController extends Controller
     }
     public function PaymentStatus()
     {
-        $payment = ZiinaPayment::select('status','invoice_id','payment_completed_at')->get();
+        $payment = ZiinaPayment::select('status','invoice_id','payment_completed_at','updated_at')->get();
         if (!$payment) {
             return response()->json(['error' => 'Payment not found','data' => []], 200);
+        }
+        foreach ($payment as &$pay) {
+            $diff = $pay->updated_at->diff(now());
+            $pay->counter = 'Sent '. sprintf(
+                '%d days %d hrs %d min',
+                $diff->days,
+                $diff->h,
+                $diff->i
+            );
         }
         return response()->json(['message' => 'Payment Status', 'data' => $payment], 200);
     }

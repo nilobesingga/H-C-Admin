@@ -128,142 +128,30 @@
                                                 </template>
                                             </v-select>
                                         </div>
-                                        <div>
-                                            <label class="block mb-1 text-sm font-medium" for="currency">Bank Name <span class="text-danger">*</span></label>
-                                            <v-select
-                                                v-model="form.bank_code"
-                                                :options="banks"
-                                                label="CODE"
-                                                :reduce="option => option.CODE"
-                                                :filterable="false"
-                                                placeholder="Search Bank"
-                                                class="w-full text-black bg-inherit"
-                                                :class="{'has-error': v$.form.bank_code.$error}"
-                                                id="bank_code"
-                                                @update:model-value="changeBankCode"
-                                            >
-                                                <template #no-options>
-                                                    <div class="text-black">Search</div>
-                                                </template>
-                                                <template #option="option">
-                                                    <div class="py-3 text-sm text-black">
-                                                        <span class="ml-1">{{ option.COMPANY_NAME + " ( " + option.CODE + " )" }}</span>
-                                                    </div>
-                                                </template>
-                                                <template #selected-option="option">
-                                                    <div class="text-sm text-black" v-if="form.bank_code">
-                                                        <span class="ml-1">{{ option.COMPANY_NAME + " ( " + option.CODE + " )" }}</span>
-                                                    </div>
-                                                </template>
-                                            </v-select>
-                                        </div>
-                                        <div>
-                                            <label class="block mb-1 text-sm font-medium" for="message">Message <span class="text-danger">*</span></label>
-                                            <input class="w-full text-black input input-sm bg-inherit" :class="v$.form.message.$error ? '!border-red-500' : ''" placeholder="Message" id="message" type="text" v-model="form.message">
-                                        </div>
+
                                         <div class="md:col-span-2">
                                             <div class="flex gap-2 mb-2">
                                                 <label class="flex items-center gap-2">
-                                                    <input
-                                                        type="radio"
-                                                        name="invoiceUploadMethod"
-                                                        value="generate"
-                                                        v-model="isGenerateMode"
-                                                        :checked="!isGenerateMode"
-                                                        @change="isGenerateMode = false"
-                                                    />
-                                                    <span>Auto-Generate Invoice</span>
-                                                </label>
-                                                <label class="flex items-center gap-2">
-                                                    <input
-                                                        type="radio"
-                                                        name="invoiceUploadMethod"
-                                                        value="upload"
-                                                        v-model="isGenerateMode"
-                                                        :checked="isGenerateMode"
-                                                        @change="isGenerateMode = true"
-                                                    />
-                                                    <span>Upload Invoice Manually</span>
+                                                    Attach Invoice
+                                                    <span class="text-danger">*</span>
                                                 </label>
                                             </div>
-                                            <div v-if="!isGenerateMode">
-                                                <div class="flex items-center gap-2">
-                                                    <div class="relative w-full">
-                                                        <!-- Disabled Input -->
-                                                        <input
-                                                            class="w-full text-black pr-36 input input-sm bg-inherit"
-                                                            :class="v$.form.supporting_document.$error ? '!border-red-500' : ''"
-                                                            placeholder="Generate to attach invoice"
-                                                            id="contact"
-                                                            type="text"
-                                                            v-model="form.filename"
-                                                            disabled
-                                                        />
-
-                                                        <!-- Buttons inside the input field -->
-                                                        <div class="absolute flex gap-1 transform -translate-y-1/2 top-1/2 right-2">
-                                                            <!-- Generate Button -->
-                                                            <button
-                                                                class="secondary-btn"
-                                                                @click="generateInvoice(0)"
-                                                                :disabled="generating"
-                                                            >
-                                                                <svg
-                                                                    v-if="generating"
-                                                                    class="w-4 h-4 animate-spin"
-                                                                    xmlns="http://www.w3.org/2000/svg"
-                                                                    fill="none"
-                                                                    viewBox="0 0 24 24"
-                                                                >
-                                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"/>
-                                                                    <path
-                                                                        class="opacity-75"
-                                                                        fill="currentColor"
-                                                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291
-                                                                        A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3
-                                                                        7.938l3-2.647z"
-                                                                    />
-                                                                </svg>
-                                                                <span v-else>{{ (form.filename == null) ? 'Generate' : 'Re-Generate' }}</span>
-                                                            </button>
-
-                                                            <!-- Download Button -->
-                                                            <button
-                                                                class="secondary-btn"
-                                                                :disabled="downloading"
-                                                                @click="generateInvoice(1)"
-                                                            >
-                                                                <svg
-                                                                    v-if="downloading"
-                                                                    class="w-4 h-4 animate-spin"
-                                                                    xmlns="http://www.w3.org/2000/svg"
-                                                                    fill="none"
-                                                                    viewBox="0 0 24 24"
-                                                                >
-                                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"/>
-                                                                    <path
-                                                                        class="opacity-75"
-                                                                        fill="currentColor"
-                                                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291
-                                                                        A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3
-                                                                        7.938l3-2.647z"
-                                                                    />
-                                                                </svg>
-                                                                <span v-else>Download</span>
-                                                            </button>
-                                                        </div>
-                                                    </div>
-
-                                                </div>
-                                                <span class="text-[11px] text-red-500"><i>Note : Just click 'Generate' — we’ll create and attach the invoice for you automatically. </i></span>
-                                            </div>
-                                            <div v-else>
+                                            <div>
                                                 <div class="flex gap-2">
                                                     <input class="w-full text-black file-input file-input-sm bg-inherit" :class="v$.form.supporting_document.$error ? '!border-red-500' : ''" placeholder="Supporting Document" id="supporting_document" type="file" @change="uploadDocument($event, 'supporting_document')">
                                                 </div>
                                             </div>
                                         </div>
-
+                                        <div class="md:col-span-2">
+                                             <div class="flex gap-2 mb-2">
+                                                <label class="block mb-1 text-sm font-medium" for="message">Message <span class="text-danger">*</span></label>
+                                            </div>
+                                            <div>
+                                                <div class="flex gap-2">
+                                                    <input class="w-full text-black input input-sm bg-inherit" :class="v$.form.message.$error ? '!border-red-500' : ''" placeholder="Message" id="message" type="text" v-model="form.message">
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
 
                                     <div class="grid grid-cols-1 gap-4 md:grid-cols-2" v-else>
@@ -364,7 +252,7 @@
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
-                        <span v-else>Send Invoice Payment</span>
+                        <span v-else>Send Invoice</span>
                     </button>
                     <button v-else
                         class="main-btn"
@@ -376,7 +264,7 @@
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
-                        <span v-else>Send Payment Reminder</span>
+                        <span v-else>Send Reminder</span>
                     </button>
                 </div>
                 <div class="flex gap-4" v-else>
@@ -415,6 +303,7 @@ export default {
                 bank_code: null,
                 filename: null,
             },
+            category: null,
             sageCompanyId : null,
             payment_logs: [],
             generating: false,
@@ -462,6 +351,9 @@ export default {
                 formData.append('filename', this.form.filename);
                 formData.append('bank_code', this.form.bank_code);
                 formData.append('pdf_file', this.form.supporting_document);
+                formData.append('category_id', this.obj.category_id);
+                formData.append('deal_id', this.obj.deal_id);
+                formData.append('deal', this.obj.deal);
                 const response = await axios.post('/api/invoice-emails/send', formData);
                 if (response.data.status === 'success') {
                     this.successToast(response.data.message);
@@ -495,21 +387,25 @@ export default {
             const dueDate = DateTime.fromSQL(item.date_pay_before)
             return ((item.status_id === "2" || item.status_id === "N") && dueDate < today);
         },
-        getContact(){
+        async getContact(){
             const endpoint = 'crm.contact.get';
             const bitrixUserId = this.sharedState.bitrix_user_id ? this.sharedState.bitrix_user_id : this.page_data.user.bitrix_user_id;
             const bitrixWebhookToken = this.sharedState.bitrix_webhook_token ? this.sharedState.bitrix_webhook_token : this.page_data.user.bitrix_webhook_token;
             const requestData = {
                 id: this.obj.contact_id
             }
-            this.callBitrixAPI(endpoint, bitrixUserId, bitrixWebhookToken, requestData)
+            await this.callBitrixAPI(endpoint, bitrixUserId, bitrixWebhookToken, requestData)
             .then(response => {
                 if (response.result) {
-                    this.emails = response.result.EMAIL;
-
-                    this.emails.push({VALUE: 'nilo.besingga@crescotec.com'});
-                    console.log(this.emails, "this.emails");
-                    this.form.email = "nilo.besingga@crescotec.com";//response.result.EMAIL[0].VALUE ?? '';
+                    this.emails = response.result.EMAIL ?? [];
+                    if(this.emails.length == 0){
+                        this.emails.push({'VALUE': 'nilo.besingga@crescotec.com'});
+                        this.form.email = "nilo.besingga@crescotec.com";//response.result.EMAIL[0].VALUE ?? '';
+                    }
+                    else{
+                        this.emails.push({'VALUE': 'nilo.besingga@crescotec.com'});
+                        this.form.email = "nilo.besingga@crescotec.com";//response.result.EMAIL[0].VALUE ?? '';
+                    }
                 }
             })
             .catch(error => {
@@ -522,7 +418,7 @@ export default {
                 this.form[field] = file;
                 this.form.filename = file.name;
             }
-            console.log(this.form[field]);
+            // console.log(this.form[field]);
         },
         async getBankList() {
             const response = await axios.get('https://10.0.1.17/CrescoSage/api/v1/Mapping/CompanyMap/' + this.obj.sage_company_id + '?mapType=2');
@@ -562,6 +458,13 @@ export default {
 
                             // Assign to supporting_document
                             this.form.supporting_document = file;
+
+                            const dataTransfer = new DataTransfer();
+                            dataTransfer.items.add(file);
+                            const fileInput = document.getElementById('supporting_document');
+                            if (fileInput) {
+                                fileInput.files = dataTransfer.files;
+                            }
                         })
                         .catch(error => {
                             console.error('Error fetching file:', error);
@@ -584,15 +487,15 @@ export default {
                 this.generating = true;
             }
             await axios.post(
-                'https://forms.cresco.ae/api/invoice/download/' + this.obj.id,
-                // 'http://127.0.0.1:8001/api/invoice/download/' + this.obj.id,
+                // 'https://forms.cresco.ae/api/invoice/download/' + this.obj.id,
+                'http://127.0.0.1:8002/api/invoice/download/' + this.obj.id,
                 {
                     bank_code: this.form.bank_code
                 },
                 {
                     headers: {
-                        Authorization: 'Bearer Uif54oa7vciStwIuFpH7Q1cVBozqVFysrKyetb5w',
-                        // Authorization: 'Bearer ua88c8LeLp4J2I1qrOFc1gGkq0iBxmkSgqS01jYe',
+                        // Authorization: 'Bearer Uif54oa7vciStwIuFpH7Q1cVBozqVFysrKyetb5w',
+                        Authorization: 'Bearer ua88c8LeLp4J2I1qrOFc1gGkq0iBxmkSgqS01jYe',
                         'Content-Type': 'application/json',
                         Accept: 'application/json',
                     },
@@ -628,7 +531,7 @@ export default {
             if(this.form.bank_code){
                 this.form.supporting_document = null;
                 this.form.filename = null;
-                await this.generateInvoice(0);
+                // await this.generateInvoice(0);
             }
         },
     },

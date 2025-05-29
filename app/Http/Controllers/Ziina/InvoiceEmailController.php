@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Controllers;
-
+namespace App\Http\Controllers\Ziina;
+use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Models\ZiinaPayment;
-use App\Models\ZiinaPaymentLog;
+use App\Models\Ziina\ZiinaPayment;
+use App\Models\Ziina\ZiinaPaymentLog;
 use App\Services\Email\EmailService;
 use App\Services\Payment\ZiinaPaymentService;
 use App\Traits\ApiResponser;
@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use stdClass;
 
 class InvoiceEmailController extends Controller
 {
@@ -112,6 +113,10 @@ class InvoiceEmailController extends Controller
                 // Public URL for preview in email
                 $previewUrl = Storage::disk('public')->url($storedPath);
                 $invoiceData['preview_url'] = $previewUrl;
+                $info = $this->getCompany($request->category_id);
+                $invoiceData['logo'] = $info->logo;
+                $invoiceData['company'] = $info->company;
+
             }
 
             // Send the email with the EmailService
@@ -130,6 +135,77 @@ class InvoiceEmailController extends Controller
         } catch (\Throwable $th) {
             return $this->errorResponse('Failed to send invoice email', $th->getMessage(), 500);
         }
+    }
+
+    public function getCompany($category){
+        $logoPath = '';
+        $company = '';
+        switch ($category) {
+            case 3845:
+                $company = 'Abode Options';
+                $logoPath = 'img/Logo/abode.png';
+                break;
+            case 1457:
+                $company = 'Bawbawon Hospitality Group';
+                $logoPath = 'img/Logo/BHG - Blue.svg';
+                break;
+            case 1452:
+                $company ="Bincres";
+                $logoPath = 'img/Logo/BINCRES.svg';
+                break;
+            case 868:
+                $company ="Caplion Point";
+                $logoPath = 'img/Logo/CLP.svg';
+                break;
+            case 865:
+                $company ="CRESCO Accounting";
+                $logoPath = 'img/Logo/CRESCO Accounting.svg';
+                break;
+            case 866:
+                $company ="CRESCO Compliance";
+                $logoPath = 'img/Logo/CRESCO_Compliance.png';
+                break;
+            case 867:
+                $company ="CRESCO Holding";
+                $logoPath = 'img/Logo/CRESCO Holding.svg';
+                break;
+            case 847:
+                $company ="CRESCO Legal";
+                $logoPath = 'img/Logo/CRESCO Legal.svg';
+                break;
+            case 1463:
+                $company ="CRESCO Power";
+                $logoPath = 'img/Logo/CRESCO Power.svg';
+                break;
+            case 861:
+                $company ="CRESCOtec";
+                $logoPath = 'img/Logo/CRESCOTec.svg';
+                break;
+            case 858:
+                $company ="Hensley & Cook";
+                $logoPath = 'img/Logo/Hensley&Cook.svg';
+                break;
+            case 3936:
+                $company ="Lionsrock";
+                $logoPath = 'img/Logo/Lionsrock.svg';
+                break;
+            case 856:
+                $company ="SADIQA";
+                $logoPath = 'img/Logo/SADIQA.svg';
+                break;
+            case 860:
+                $company ="Smart Money";
+                $logoPath = 'img/Logo/Smart Money.svg';
+                break;
+            default:
+                $company = "CRESCO";
+                $logoPath = 'img/Logo/Cresco.svg';
+                break;
+        }
+        $obj = new stdClass();
+        $obj->logo = $logoPath;
+        $obj->company = $company;
+        return $obj;
     }
 
     public function createPaymentIntent(Request $request)
@@ -151,9 +227,8 @@ class InvoiceEmailController extends Controller
             // Generate URLs
             $baseUrl = env('APP_URL');
             $encryptedId = encrypt($request->invoice_id);
-            $successUrl = $baseUrl . '/ziina-webhook/'.$encryptedId;
-            $cancelUrl = $baseUrl . '/ziina-webhook/'.$encryptedId;
-            $failureUrl = $baseUrl . '/ziina-webhook/'.$encryptedId;
+            $callbackUrl = $baseUrl . '/ziina-webhook/'.$encryptedId;
+
             $message = $request->message;
             $dt = new DateTime('+90 days');
             $expiry = $dt->getTimestamp() * 1000; // Convert to milliseconds
@@ -162,32 +237,42 @@ class InvoiceEmailController extends Controller
             $serviceFee = ($amount * 3) / 100;
             $totalAmount = $amount + $serviceFee;
             // Create payment intent
-            $result = $this->ziinaPaymentService->createPaymentIntent(
-                        str_replace('.', '', number_format($totalAmount, 2, '.', '')),
-                        $request->currency,
-                        $message,
-                        $successUrl,
-                        $cancelUrl,
-                        $failureUrl,
-                        $expiry
-                    );
-            // Check if the payment intent creation was successful
-            if (!$result || !isset($result['id'])) {
-                return $this->errorResponse('Failed to create payment intent ', null, 500);
+
+            $result = ZiinaPayment::where('invoice_id', $request->invoice_id)->first();
+            $hasResult = false;
+            if(!$result){
+                $result = $this->ziinaPaymentService->createPaymentIntent(
+                    str_replace('.', '', number_format($totalAmount, 2, '.', '')),
+                    $request->currency,
+                    $message,
+                    $callbackUrl,
+                    $callbackUrl,
+                    $callbackUrl,
+                    $expiry
+                );
+                if (!$result || !isset($result['id'])) {
+                    return $this->errorResponse('Failed to create payment intent ', null, 500);
+                }
             }
+            else{
+                $hasResult = true;
+                $result = $result->toArray();
+            }
+            // Check if the payment intent creation was successful
             $counter = ZiinaPaymentLog::where('invoice_id', $request->invoice_id)->count();
             $count = $counter;
             if($counter >= 1){
                 $count = ($count == 1) ? 1 :  $count;
             }
 
+            $result['redirect_url'] = $result['redirect_url'] ?? $result['payment_link'] ?? null;
             $paymentData = [
                 'invoice_id' => $request->invoice_id,
                 'invoice_number' => $request->invoice_number,
                 'invoice_date' => $request->invoice_date,
                 'recipient_name' => $request->recipient_name,
                 'recipient_email' => $request->recipients[0] ?? null,
-                'payment_id' => $result['id'],
+                'payment_id' => ($hasResult) ? $result['payment_id'] : $result['id'],
                 'account_id' => $result['account_id'],
                 'operation_id' => $result['operation_id'],
                 'payment_link' => $result['redirect_url'],
@@ -197,12 +282,14 @@ class InvoiceEmailController extends Controller
                 'service_charge' => $serviceFee ?? 0,
                 'total_amount' => $totalAmount,
                 'message' => $message,
-                'success_url' => $successUrl,
-                'cancel_url' => $cancelUrl,
-                'failure_url' => $failureUrl,
+                'success_url' => $callbackUrl,
+                'cancel_url' => $callbackUrl,
+                'failure_url' => $callbackUrl,
                 'expiry' =>  $expiry,
                 'created_by' => $request->bitrixUserId,
                 'invoice_id' => $request->invoice_id,
+                'deal' => $request->deal ?? null,
+                'deal_id' => $request->deal_id ?? null,
                 'invoice_number' => $request->invoice_number,
                 'invoice_date' => date('Y-m-d',strtotime($request->invoice_date)),
                 'recipient_name' => $request->recipient_name,
@@ -217,7 +304,7 @@ class InvoiceEmailController extends Controller
             // Log the payment intent creation
             ZiinaPaymentLog::create([
                 'invoice_id' => $request->invoice_id,
-                'payment_id' => $result['id'],
+                'payment_id' => ($hasResult) ? $result['payment_id'] : $result['id'],
                 'account_id' => $result['account_id'],
                 'payment_link' => $result['redirect_url'],
                 'operation_id' => $result['operation_id'],
