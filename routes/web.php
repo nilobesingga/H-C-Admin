@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Admin\ACL\ACLController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\Settings\AdminSettingsController;
 use App\Http\Controllers\Admin\Settings\AdminUserController;
@@ -78,9 +77,8 @@ Route::middleware(['auth'])->group(function(){
     Route::post('/qashio/get-data', [QashioController::class, 'getData']);
     // Qashio Merchants
     Route::post('/qashio/merchants/get-data', [QashioController::class, 'getMerchantsData']);
-    Route::post('/qashio/merchants/get-data', [QashioController::class, 'getMerchantsData']);
     // save request from qashio transaction
-    Route::post('/qashio/transaction/save/{type}', [QashioController::class, 'saveBitrixCashRequest']);
+    Route::post('/qashio/transaction/save', [QashioController::class, 'saveBitrixCashRequest']);
 
     Route::get('/file-manager/get-data', [FileManagerController::class, 'getData'])->name('file-manager.get-data');
     Route::get('/file-manager/deep-search', [FileManagerController::class, 'deepSearch'])->name('file-manager.deep-search');
