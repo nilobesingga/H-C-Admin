@@ -73,7 +73,7 @@ Route::middleware(['auth'])->group(function(){
     // Qashio Merchants
     Route::post('/qashio/merchants/get-data', [QashioController::class, 'getMerchantsData']);
     // save request from qashio transaction
-    Route::post('/qashio/transaction/save', [QashioController::class, 'saveBitrixCashRequest'])
+    Route::post('/qashio/transaction/save', [QashioController::class, 'saveBitrixCashRequest']);
     // Download Cash Release Receipt
     Route::post('/cash-request/download-released-receipt', [ReportsController::class, 'downloadCashReleasedReceipt']);
     // Sync FSA / DS2
