@@ -21,13 +21,13 @@
                             format="dd MMM yyyy"
                             :clearable="false"
                             class="rounded-none"
-                            @update:model-value="getData(false)"
+                            @update:model-value="getPageData(false)"
                             :disabled="loading"
                         />
                     </div>
                     <!-- Period Select -->
                     <div class="flex flex-col w-36">
-                        <select class="select select-input" v-model="selected_period" @change="getData(false)" :disabled="loading">
+                        <select class="select select-input" v-model="selected_period" @change="getPageData(false)" :disabled="loading">
                             <option v-for="(period, index) in periods" :key="index" :value="period.key">
                                 {{ period.value }}
                             </option>
@@ -64,18 +64,16 @@
                             </option>
                         </select>
                     </div>
-                    <!-- Clearing Status -->
+                    <!-- Qashio Credit Cards -->
                     <div class="flex flex-shrink-0">
                         <select
-                            class="w-48 select select-sm select-input"
-                            v-model="filters.clearing_status"
+                            class="select select-sm select-input w-96"
+                            v-model="filters.qashio_credit_card"
                         >
-                            <option value="" selected>Filter by Clearing Status</option>
-                            <option value="pending">Pending</option>
-                            <option value="cleared">Cleared</option>
-                            <option value="reversed">Reversed</option>
-                            <option value="updated">Updated</option>
-                            <option value="null">Null</option>
+                            <option value="" selected>Filter by Qashio Credit Card</option>
+                            <option v-for="obj in qashio_credit_cards" :key="obj.id" :value="obj.last_four_digits">
+                                {{ obj.name }}
+                            </option>
                         </select>
                     </div>
                 </div>
@@ -91,6 +89,16 @@
                         />
                     </div>
                 </div>
+                <!-- Warning Filter -->
+                <div class="flex flex-shrink-0">
+                    <button
+                        :class="['btn btn-icon btn-sm relative px-3 h-10 !w-10 !rounded-none transition-all duration-300 hover:border-black', filters.is_warning ? 'bg-yellow-100 text-black border-black' : 'btn-light text-black']"
+                        @click="filters.is_warning = !filters.is_warning"
+                    >
+                        <i class="ki-outline ki-information-1"></i>
+                        <span class="absolute flex items-center justify-center text-[9px] font-bold text-white translate-x-1/2 -translate-y-1/2 bg-yellow-500 rounded-full shadow-md top-1 right-1 shadow-yellow-300 min-h-5 min-w-5">{{ warningCount }}</span>
+                    </button>
+                </div>
             </div>
             <!-- table -->
             <div class="relative flex-grow h-full overflow-auto border shadow-md reports-table-container border-brand">
@@ -104,11 +112,10 @@
                                 <div class="transition-opacity duration-300 tooltip" id="Transaction_Amount">Transaction Amount</div>
                             </th>
                             <th class="sticky top-0 w-[80px]">Payment Date</th>
-                            <th class="sticky top-0 w-[50px]">Status</th>
                             <th class="sticky top-0 w-[120px]">Memo</th>
                             <th class="sticky top-0 w-[120px]">Merchant / Supplier</th>
-                            <th class="sticky top-0 w-[150px]">Card</th>
                             <th class="sticky top-0 w-[50px]">Receipts</th>
+                            <th class="sticky top-0 w-[180px]">Card</th>
                             <th class="sticky top-0 w-[150px]">Clearing Detail</th>
                             <th class="sticky top-0 w-[80px]" v-if="page_data.permission === 'full_access'">Actions</th>
                         </tr>
@@ -119,13 +126,20 @@
                             <td><a class="btn btn-link !text-black hover:!text-brand-active" target="_blank" :href="'https://crm.cresco.ae/bizproc/processes/105/element/0/' + obj.bitrix_cash_request_id  + '/?list_section_id='">{{obj.bitrix_cash_request_id }}</a></td>
                             <td class="text-right">{{ formatAmount(obj.transactionAmount) }} <strong class="font-bold text-black">{{ obj.transactionCurrency }}</strong></td>
                             <td>{{ formatDateTime24HoursISO(obj.transactionTime)  }}</td>
-                            <td>
-                                <div class="capitalize" :class="obj.clearingStatus === 'cleared' ? 'badge badge-success' : obj.clearingStatus === 'pending' ? 'badge badge-warning' : ''">
-                                    {{ obj.clearingStatus  }}
-                                </div>
-                            </td>
                             <td>{{ obj.memo  }}</td>
                             <td>{{ obj.merchantName  }}</td>
+                            <td>
+                                <a
+                                    v-if="obj.receipts && obj.receipts.length > 0"
+                                    v-for="(receipt, index) in obj.receipts"
+                                    class="block btn-xs secondary-btn other-doc-btn"
+                                    :class="{'mb-2': obj.receipts.length > 1}"
+                                    target="_blank"
+                                    :href="receipt"
+                                >
+                                    Receipt {{ index + 1 }}
+                                </a>
+                            </td>
                             <td>
                                 <div class="flex justify-between py-0.5">
                                     <span>Name:</span>
@@ -141,18 +155,6 @@
                                     <span>Holder:</span>
                                     <span>{{ obj.cardHolderName }}</span>
                                 </div>
-                            </td>
-                            <td>
-                                <a
-                                    v-if="obj.receipts && obj.receipts.length > 0"
-                                    v-for="(receipt, index) in obj.receipts"
-                                    class="block btn-xs secondary-btn other-doc-btn"
-                                    :class="{'mb-2': obj.receipts.length > 1}"
-                                    target="_blank"
-                                    :href="receipt"
-                                >
-                                    Receipt {{ index + 1 }}
-                                </a>
                             </td>
                             <td>
                                 <div class="flex justify-between py-0.5">
@@ -173,6 +175,11 @@
                                 <div class="flex justify-between py-0.5">
                                     <span>Cleared At:</span>
                                     <span>{{ formatDateTime24HoursISO(obj.clearedAt) }}</span>
+                                </div>
+                                <hr class="my-1 border-gray-400">
+                                <div class="flex justify-between py-0.5">
+                                    <span>Status:</span>
+                                    <span class="capitalize" :class="obj.clearingStatus === 'cleared' || obj.clearingStatus === 'updated'? 'badge badge-success' : (obj.clearingStatus === 'pending' ? 'badge badge-warning' : (obj.clearingStatus === 'reversed' ? 'badge badge-danger' : ''))">{{ obj.clearingStatus  }}</span>
                                 </div>
                             </td>
                             <td class="text-center p-1.5" v-if="page_data.permission === 'full_access'">
@@ -259,15 +266,41 @@ export default {
                 to_date: null,
                 category_id: "",
                 sage_company_id: "",
-                clearing_status: "",
+                qashio_credit_card: "",
                 search: "",
+                is_warning: false,
             },
+            qashio_credit_cards: [],
             is_create_cash_request_form_modal: false,
             selected_obj: null,
         }
     },
     methods: {
-        async getData(isSync = false) {
+        async getData() {
+            await this.fetchQashioCreditCardsFromBitrix();
+            await this.getPageData(false);
+        },
+        async fetchQashioCreditCardsFromBitrix() {
+            this.loading = true;
+            const bitrixUserId = this.page_data.user.bitrix_user_id ? this.page_data.user.bitrix_user_id : null;
+            const bitrixWebhookToken = this.page_data.user.bitrix_webhook_token ? this.page_data.user.bitrix_webhook_token : null;
+            const endpoint = 'crm.company.reports_v2';
+            const requestData = {
+                action: "getQashioCreditCards",
+            }
+            try {
+                const response = await this.callBitrixAPI(endpoint, bitrixUserId, bitrixWebhookToken, requestData);
+                if (response.result) {
+                    this.loading = false
+                    this.qashio_credit_cards = response.result
+                }
+            } catch (error) {
+                if (error.status === 500) {
+                    this.errorToast('Something went wrong! Please refresh the page or contact support if this keeps happening.')
+                }
+            }
+        },
+        async getPageData(isSync = false) {
             this.loading = true;
             this.filters.from_date = this.selected_date_range[0];
             this.filters.to_date = this.selected_date_range[1];
@@ -282,7 +315,7 @@ export default {
                     }
                 });
 
-                let fetchedData = response.data.data;
+                let fetchedData = response.data.transactions;
                 // Filter data by user categories and sage companies
                 const userCategoryIds = this.page_data.bitrix_list_categories.map(cat => cat.bitrix_category_id);
                 const userSageCompanyIds = this.page_data.bitrix_list_sage_companies.map(cat => cat.bitrix_sage_company_id);
@@ -372,7 +405,7 @@ export default {
             this.is_create_cash_request_form_modal = false;
             this.selected_obj = null
             this.removeModalBackdrop();
-            this.getData(false);
+            this.getPageData(false);
         },
     },
     computed: {
@@ -395,17 +428,24 @@ export default {
                     item.merchantName,
                 ].some(field => field?.toLowerCase().includes(searchTerm));
 
-                // Filter by Clearing Status
-                const matchesStatus = this.filters.clearing_status === 'null' ? item.clearingStatus === null : this.filters.clearing_status ? item.clearingStatus === this.filters.clearing_status : true;
                 // Filter by selected Category ID
                 const matchesCategory = this.filters.category_id ? item.bitrix_qashio_credit_card_category_id === this.filters.category_id : true;
                 // Filter by selected Sage Company ID
                 const matchesSageCompany = this.filters.sage_company_id ? item.bitrix_qashio_credit_card_sage_company_id === this.filters.sage_company_id : true;
+                // Qashio Credit Card
+                const matchesCreditCard = this.filters.qashio_credit_card ? item.cardLastFour === this.filters.qashio_credit_card : true;
+                // Filter by warning
+                const matchesWarning = this.filters.is_warning ? !item.bitrix_cash_request_id : true;
 
                 // Return true only if all filters match
-                return matchesSearch && matchesStatus && matchesCategory && matchesSageCompany;
+                return matchesSearch && matchesCategory && matchesSageCompany && matchesCreditCard && matchesWarning;
             });
         },
+        warningCount() {
+            return this.filteredData.filter(item => {
+                return  !item.bitrix_cash_request_id;
+            }).length;
+        }
     },
     watch: {
         selected_period() {

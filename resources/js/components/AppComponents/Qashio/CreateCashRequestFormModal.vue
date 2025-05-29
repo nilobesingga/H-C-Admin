@@ -161,7 +161,7 @@
                                     </div>
                                     <!-- Receipts -->
                                     <div class="mb-4 w-full gap-2.5">
-                                        <label class="form-label flex items-center gap-1 text-sm mb-1 !text-black" for="receipts">Receipts
+                                        <label class="form-label flex items-center gap-1 text-sm mb-1 !text-black" for="receipts">Receipts / Invoices
                                             <span class="text-danger">* <span class="form-text-error" v-if="v$.form.receipts.$error">Please fill out this field</span></span>
                                         </label>
                                         <input
@@ -194,26 +194,9 @@
                                     </div>
                                 </div>
                                 <div class="w-1/2">
-                                    <!-- Pay to Running Account -->
-<!--                                    <div class="mb-4 w-full gap-2.5">-->
-<!--                                        <label class="form-label flex items-center gap-1 text-sm mb-1 !text-black" for="pay_to_running_account">Pay to Running Account</label>-->
-<!--                                        <select-->
-<!--                                            v-model="form.pay_to_running_account_id"-->
-<!--                                            class="select select-input select-sm px-3 pr-8 min-w-fit max-w-full text-black bg-inherit"-->
-<!--                                            id="pay_to_running_account"-->
-<!--                                        >-->
-<!--                                            <option-->
-<!--                                                v-for="(label, id) in form_fields_lists.find(f => f.key === 'pay_to_running_account')?.values"-->
-<!--                                                :key="id"-->
-<!--                                                :value="id"-->
-<!--                                            >-->
-<!--                                                {{ label }}-->
-<!--                                            </option>-->
-<!--                                        </select>-->
-<!--                                    </div>-->
                                     <!-- Invoice Number -->
                                     <div class="mb-4 w-full gap-2.5">
-                                        <label class="form-label flex items-center gap-1 text-sm mb-1 !text-black" for="invoice_number">Invoice Number
+                                        <label class="form-label flex items-center gap-1 text-sm mb-1 !text-black" for="invoice_number">Supplier Invoice Number
                                             <span class="text-danger">* <span class="form-text-error" v-if="v$.form.invoice_number.$error">Please fill out this field</span></span>
                                         </label>
                                         <input
@@ -455,46 +438,55 @@ export default {
             }
         },
         async searchData(type, query, isSearchFromForm = false) {
-            if (query) {
-                const bitrixUserId = this.page_data.user.bitrix_user_id;
-                const bitrixWebhookToken = this.page_data.user.bitrix_webhook_token;
-                let endpoint, requestData;
-
-                if (type === "projects") {
-                    endpoint = "crm.contact.search";
-                    requestData = { search: `%${query}%` };
+            const clearData = () => {
+                if (isSearchFromForm) {
+                    if (type === 'projects') this.form_data.projects = [];
+                    if (type === 'suppliers') this.form_data.suppliers = [];
                 }
-                if (type === "suppliers") {
-                    endpoint = "crm.company.list";
-                    requestData = {
-                        filter: {
-                            "%TITLE": query
-                        }
-                    };
-                }
+            };
 
-                try {
-                    const response = await this.callBitrixAPI(endpoint, bitrixUserId, bitrixWebhookToken, qs.stringify(requestData));
-                    if (response.result) {
-                        if (isSearchFromForm){
-                            if (type === "projects"){
-                                this.form_data.projects = [];
-                                this.form_data.projects = response.result.filter(obj => {
-                                    return obj.TYPE !== "3"
-                                });
-                            }
-                            if (type === "suppliers"){
-                                this.form_data.suppliers = [];
-                                this.form_data.suppliers = response.result;
-                            }
-                        }
-                        else {
-                            return response.result;
-                        }
+            if (!query) {
+                clearData();
+                return;
+            }
+
+            const bitrixUserId = this.page_data.user.bitrix_user_id;
+            const bitrixWebhookToken = this.page_data.user.bitrix_webhook_token;
+
+            let endpoint, requestData;
+
+            if (type === "projects") {
+                endpoint = "crm.contact.search";
+                requestData = { search: `%${query}%` };
+            }
+            if (type === "suppliers") {
+                endpoint = "crm.company.list";
+                requestData = {
+                    filter: {
+                        "%TITLE": query
                     }
-                } catch (error) {
-                    console.error(`Error fetching ${type}:`, error);
+                };
+            }
+
+            try {
+                const response = await this.callBitrixAPI(endpoint, bitrixUserId, bitrixWebhookToken, qs.stringify(requestData));
+                if (response.result) {
+                    if (isSearchFromForm){
+                        if (type === "projects"){
+                            this.form_data.projects = response.result.filter(obj => obj.TYPE !== "3");
+                        }
+                        if (type === "suppliers"){
+                            this.form_data.suppliers = response.result;
+                        }
+                    } else {
+                        return response.result;
+                    }
+                } else {
+                    clearData(); // Just in case the result is empty
                 }
+            } catch (error) {
+                clearData(); // Also clear on error
+                console.error(`Error fetching ${type}:`, error);
             }
         },
         handleReceiptUpload(event) {
@@ -655,6 +647,10 @@ export default {
         if (this.obj.clearingStatus === 'cleared'){
             this.form.release_date = DateTime.now().toFormat('dd.MM.yyyy');
             this.form.release_by = this.page_data.user.bitrix_user_id
+        }
+        // Remarks
+        if(this.obj.transactionCurrency !== 'AED' && this.obj.clearingStatus === 'cleared'){
+            this.form.remarks =  `From amount ${this.formatAmount(this.obj.transactionAmount)} ${this.obj.transactionCurrency} to ${this.formatAmount(parseFloat(this.obj.clearingAmount) + parseFloat(this.obj.clearingFee))} ${this.obj.billingCurrency}`;
         }
 
         this.loading = false;
