@@ -381,7 +381,7 @@ Class QashioService
                     // Released By
                     $bitrixFields['PROPERTY_1071'] = 'Admin';
                     // Released Date
-                    $bitrixFields['PROPERTY_1073'] =  Carbon::createFromIsoFormat($qashioTransaction['clearedAt'])->format('d.m.Y');
+                    $bitrixFields['PROPERTY_1073'] =  Carbon::parse($qashioTransaction['clearedAt'])->format('d.m.Y');
                     // Update Reason
                     $bitrixFields['PROPERTY_1276'] = 'Updated by CRON job';
                 }

@@ -107,7 +107,12 @@ class QashioController extends Controller
 
             $data = $query->get();
 
-            return $this->successResponse('Data fetched successfully', $data, 200);
+            return response()->json([
+                'success' => true,
+                'message' => 'Data fetched successfully',
+                'transactions' => $data,
+                'last_sync' => QashioTransaction::max('last_sync')
+            ], 200);
 
         } catch (\Exception $e){
             return $this->errorResponse('Something went wrong! Please contact IT.', env('APP_ENV') !== 'production' ? $e->getMessage() : null, 500);
