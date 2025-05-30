@@ -6,6 +6,10 @@
                 <div class="flex flex-col justify-start w-1/2 text-2xl font-bold tracking-tight text-black">
                     {{ dateRangePickerText }}
                 </div>
+                <!-- Last Sync -->
+                <div class="flex flex-col w-1/2 text-xs text-center font-bold tracking-tight text-black">
+                    {{ formatDateTime12Hours(last_sync) }}
+                </div>
                 <!-- Right Side Controls -->
                 <div class="flex flex-wrap items-center justify-end w-1/2 gap-2">
                     <!-- Date Picker -->
@@ -66,6 +70,18 @@
                             <option value="account_verification">Account Verification</option>
                             <option value="reversal">Reversal</option>
                             <option value="deposit">Deposit</option>
+                            <option value="refund">Refund</option>
+                        </select>
+                    </div>
+                    <!-- Card Mapping -->
+                    <div class="flex flex-shrink-0 w-[230px]">
+                        <select
+                            class="select select-sm select-input w-[230px]"
+                            v-model="filters.custom_filter"
+                        >
+                            <option value="" selected>Custom Filter</option>
+                            <option value="missing_card">Missing Card</option>
+                            <option value="missing_cash_requisition">Missing Cash Requisition</option>
                         </select>
                     </div>
                 </div>
@@ -80,17 +96,6 @@
                             v-model="filters.search"
                         />
                     </div>
-                </div>
-                <!-- Merchant Mapping -->
-                <div class="flex flex-shrink-0">
-                    <button
-                        class="main-btn !bg-white !border !py-2 !px-5 !min-w-[120px] !text-sm focus:!border-tec-active"
-                        data-modal-toggle="#merchant_mapping_modal"
-                        :disabled="loading"
-                        @click="openModal('merchant')"
-                    >
-                        Merchant Mapping
-                    </button>
                 </div>
                 <!-- Sync Transactions -->
                 <div class="flex flex-shrink-0">
@@ -116,7 +121,6 @@
                         <th class="sticky top-0 w-[150px]">ERP</th>
                         <th class="sticky top-0 w-[140px]">Card</th>
                         <th class="sticky top-0 w-[200px]">Other</th>
-                        <th class="sticky top-0 w-[150px]">Actions</th>
                     </tr>
                     </thead>
                     <tbody class="text-xs tracking-tight text-center">
@@ -412,22 +416,6 @@
                                 <span>{{ obj.lineItems }}</span>
                             </div>
                         </td>
-                        <td class="text-center p-1.5">
-                            <button
-                                v-if="(!obj.bitrix_cash_request_id && obj.transactionCategory === 'purchase') && (obj.clearingStatus === 'pending' || obj.clearingStatus === 'cleared')"
-                                @click="saveCashRequest('create', obj)"
-                                class="block w-full mb-1 secondary-btn"
-                            >
-                                Create Request
-                            </button>
-                            <button
-                                v-if="(obj.bitrix_cash_request_id && obj.transactionCategory === 'purchase') && (obj.clearingStatus === 'cleared' || obj.clearingStatus === 'reversed' || obj.clearingStatus === 'updated')"
-                                @click="saveCashRequest('create', obj)"
-                                class="block w-full mb-1 secondary-btn"
-                            >
-                                Update Request
-                            </button>
-                        </td>
                     </tr>
                     <tr class="h-full table-no-data-available" v-if="filteredData.length === 0">
                         <td class="text-center text-md text-red-400 !border-none h-full" colspan="10">
@@ -494,10 +482,12 @@ export default {
                 to_date: null,
                 clearing_status: "",
                 transaction_category: "",
+                custom_filter: "",
                 search: null,
             },
             qashio_credit_cards: [],
             is_merchant_mapping_modal: false,
+            last_sync: null
         }
     },
     methods: {
@@ -540,7 +530,8 @@ export default {
                     }
                 });
 
-                this.data = response.data.data;
+                this.data = response.data.transactions;
+                this.last_sync = response.data.last_sync;
 
                 // Map through this.data and add matching bitrix_qashio_credit_cards
                 this.data = this.data.map(item => {
@@ -567,9 +558,6 @@ export default {
                 throw error; // Rethrow to handle in getData
             }
         },
-        // debouncedSearch: debounce(function(){
-        //     this.getData(false);
-        // }, 500),
         updateDateRangeForPeriod(period) {
             const now = DateTime.now();
             let newDateRange;
@@ -669,7 +657,10 @@ export default {
             return this.data.filter(item => {
                 // Filter by search input (case insensitive)
                 const matchesSearch = [
-                    item.string_id, item.parentId, item.rrn, item.qashioId,
+                    item.qashioId, item.string_id, item.parentId, item.rrn, item.bitrix_cash_request_id,
+                    item.bitrix_qashio_credit_card_category_id, item.bitrix_qashio_credit_card_sage_company_id,
+                    item.cardHolderName, item.cardLastFour, item.cardName, item.clearingAmount, item.clearingStatus,
+                    item.merchantName,
                 ].some(field => field?.toLowerCase().includes(searchTerm));
 
                 // Filter by Clearing Status

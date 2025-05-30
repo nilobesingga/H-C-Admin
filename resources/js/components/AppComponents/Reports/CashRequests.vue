@@ -156,7 +156,7 @@
                                     v-if="obj.receipt_list && obj.receipt_list.length > 0"
                                     v-for="(documentId, index) in obj.receipt_list"
                                    class="block w-full mb-1 secondary-btn" target="_blank"
-                                   :href="`https://crm.cresco.ae/bitrix/tools/disk/uf.php?attachedId=${documentId}&action=download&ncc=1' + documentId + '&action=download&ncc=1`"
+                                   :href="`https://crm.cresco.ae/bitrix/tools/disk/uf.php?attachedId=${documentId}&action=download&ncc=1`"
                                 >
                                     {{ ++index }}. Receipt
                                 </a>
