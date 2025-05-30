@@ -7,8 +7,9 @@
                     {{ dateRangePickerText }}
                 </div>
                 <!-- Last Sync -->
-                <div class="flex flex-col w-1/2 text-xs text-center font-bold tracking-tight text-black">
-                    {{ formatDateTime12Hours(last_sync) }}
+                <div class="flex flex-col w-1/2 text-xs text-center font-bold tracking-tight">
+                    <span>Last Sync</span>
+                    <span>{{ formatDateTime12Hours(last_sync) }}</span>
                 </div>
                 <!-- Right Side Controls -->
                 <div class="flex flex-wrap items-center justify-end w-1/2 gap-2">

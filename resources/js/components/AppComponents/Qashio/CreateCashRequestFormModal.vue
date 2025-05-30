@@ -579,11 +579,13 @@ export default {
         // Vatable: match 'Standard Rate' to "Yes", else "No"
         this.assignDynamicField('vatable', this.obj.erpTaxRateName === 'Standard Rate' ? 'Yes' : 'No');
         // Amount
-        this.form.amount = this.obj.clearingStatus === 'pending' ? this.obj.transactionAmount : parseFloat(this.obj.clearingAmount) + (parseFloat(this.obj.clearingFee ? this.obj.clearingFee : '0.00'));
+        this.form.amount = this.obj.clearingStatus === 'pending' ? this.formatAmount(this.obj.transactionAmount) : this.formatAmount(parseFloat(this.obj.clearingAmount) + (parseFloat(this.obj.clearingFee ? this.obj.clearingFee : '0.00')));
         // Currency
         this.form.currency = this.obj.clearingStatus === 'pending' ? this.obj.transactionCurrency : this.obj.billingCurrency;
         // Name
         this.form.name = `Cash Request - ${this.formatAmount(this.form.amount)}|${this.form.currency}`;
+        // Amount Given
+        this.form.amount_given = this.obj.clearingStatus === 'cleared' ? this.form.amount : '';
         // Awaiting for Exchange Rate
         this.assignDynamicField('awaiting_for_exchange_rate', (this.obj.clearingStatus === 'pending' && this.obj.transactionCurrency !== 'AED' ) ? 'Yes' : 'No');
         // Cash Release Location
@@ -646,11 +648,11 @@ export default {
         // Release Date and Released By
         if (this.obj.clearingStatus === 'cleared'){
             this.form.release_date = DateTime.now().toFormat('dd.MM.yyyy');
-            this.form.release_by = this.page_data.user.bitrix_user_id
+            this.form.release_by = this.page_data.user.user_name
         }
         // Remarks
         if(this.obj.transactionCurrency !== 'AED' && this.obj.clearingStatus === 'cleared'){
-            this.form.remarks =  `From amount ${this.formatAmount(this.obj.transactionAmount)} ${this.obj.transactionCurrency} to ${this.formatAmount(parseFloat(this.obj.clearingAmount) + parseFloat(this.obj.clearingFee))} ${this.obj.billingCurrency}`;
+            this.form.remarks =  `Converted ${this.formatAmount(this.obj.transactionAmount)} ${this.obj.transactionCurrency} to ${this.formatAmount(parseFloat(this.obj.clearingAmount) + parseFloat(this.obj.clearingFee))} ${this.obj.billingCurrency}`;
         }
 
         this.loading = false;

@@ -106,15 +106,15 @@
                     <thead>
                         <tr class="font-medium text-center bg-black text-neutral-900">
                             <th class="sticky top-0 w-10">#</th>
-                            <th class="sticky top-0 w-[50px]">Id</th>
+                            <th class="sticky top-0 w-[80px]">Cash Request Id</th>
                             <th class="sticky top-0 w-[80px]" data-tooltip="#Transaction_Amount">
                                 Amount <i class="ki-outline ki-information-2"></i>
                                 <div class="transition-opacity duration-300 tooltip" id="Transaction_Amount">Transaction Amount</div>
                             </th>
                             <th class="sticky top-0 w-[80px]">Payment Date</th>
-                            <th class="sticky top-0 w-[120px]">Memo</th>
+                            <th class="sticky top-0 w-[120px]">Project</th>
                             <th class="sticky top-0 w-[120px]">Merchant / Supplier</th>
-                            <th class="sticky top-0 w-[50px]">Receipts</th>
+                            <th class="sticky top-0 w-[80px]">Receipts</th>
                             <th class="sticky top-0 w-[180px]">Card</th>
                             <th class="sticky top-0 w-[150px]">Clearing Detail</th>
                             <th class="sticky top-0 w-[80px]" v-if="page_data.permission === 'full_access'">Actions</th>
