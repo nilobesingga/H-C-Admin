@@ -379,7 +379,7 @@ Class QashioService
                     // Status 1652 = Approved and 1655 Cash Released
                     $bitrixFields['PROPERTY_943'] = '1655';
                     // Modified By
-                    $bitrixFields['MODIFIED_BY'] = 'Admin';
+                    $bitrixFields['MODIFIED_BY'] = env('BITRIX_ADMIN_USER_ID');
                     // Name
                     $bitrixFields['NAME'] = 'Cash Request - ' . $bitrixFields['PROPERTY_939'];
                     // Released By
@@ -405,7 +405,7 @@ Class QashioService
                     // Status 1659 = Cancelled
                     $bitrixFields['PROPERTY_943'] = '1659';
                     // Modified By
-                    $bitrixFields['MODIFIED_BY'] = 'Admin';
+                    $bitrixFields['MODIFIED_BY'] = env('BITRIX_ADMIN_USER_ID');;
                     // Update Reason
                     $bitrixFields['PROPERTY_1276'] = 'Reversed by CRON job';
                 }
