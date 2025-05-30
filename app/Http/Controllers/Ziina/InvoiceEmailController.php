@@ -46,6 +46,7 @@ class InvoiceEmailController extends Controller
      */
     public function sendInvoiceEmail(Request $request)
     {
+        DB::beginTransaction();
         $validator = Validator::make($request->all(), [
             'subject' => 'required|string|max:255',
             'recipients' => 'required|array',
@@ -70,7 +71,7 @@ class InvoiceEmailController extends Controller
             //call createPaymentIntent method to generate payment link
             $paymentLinkResponse = $this->createPaymentIntent($request);
             $responseData = json_decode($paymentLinkResponse->getContent(), true);
-            if ($responseData['status'] === 'error') {
+            if (isset($responseData['status']) &&  $responseData['status'] === 'error') {
                 return $this->errorResponse('Failed to generate payment link', null, 200);
             }
             // Add the payment link to the invoice data
@@ -131,11 +132,13 @@ class InvoiceEmailController extends Controller
             );
 
             if ($sent) {
+                DB::commit();
                 return $this->successResponse('Invoice email sent successfully');
             }
 
             return $this->errorResponse('Failed to send invoice email', null, 200);
         } catch (\Throwable $th) {
+            DB::rollBack();
             Log::error('Error sending invoice email: ' . $th->getMessage());
             return $this->errorResponse('Failed to send invoice email', $th->getMessage(), 500);
         }
@@ -266,7 +269,8 @@ class InvoiceEmailController extends Controller
                         'account_id' => null,
                         'operation_id' => null,
                         'redirect_url' => null,
-                        'latest_error' => null
+                        'latest_error' => null,
+                        'status' => 'success',
                     );
                 }
             }
