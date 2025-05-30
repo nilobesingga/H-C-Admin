@@ -355,17 +355,13 @@ export default {
                 formData.append('deal_id', this.obj.deal_id);
                 formData.append('deal', this.obj.deal);
                 const response = await axios.post('/api/invoice-emails/send', formData);
-                if (response.data.status === 'success') {
+                if (response.data.success) {
                     this.successToast(response.data.message);
                     this.loading = false;
                     this.getCurrentStatus();
                 }
-                else if (response.data.status === 'error') {
+                else{
                     this.errorToast(response.data.message)
-                    this.loading = false;
-                }
-                else {
-                    this.errorToast('Error sending email')
                     this.loading = false;
                 }
             } catch (error) {
