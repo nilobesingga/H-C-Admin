@@ -79,7 +79,8 @@ class InvoiceEmailController extends Controller
             // Log::info('Generated payment link: ' . $paymentLinkResponse);
             // Prepare invoice data
             $amount = $request->amount;
-            $serviceFee = ($amount * 3) / 100;
+            // Category Hensley & Cook only
+            $serviceFee = ($request->category_id == 858) ? ($amount * 3) / 100 : 0;
             $totalAmount = $amount + $serviceFee;
             $invoiceData = [
                 'title' => $request->title ?? 'Payment Invoice',
@@ -93,6 +94,7 @@ class InvoiceEmailController extends Controller
                 'recipient_name' => $request->recipient_name ?? null,
                 'message' => $request->message ?? null,
                 'payment_link' => $request->payment_link ?? null,
+                'has_payment_link' => (isset($request->payment_link) && $request->payment_link != null) ? true : false,
             ];
             // Handle PDF file attachment
             $pdfPath = null;
@@ -124,6 +126,7 @@ class InvoiceEmailController extends Controller
                 $invoiceData,
                 $request->subject .' - ' . $request->title,
                 $request->recipients,
+                $request->category_id,
                 $pdfPath
             );
 
@@ -133,6 +136,7 @@ class InvoiceEmailController extends Controller
 
             return $this->errorResponse('Failed to send invoice email', null, 200);
         } catch (\Throwable $th) {
+            Log::error('Error sending invoice email: ' . $th->getMessage());
             return $this->errorResponse('Failed to send invoice email', $th->getMessage(), 500);
         }
     }
@@ -210,7 +214,6 @@ class InvoiceEmailController extends Controller
 
     public function createPaymentIntent(Request $request)
     {
-        // dd($request->all());
        DB::beginTransaction();
         try {
             $validator = Validator::make($request->all(), [
@@ -234,24 +237,37 @@ class InvoiceEmailController extends Controller
             $expiry = $dt->getTimestamp() * 1000; // Convert to milliseconds
             //Total Amount && Service Fee 3 percent
             $amount = $request->amount;
-            $serviceFee = ($amount * 3) / 100;
+            $serviceFee = ($request->category_id == 858) ? ($amount * 3) / 100 : 0;
             $totalAmount = $amount + $serviceFee;
             // Create payment intent
 
             $result = ZiinaPayment::where('invoice_id', $request->invoice_id)->first();
             $hasResult = false;
             if(!$result){
-                $result = $this->ziinaPaymentService->createPaymentIntent(
-                    str_replace('.', '', number_format($totalAmount, 2, '.', '')),
-                    $request->currency,
-                    $message,
-                    $callbackUrl,
-                    $callbackUrl,
-                    $callbackUrl,
-                    $expiry
-                );
-                if (!$result || !isset($result['id'])) {
-                    return $this->errorResponse('Failed to create payment intent ', null, 500);
+                if($request->category_id == 858){
+                    $result = $this->ziinaPaymentService->createPaymentIntent(
+                        str_replace('.', '', number_format($totalAmount, 2, '.', '')),
+                        $request->currency,
+                        $message,
+                        $callbackUrl,
+                        $callbackUrl,
+                        $callbackUrl,
+                        $expiry
+                    );
+                    if (!$result || !isset($result['id'])) {
+                        return $this->errorResponse('Failed to create payment intent ', null, 500);
+                    }
+                }
+                else{
+                    $hasResult = false;
+                    $result = array(
+                        'id' => null,
+                        'payment_id' => null,
+                        'account_id' => null,
+                        'operation_id' => null,
+                        'redirect_url' => null,
+                        'latest_error' => null
+                    );
                 }
             }
             else{

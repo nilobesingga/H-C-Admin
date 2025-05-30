@@ -49,6 +49,7 @@ class ZiinaWebhookController extends Controller
                 $data['payment_completed_at'] = now();
             } elseif ($paymentStatus['status'] === 'failed') {
                 $data['latest_error'] = $paymentStatus['latest_error'];
+                $paymentStatus['status'] = 'payment failed';
             }
             $payment->update($data);
 
