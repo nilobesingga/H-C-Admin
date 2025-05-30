@@ -303,6 +303,8 @@ Class QashioService
                 'PROPERTY_1236' => $data['vatable_id'],
                 // Amount
                 'PROPERTY_939' => $data['amount'] . '|' . $data['currency'],
+                // Amount Given
+                'PROPERTY_944' => $data['amount_given'],
                 // Awaiting for Exchange Rate
                 'PROPERTY_1249' => $data['awaiting_for_exchange_rate_id'],
                 // Cash Release Location
@@ -330,7 +332,7 @@ Class QashioService
                 // Receipts
                 'PROPERTY_948' => $formattedFileIds,
                 // Status 1652 = Approved and 1655 Cash Released
-                'PROPERTY_943' => $qashioTransaction['clearingStatus'] === 'pending' ? '1652' : '1655',
+                'PROPERTY_943' => $qashioTransaction['clearingStatus'] === 'cleared' || $qashioTransaction['clearingStatus'] === 'updated' ? '1655' : '1652',
                 // Funds Available Date
                 'PROPERTY_946' => $data['payment_date'],
                 // Qashio Id
@@ -359,23 +361,25 @@ Class QashioService
                 ];
             }
 
-            // 'cleared', 'updated', 'reversed'
-
             // Fetch current Bitrix cash requisition
             $bitrixFields = $this->bitrixApiRepo->getCashRequisitionById($existingTransaction->bitrix_cash_request_id);
 
             if(!empty($bitrixFields)){
-                if ($qashioTransaction['clearingStatus'] === 'updated' || $qashioTransaction['clearingStatus'] === 'cleared') {
+                if(in_array($qashioTransaction['clearingStatus'], ['cleared', 'updated'])){
+                    $clearingAmount = floatval($qashioTransaction['clearingAmount']);
+                    $clearingFee = floatval($qashioTransaction['clearingFee'] ?? 0);
+                    $totalAmount = $clearingAmount + $clearingFee;
+
                     // Amount
-                    $bitrixFields['PROPERTY_939'] = ($qashioTransaction['clearingAmount'] + $qashioTransaction['clearingFee']) . '|' . $qashioTransaction['billingCurrency'];
+                    $bitrixFields['PROPERTY_939'] = $totalAmount . '|' . $qashioTransaction['billingCurrency'];
                     // Amount Given
-                    $bitrixFields['PROPERTY_944'] = ($qashioTransaction['clearingAmount'] + $qashioTransaction['clearingFee']);
+                    $bitrixFields['PROPERTY_944'] = $totalAmount;
                     // Awaiting for Exchange Rate  2268 = Yes , 2269 = No
                     $bitrixFields['PROPERTY_1249'] = '2269';
                     // Status 1652 = Approved and 1655 Cash Released
                     $bitrixFields['PROPERTY_943'] = '1655';
                     // Modified By
-                    $bitrixFields['MODIFIED_BY'] = env('BITRIX_ADMIN_USER_ID');
+                    $bitrixFields['MODIFIED_BY'] = 'Admin';
                     // Name
                     $bitrixFields['NAME'] = 'Cash Request - ' . $bitrixFields['PROPERTY_939'];
                     // Released By
@@ -384,13 +388,24 @@ Class QashioService
                     $bitrixFields['PROPERTY_1073'] =  Carbon::parse($qashioTransaction['clearedAt'])->format('d.m.Y');
                     // Update Reason
                     $bitrixFields['PROPERTY_1276'] = 'Updated by CRON job';
-                }
+                    // Append to DETAIL_TEXT if currency is converted
+                    if ($qashioTransaction['transactionCurrency'] !== 'AED') {
+                        $convertedLine = "Converted " . number_format($qashioTransaction['transactionAmount'], 2) . " " .
+                            $qashioTransaction['transactionCurrency'] . " to " .
+                            number_format($totalAmount, 2) . " " .
+                            $qashioTransaction['billingCurrency'];
 
+                        // Prevent duplicate entries
+                        if (!str_contains($bitrixFields['DETAIL_TEXT'], $convertedLine)) {
+                            $bitrixFields['DETAIL_TEXT'] = trim($bitrixFields['DETAIL_TEXT']) . "\n" . $convertedLine;
+                        }
+                    }
+                }
                 if ($qashioTransaction['clearingStatus'] === 'reversed'){
                     // Status 1659 = Cancelled
                     $bitrixFields['PROPERTY_943'] = '1659';
                     // Modified By
-                    $bitrixFields['MODIFIED_BY'] = env('BITRIX_ADMIN_USER_ID');
+                    $bitrixFields['MODIFIED_BY'] = 'Admin';
                     // Update Reason
                     $bitrixFields['PROPERTY_1276'] = 'Reversed by CRON job';
                 }

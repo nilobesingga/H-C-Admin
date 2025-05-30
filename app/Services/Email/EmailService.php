@@ -5,9 +5,10 @@ namespace App\Services\Email;
 use App\Notifications\InvoiceEmailNotification;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
-
+use App\Traits\EmailCategoryTrait;
 class EmailService
 {
+    use EmailCategoryTrait;
     /**
      * Send an invoice email with optional PDF attachment to specified recipients.
      *
@@ -17,17 +18,18 @@ class EmailService
      * @param string|null $pdfPath Full path to PDF file to attach (optional)
      * @return bool Whether the email was sent successfully
      */
-    public function sendInvoiceEmail(array $data, string $subject, array $recipientEmails, ?string $pdfPath = null): bool
+    public function sendInvoiceEmail(array $data, string $subject, array $recipientEmails, int $categoryId, ?string $pdfPath = null): bool
     {
         try {
             // Create the notification instance
+            $emailConfig = $this->getEmailConfig($categoryId);
             $notification = new InvoiceEmailNotification(
                 $data,
                 $subject,
                 $recipientEmails,
-                $pdfPath
+                $pdfPath,
+                $emailConfig
             );
-
             // Send the notification to each recipient email
             Notification::route('mail', $recipientEmails)
                 ->notify($notification);

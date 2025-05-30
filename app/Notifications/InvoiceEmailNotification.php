@@ -15,6 +15,7 @@ class InvoiceEmailNotification extends Notification implements ShouldQueue
     protected string $subject;
     protected array $recipientEmails;
     protected ?string $pdfPath;
+    protected $emailConfig;
 
     /**
      * Create a new notification instance.
@@ -23,12 +24,14 @@ class InvoiceEmailNotification extends Notification implements ShouldQueue
         array $data,
         string $subject,
         array $recipientEmails = [],
-        ?string $pdfPath = null
+        ?string $pdfPath = null,
+        array $emailConfig = []
     ) {
         $this->data = $data;
         $this->subject = $subject;
         $this->recipientEmails = $recipientEmails;
         $this->pdfPath = $pdfPath;
+        $this->emailConfig = $emailConfig;
     }
 
     /**
@@ -47,6 +50,7 @@ class InvoiceEmailNotification extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         $mail = (new MailMessage)
+                    ->from($this->emailConfig['address'], $this->emailConfig['name'])
                     ->subject($this->subject)
                     ->view('emails.invoice-email', [
                         'data' => $this->data,
