@@ -112,5 +112,67 @@ return [
         'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
         'name' => env('MAIL_FROM_NAME', 'Example'),
     ],
+    'category' => [
+        3845 => [
+            'address' => 'noreply@cresco.org',
+            'name' => 'Abode Options',
+        ],
+        1457 => [
+            'address' => 'noreply@bawbawon.com',
+            'name' => 'Bawbawon Hospitality Group',
+        ],
+        1452 => [
+            'address' => 'noreply@cresco.org',
+            'name' => 'Bincres',
+        ],
+        868 => [
+            'address' => 'noreply@caplionpoint.com',
+            'name' => 'Caplion Point',
+        ],
+        865 => [
+            'address' => 'noreply@cresco.org',
+            'name' => 'CRESCO Accounting',
+        ],
+        866 => [
+            'address' => 'noreply@crescocompliance.com',
+            'name' => 'CRESCO Compliance',
+        ],
+        867 => [
+            'address' => 'noreply@cresco.org',
+            'name' => 'CRESCO Holding',
+        ],
+        847 => [
+            'address' => 'noreply@crescolegal.com',
+            'name' => 'CRESCO Legal',
+        ],
+        1463 => [
+            'address' => 'noreply@crescopower.com',
+            'name' => 'CRESCO Power',
+        ],
+        861 => [
+            'address' => 'noreply@crescotec.com',
+            'name' => 'CRESCOtec',
+        ],
+        858 => [
+            'address' => 'noreply@hensleycook.com',
+            'name' => 'Hensley & Cook',
+        ],
+        3936 => [
+            'address' => 'noreply@officerock.com',
+            'name' => 'Office Rock',
+        ],
+        856 => [
+            'address' => 'noreply@sadiqa.ae',
+            'name' => 'SADIQA',
+        ],
+        860 => [
+            'address' => 'noreply@smartmoneyuae.ae',
+            'name' => 'Smart Money',
+        ],
+        1445 => [
+            'address' => 'noreply@cresco.org',
+            'name' => 'Cresco',
+        ]
+    ]
 
 ];

@@ -99,7 +99,7 @@
         <table width="100%" cellpadding="0" cellspacing="0" border="0">
           <tr>
             <td style="padding: 10px 0;">
-              <img src="{{ asset($data['logo']) }}" alt="Hensley&Cook" style="width: 150px; height: auto;">
+              <img src="{{ asset($data['logo']) }}" alt="{{ $data['company'] }}" style="width: 150px; height: auto;">
             </td>
             <td style="text-align: right; padding: 10px 0;">
               <a href="{{ $data['preview_url'] }}" style="color: #333333; text-decoration: underline; font-size: 12px;">View in Browser</a>
@@ -126,7 +126,11 @@
             <p>This is a friendly reminder that your payment of <strong>{{ $data['amount'] . ' ' . $data['currency'] }}</strong> was due on <strong>{{ $data['invoice_date'] }}</strong>. Please ensure timely settlement to avoid any disruptions.</p>
         @endif
 
-      <p class="invoice-details">To ensure accurate processing, kindly use <strong style="text-decoration: underline;">Invoice No: {{ $data['invoice_number'] }}</strong> as your payment reference. If you choose to pay via the online payment link, <span class="warning">please note that a 3% ( {{ $data['service_charge'] . ' ' .  $data['currency']}} ) service fee will apply</span>.</p>
+      <p class="invoice-details">To ensure accurate processing, kindly use <strong style="text-decoration: underline;">Invoice No: {{ $data['invoice_number'] }}</strong> as your payment reference.
+        @if ($data['has_payment_link'])
+        If you choose to pay via the online payment link, <span class="warning">please note that a 3% ( {{ $data['service_charge'] . ' ' .  $data['currency']}} ) service fee will apply</span>.
+        @endif
+        </p>
 
       <p><span style="text-decoration: underline !important;">With best regards,</span><br>
       <strong>{{ $data['company'] }}</strong></p>
@@ -134,7 +138,9 @@
       <hr style="width: 50%; margin: 20px auto; border: 0.1px solid #e0e0e0;">
       <div class="buttons">
         <a href="{{ $data['preview_url'] }}" class="btn btn-view" style="color: #000000 !important;">View Invoice</a>
+        @if ($data['has_payment_link'])
         <a href="{{ $data['payment_link'] }}" class="btn btn-pay" style="color: #ffffff !important;">Pay Now</a>
+        @endif
       </div>
         <hr style="width: 50%; margin: 20px auto; border: 0.1px solid #e0e0e0;">
       <div class="footer">

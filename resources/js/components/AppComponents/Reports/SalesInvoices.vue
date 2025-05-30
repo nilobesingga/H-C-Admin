@@ -131,26 +131,26 @@
                             </td>
                             <td class="text-nowrap">
                                 <button class="block w-full mb-1 secondary-btn"
-                                v-if="obj.status == 'Booked in SAGE' && obj.payment_status == null && (obj.category_id == 858 || obj.category_id == 1445)"
+                                v-if="obj.status == 'Booked in SAGE' && obj.payment_status == null"
                                 data-modal-toggle="#process_purchase_invoice_details_modal"
                                 @click="openModal(obj)">
                                     Send Invoice
                                 </button>
                                 <button class="block w-full mb-1 secondary-btn"
-                                v-else-if="obj.payment_status != null && (obj.category_id == 858 || obj.category_id == 1445) && obj.payment_status != 'completed'"
+                                v-else-if="obj.payment_status != null && obj.payment_status != 'completed'"
                                 data-modal-toggle="#process_purchase_invoice_details_modal"
                                 data-toggle="tooltip" :title="obj.payment_status"
                                 @click="openModal(obj)">
                                     Send Remider
                                 </button>
                                 <button class="block w-full mb-1 secondary-btn"
-                                v-else-if="obj.payment_status != null && (obj.category_id == 858 || obj.category_id == 1445) && obj.payment_status == 'completed'"
+                                v-else-if="obj.payment_status != null && obj.payment_status == 'completed'"
                                 data-modal-toggle="#process_purchase_invoice_details_modal"
                                 data-toggle="tooltip" :title="obj.payment_status"
                                 @click="openModal(obj)">
                                     View Payment
                                 </button>
-                                <div v-if="obj.payment_status != null && (obj.category_id == 858 || obj.category_id == 1445)" class="mb-1 text-white capitalize badge" :class="
+                                <div v-if="obj.payment_status != null" class="mb-1 text-white capitalize badge" :class="
                                 {'bg-blue-500': obj.payment_status === 'initiated',
                                 'bg-green-500': obj.payment_status === 'completed',
                                 'bg-yellow-500': obj.payment_status === 'pending',
