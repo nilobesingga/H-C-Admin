@@ -97,11 +97,11 @@
                                             id="charge_extra_to_client"
                                         >
                                             <option
-                                                v-for="(label, id) in form_fields_lists.find(f => f.key === 'charge_extra_to_client')?.values"
-                                                :key="id"
-                                                :value="id"
+                                                v-for="(option, index) in form_fields_lists.find(f => f.key === 'charge_extra_to_client')?.values"
+                                                :key="index"
+                                                :value="option.key"
                                             >
-                                                {{ label }}
+                                                {{ option.value }}
                                             </option>
                                         </select>
                                     </div>
@@ -114,11 +114,11 @@
                                             id="charge_to_running_account"
                                         >
                                             <option
-                                                v-for="(label, id) in form_fields_lists.find(f => f.key === 'charge_to_running_account')?.values"
-                                                :key="id"
-                                                :value="id"
+                                                v-for="option in form_fields_lists.find(f => f.key === 'charge_to_running_account')?.values"
+                                                :key="option.key"
+                                                :value="option.key"
                                             >
-                                                {{ label }}
+                                                {{ option.value }}
                                             </option>
                                         </select>
                                     </div>
@@ -298,8 +298,6 @@ import vSelect from 'vue-select';
 import 'vue-select/dist/vue-select.css';
 import { debounce } from 'lodash';
 import { DateTime } from "luxon";
-import { sharedState } from "../../../state.js";
-import {f} from "vuedraggable/dist/vuedraggable.common.js";
 
 export default {
     name: "create-cash-request-form-modal",
@@ -512,10 +510,29 @@ export default {
         removeReceipt(index) {
             this.form.receipts.splice(index, 1);
         },
+        // async fetchFormFieldsListValuesFromBitrix() {
+        //     const bitrixUserId = this.page_data.user.bitrix_user_id;
+        //     const bitrixWebhookToken = this.page_data.user.bitrix_webhook_token;
+        //     const endpoint = 'lists.field.get';
+        //     for (const field of this.form_fields_lists) {
+        //         try {
+        //             const requestData = {
+        //                 IBLOCK_TYPE_ID: this.page_data.bitrix_list.bitrix_iblock_type,
+        //                 IBLOCK_ID: this.page_data.bitrix_list.bitrix_iblock_id,
+        //                 FIELD_ID: field.field_id
+        //             };
+        //             const response = await this.callBitrixAPI(endpoint, bitrixUserId, bitrixWebhookToken, requestData);
+        //             field.values = response.result.L.DISPLAY_VALUES_FORM;
+        //         } catch (error) {
+        //             console.error(`Error fetching filter data for ${filter.key}:`, error);
+        //         }
+        //     }
+        // },
         async fetchFormFieldsListValuesFromBitrix() {
             const bitrixUserId = this.page_data.user.bitrix_user_id;
             const bitrixWebhookToken = this.page_data.user.bitrix_webhook_token;
             const endpoint = 'lists.field.get';
+
             for (const field of this.form_fields_lists) {
                 try {
                     const requestData = {
@@ -523,10 +540,31 @@ export default {
                         IBLOCK_ID: this.page_data.bitrix_list.bitrix_iblock_id,
                         FIELD_ID: field.field_id
                     };
+
                     const response = await this.callBitrixAPI(endpoint, bitrixUserId, bitrixWebhookToken, requestData);
-                    field.values = response.result.L.DISPLAY_VALUES_FORM;
+                    const rawValues = response?.result?.L?.DISPLAY_VALUES_FORM || {};
+
+                    // Convert to array of { key, value }
+                    let valuesArray = Object.entries(rawValues).map(([key, value]) => ({
+                        key,
+                        value: String(value)
+                    }));
+
+                    // Sort only for specific field
+                    if (field.key === 'charge_to_running_account') {
+                        const noIndex = valuesArray.findIndex(item => item.value.toLowerCase() === 'no');
+                        const noItem = noIndex !== -1 ? valuesArray.splice(noIndex, 1)[0] : null;
+
+                        valuesArray.sort((a, b) => a.value.localeCompare(b.value));
+
+                        if (noItem) {
+                            valuesArray.unshift(noItem);
+                        }
+                    }
+                    field.values = valuesArray;
+
                 } catch (error) {
-                    console.error(`Error fetching filter data for ${filter.key}:`, error);
+                    console.error(`Error fetching filter data for ${field.key}:`, error);
                 }
             }
         },
@@ -534,15 +572,12 @@ export default {
             const field = this.form_fields_lists.find(f => f.key === key);
             if (!field || !field.values) return;
 
-            const matchedEntry = Object.entries(field.values).find(([id, val]) => {
-                return val.toLowerCase() === valueKey.toLowerCase();
-            });
-
+            const matchedEntry = field.values.find(({ value }) => value.toLowerCase() === valueKey.toLowerCase());
             if (matchedEntry) {
-                const [matchedId, matchedName] = matchedEntry;
-                this.form[key + '_id'] = matchedId;
-                this.form[key] = matchedName;
+                this.form[key + '_id'] = matchedEntry.key;
+                this.form[key] = matchedEntry.value;
             }
+
         }
     },
     created() {
@@ -579,11 +614,11 @@ export default {
         // Vatable: match 'Standard Rate' to "Yes", else "No"
         this.assignDynamicField('vatable', this.obj.erpTaxRateName === 'Standard Rate' ? 'Yes' : 'No');
         // Amount
-        this.form.amount = this.obj.clearingStatus === 'pending' ? this.formatAmount(this.obj.transactionAmount) : this.formatAmount(parseFloat(this.obj.clearingAmount) + (parseFloat(this.obj.clearingFee ? this.obj.clearingFee : '0.00')));
+        this.form.amount = this.obj.clearingStatus === 'pending' ? this.obj.transactionAmount : parseFloat(this.obj.clearingAmount) + (parseFloat(this.obj.clearingFee ? this.obj.clearingFee : '0.00'));
         // Currency
         this.form.currency = this.obj.clearingStatus === 'pending' ? this.obj.transactionCurrency : this.obj.billingCurrency;
         // Name
-        this.form.name = `Cash Request - ${this.formatAmount(this.form.amount)}|${this.form.currency}`;
+        this.form.name = `Cash Request - ${this.form.amount}|${this.form.currency}`;
         // Amount Given
         this.form.amount_given = this.obj.clearingStatus === 'cleared' ? this.form.amount : '';
         // Awaiting for Exchange Rate

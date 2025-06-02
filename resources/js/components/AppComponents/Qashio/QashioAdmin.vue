@@ -168,11 +168,22 @@
                                 <span class="font-semibold">Sage Company:</span>
                                 <span class="text-[09px]">{{ obj.bitrix_qashio_credit_card ? obj.bitrix_qashio_credit_card.sage_company : '' }}</span>
                             </div>
+<!--                            <hr class="my-1 border-gray-400">-->
+<!--                            <div class="flex justify-between py-0.5">-->
+<!--                                <span class="font-semibold">Cash Requisition Id:</span>-->
+<!--                                <span><a class="btn btn-link !text-black hover:!text-brand-active" target="_blank" :href="'https://crm.cresco.ae/bizproc/processes/105/element/0/' + obj.bitrix_cash_request_id  + '/?list_section_id='">{{obj.bitrix_cash_request_id }}</a></span>-->
+<!--                            </div>-->
                             <hr class="my-1 border-gray-400">
-                            <div class="flex justify-between py-0.5">
+                            <div class="flex justify-between py-0.5 items-center gap-1">
                                 <span class="font-semibold">Cash Requisition Id:</span>
-                                <span><a class="btn btn-link !text-black hover:!text-brand-active" target="_blank" :href="'https://crm.cresco.ae/bizproc/processes/105/element/0/' + obj.bitrix_cash_request_id  + '/?list_section_id='">{{obj.bitrix_cash_request_id }}</a></span>
+                                <input
+                                    v-model="obj.bitrix_cash_request_id"
+                                    class="input input-sm text-input w-[120px]"
+                                    placeholder="Enter ID"
+                                />
+                                <button class="btn btn-xs btn-success" @click="linkQashioToCashRequisition(obj)" :disabled="obj.has_qashio_id || !obj.bitrix_cash_request_id">Save</button>
                             </div>
+                            <p v-if="obj.has_qashio_id" class="text-red-500 text-xs italic mt-1">Cash Request already generated for this <a class="btn btn-link !text-black hover:!text-brand-active" target="_blank" :href="'https://crm.cresco.ae/bizproc/processes/105/element/0/' + obj.bitrix_cash_request_id  + '/?list_section_id='">{{obj.bitrix_cash_request_id }}</a> id</p>
                             <hr class="my-1 border-gray-400">
                         </td>
                         <td class="text-left p-1.5">
@@ -459,6 +470,7 @@
 <script>
 import {DateTime} from "luxon";
 import _, {debounce} from "lodash";
+import { sharedState } from "../../../state.js";
 
 export default {
     name: "qashio-admin",
@@ -619,19 +631,25 @@ export default {
             }
             this.selected_date_range = newDateRange;
         },
-        saveCashRequest(type, obj) {
-            axios({
-                url: `/qashio/transaction/save/${type}`,
-                method: 'POST',
-                data: obj,
-            }).then(response => {
-                if (response.data) {
+        async linkQashioToCashRequisition(obj) {
+            let cashRequestObj = await this.getCashRequestByIdBitrixFields(obj.bitrix_cash_request_id)
+            if (cashRequestObj[0].hasOwnProperty('PROPERTY_1284')){
+                obj.has_qashio_id = true
+            }
+            console.log(cashRequestObj[0]);
+            cashRequestObj[0].PROPERTY_1284 = obj.qashioId;
+            const response = await this.updateCashRequestById(obj.bitrix_cash_request_id, cashRequestObj[0])
+            if (response){
+                axios({
+                    url: `/qashio/transaction/link/${obj.bitrix_cash_request_id}`,
+                    method: 'POST',
+                    data: obj
+                }).then(response => {
                     this.successToast(response.data.message)
-                    this.getPageData();
-                }
-            }).catch(error => {
-                console.log(error)
-            })
+                }).catch(error => {
+                    console.log(error)
+                })
+            }
         },
         openModal(type) {
             if (type === 'merchant') {
@@ -679,13 +697,11 @@ export default {
         selected_period() {
             this.updateDateRangeForPeriod(this.selected_period);
         },
-        // 'filters.search': {
-        //     handler: 'debouncedSearch',
-        //     immediate: false
-        // }
     },
     created() {
         this.updateDateRangeForPeriod(this.selected_period);
+        this.sharedState.bitrix_user_id = this.page_data.user.bitrix_user_id;
+        this.sharedState.bitrix_webhook_token = this.page_data.user.bitrix_webhook_token;
     },
     mounted() {
         this.getData(false);
