@@ -46,6 +46,7 @@ class InvoiceEmailController extends Controller
      */
     public function sendInvoiceEmail(Request $request)
     {
+        DB::beginTransaction();
         $validator = Validator::make($request->all(), [
             'subject' => 'required|string|max:255',
             'recipients' => 'required|array',
@@ -70,7 +71,7 @@ class InvoiceEmailController extends Controller
             //call createPaymentIntent method to generate payment link
             $paymentLinkResponse = $this->createPaymentIntent($request);
             $responseData = json_decode($paymentLinkResponse->getContent(), true);
-            if ($responseData['status'] === 'error') {
+            if (isset($responseData['status']) &&  $responseData['status'] === 'error') {
                 return $this->errorResponse('Failed to generate payment link', null, 200);
             }
             // Add the payment link to the invoice data
@@ -131,11 +132,14 @@ class InvoiceEmailController extends Controller
             );
 
             if ($sent) {
+                DB::commit();
                 return $this->successResponse('Invoice email sent successfully');
             }
 
             return $this->errorResponse('Failed to send invoice email', null, 200);
         } catch (\Throwable $th) {
+            throw $th;
+            DB::rollBack();
             Log::error('Error sending invoice email: ' . $th->getMessage());
             return $this->errorResponse('Failed to send invoice email', $th->getMessage(), 500);
         }
@@ -231,7 +235,6 @@ class InvoiceEmailController extends Controller
             $baseUrl = env('APP_URL');
             $encryptedId = encrypt($request->invoice_id);
             $callbackUrl = $baseUrl . '/ziina-webhook/'.$encryptedId;
-
             $message = $request->message;
             $dt = new DateTime('+90 days');
             $expiry = $dt->getTimestamp() * 1000; // Convert to milliseconds
@@ -333,6 +336,7 @@ class InvoiceEmailController extends Controller
             DB::commit();
             return $this->successResponse('Payment intent created', $result);
         } catch (\Exception $e) {
+            throw $e;
             DB::rollBack();
             Log::error('Error creating payment intent: ' . $e->getMessage());
             return $this->errorResponse('Failed to create payment intent', null, 500);
