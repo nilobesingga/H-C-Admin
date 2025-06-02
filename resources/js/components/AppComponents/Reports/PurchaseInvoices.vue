@@ -153,7 +153,7 @@
                                     @click="openModal('create_bank_transfer', obj)"
                                     data-modal-toggle="#create_bank_transfer_form_modal"
                                     class="block w-full mb-1 secondary-btn"
-                                    v-if="page_data.permission === 'full_access' && (!obj.bitrix_bank_transfer_id && obj.status_id !== '1619' && obj.status_id !== '1620' && obj.status_id !== '1871' && obj.sage_status_text === 'Booked In Sage')"
+                                    v-if="page_data.permission === 'full_access' && (!obj.bitrix_bank_transfer_id && obj.status_id !== '1619' && obj.status_id !== '1620' && obj.status_id !== '1871' && !obj.bitrix_bank_transfer_id)"
                                 >
                                     <span>Create Transfer</span>
                                 </button>
