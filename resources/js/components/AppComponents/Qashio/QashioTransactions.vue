@@ -155,6 +155,16 @@
                                     <span>Holder:</span>
                                     <span>{{ obj.cardHolderName }}</span>
                                 </div>
+                                <hr class="my-1 border-gray-400">
+                                <div class="flex justify-between py-0.5">
+                                    <span>Qashio Id:</span>
+                                    <span>{{ obj.qashioId }}</span>
+                                </div>
+                                <hr class="my-1 border-gray-400">
+                                <div class="flex justify-between py-0.5">
+                                    <span>Tax Rate:</span>
+                                    <span>{{ obj.erpTaxRateName }}</span>
+                                </div>
                             </td>
                             <td>
                                 <div class="flex justify-between py-0.5">
@@ -292,7 +302,9 @@ export default {
                 const response = await this.callBitrixAPI(endpoint, bitrixUserId, bitrixWebhookToken, requestData);
                 if (response.result) {
                     this.loading = false
-                    this.qashio_credit_cards = response.result
+                    this.qashio_credit_cards = response.result.filter(creditCard => {
+                        return this.page_data.bitrix_list_categories.some(category => category.bitrix_category_id === creditCard.category_id)
+                    })
                 }
             } catch (error) {
                 if (error.status === 500) {

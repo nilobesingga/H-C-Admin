@@ -133,6 +133,20 @@ class QashioController extends Controller
             return $this->errorResponse('Something went wrong! Please contact IT.', env('APP_ENV') !== 'production' ? $e->getMessage() : null, 500);
         }
     }
+    public function linkQashioTransactionWithBitrix(Request $request, $bitrixCashRequestId)
+    {
+        try {
+            QashioTransaction::where('qashioId', $request['qashioId'])
+                ->update([
+                    'bitrix_cash_request_id' => $bitrixCashRequestId
+                ]);
+
+            return $this->successResponse('Successfully link Qashio Transaction link with Cash Request ', null, 200);
+
+        } catch (\Exception $e){
+            return $this->errorResponse('Something went wrong! Please contact IT.', env('APP_ENV') !== 'production' ? $e->getMessage() : null, 500);
+        }
+    }
     public function getMerchantsData()
     {
         try {
