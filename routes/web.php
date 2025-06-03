@@ -76,6 +76,10 @@ Route::middleware(['auth'])->group(function(){
     Route::post('/qashio/transaction/save', [QashioController::class, 'saveBitrixCashRequest']);
     // Link Qashio Transaction with Cash Request
     Route::post('/qashio/transaction/link/{bitrixCashRequestId}', [QashioController::class, 'linkQashioTransactionWithBitrix']);
+    // View Qashio Log
+    Route::get('/qashio/logs', [QashioController::class, 'getQashioLog']);
+
+
     // Download Cash Release Receipt
     Route::post('/cash-request/download-released-receipt', [ReportsController::class, 'downloadCashReleasedReceipt']);
     // Sync FSA / DS2
