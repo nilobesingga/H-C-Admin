@@ -2,19 +2,13 @@
 
 namespace App\Services;
 
-use App\Models\Bitrix\BitrixListsSageCompanyMapping;
 use App\Models\Qashio\QashioBitrixMerchantMapping;
 use App\Models\Qashio\QashioTransaction;
 use App\Repositories\BitrixApiRepository;
 use App\Repositories\QashioApiRepository;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
-use mysql_xdevapi\Exception;
-use PhpParser\Node\Expr\Cast\Object_;
 
 Class QashioService
 {
@@ -29,6 +23,10 @@ Class QashioService
     public function syncQashioTransactions()
     {
         try {
+            Log::channel('qashio')->info('Starting Qashio transaction sync', [
+                'start_time' => Carbon::now()->format('d M Y H:i:s'),
+            ]);
+
             $lastTransactionDateTime = QashioTransaction::where([
                 'transactionCategory' => 'purchase',
                 'clearingStatus' => 'pending',
@@ -38,10 +36,8 @@ Class QashioService
             $params = ['limit' => 50000];
 
             if ($lastTransactionDateTime) {
-                // Incremental sync: fetch only new transactions after last sync
                 $params['transactionTimeFrom'] = Carbon::parse($lastTransactionDateTime)->toIso8601String();
             } else {
-                Log::info('Performing initial sync of all Qashio transactions.');
                 $params['transactionTimeFrom'] = "2025-05-01T00:00:00.000Z";
             }
             $params['transactionTimeTo'] = Carbon::now()->toIso8601String();
@@ -50,10 +46,14 @@ Class QashioService
             $response = $this->qashioRepo->getTransactions($params);
             $transactions = $response['data'] ?? [];
 
-            Log::info('Fetched ' . count($transactions) . ' transactions from ' . $params['transactionTimeFrom'] . ' transactions to ' . $params['transactionTimeTo']);
+            Log::channel('qashio')->info('Fetched Qashio transactions', [
+                'count' => count($transactions),
+                'from' => Carbon::parse($params['transactionTimeFrom'])->format('d M Y H:i:s'),
+                'to' => Carbon::parse($params['transactionTimeTo'])->format('d M Y H:i:s'),
+            ]);
 
             if (empty($transactions)) {
-                Log::warning('No transactions found to sync.');
+                Log::channel('qashio')->warning('No Qashio transactions found to sync');
                 return [
                     'success' => false,
                     'message' => 'No new transactions to sync.',
@@ -61,6 +61,11 @@ Class QashioService
             }
 
             $result = $this->processTransactions($transactions);
+
+            Log::channel('qashio')->info('Completed Qashio transaction sync', [
+                'result' => $result,
+                'end_time' => Carbon::now()->format('d M Y H:i:s'),
+            ]);
 
             return [
                 'success' => true,
@@ -71,7 +76,7 @@ Class QashioService
             ];
 
         } catch (\Exception $e) {
-            Log::error('Error syncing Qashio transactions', [
+            Log::channel('qashio')->error('Failed to sync Qashio transactions', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
@@ -93,18 +98,33 @@ Class QashioService
         $updatedBitrixCount = 0;
         $failedBitrixCount = 0;
 
+        Log::channel('qashio')->debug('Processing Qashio transactions', [
+            'transaction_count' => count($transactions),
+            'existing_transaction_count' => count($existingTransactions),
+        ]);
+
         foreach ($transactions as $transaction) {
             $qashioId = $transaction['qashioId'];
-            $transactionData = $this->prepareTransactionData('isSync', $transaction);
+            $transactionData = $this->prepareTransactionData('isSync', $transaction, isset($existingTransactions[$qashioId]));
             if (isset($existingTransactions[$qashioId])) {
                 $existingTransaction = $existingTransactions[$qashioId];
                 if ($transaction['transactionCategory'] === 'purchase' && $existingTransaction->clearingStatus === 'pending' && in_array($transaction['clearingStatus'], ['cleared', 'updated', 'reversed']) && !empty($existingTransaction->bitrix_cash_request_id)) {
+                    Log::channel('qashio')->debug('Updating Bitrix cash request for transaction', [
+                        'qashio_id' => $qashioId,
+                        'bitrix_cash_request_id' => $existingTransaction->bitrix_cash_request_id,
+                    ]);
                     $bitrixUpdateResult = $this->updateBitrixCashRequest($existingTransaction, $transaction);
                     if ($bitrixUpdateResult['success']) {
                         $updatedBitrixCount++;
+                        Log::channel('qashio')->info('Successfully updated Bitrix cash request', [
+                            'qashio_id' => $qashioId,
+                            'bitrix_cash_request_id' => $existingTransaction->bitrix_cash_request_id,
+                        ]);
                     } else {
                         $failedBitrixCount++;
-                        Log::warning("Failed to update Bitrix for transaction: {$qashioId}", [
+                        Log::channel('qashio')->warning('Failed to update Bitrix cash request', [
+                            'qashio_id' => $qashioId,
+                            'bitrix_cash_request_id' => $existingTransaction->bitrix_cash_request_id,
                             'error' => $bitrixUpdateResult['error'] ?? 'Unknown error',
                         ]);
                     }
@@ -123,11 +143,14 @@ Class QashioService
 
                 QashioTransaction::upsert($upsertData, $uniqueBy, $updateColumns);
                 $upsertedTransactionsCount = count($upsertData);
-                Log::info('Upserted ' . $upsertedTransactionsCount . ' transactions.');
+                Log::channel('qashio')->info('Upserted Qashio transactions', [
+                    'count' => $upsertedTransactionsCount,
+                ]);
             } catch (\Exception $e) {
-                Log::error('Failed to upsert Qashio transactions', [
+                Log::channel('qashio')->error('Failed to upsert Qashio transactions', [
                     'error' => $e->getMessage(),
                     'trace' => $e->getTraceAsString(),
+                    'upsert_data_count' => count($upsertData),
                 ]);
                 return [
                     'updated_bitrix' => $updatedBitrixCount,
@@ -143,16 +166,15 @@ Class QashioService
             'failed_bitrix' => $failedBitrixCount,
         ];
     }
-    protected function prepareTransactionData($mode, $transaction)
+    protected function prepareTransactionData($mode, $transaction, $isUpdate = false)
     {
-        $bitrixQashioCreditCard['category_id'] = null;
-        $bitrixQashioCreditCard['sage_company_id'] = null;
+        $bitrixQashioCreditCard = ['category_id' => null, 'sage_company_id' => null];
 
         if($mode === 'isSync'){
             $bitrixQashioCreditCard = $this->bitrixApiRepo->getQashioCreditCardByCardLastFourDigit($transaction['cardLastFour']);
         }
 
-        return [
+        $data = [
             'qashioId' => $transaction['qashioId'],
             'stringId' => $transaction['id'],
             'parentId' => $transaction['parentId'] ?? null,
@@ -205,9 +227,20 @@ Class QashioService
             'last_sync' => now(),
             'bitrix_qashio_credit_card_category_id' => $bitrixQashioCreditCard['category_id'] ?? null,
             'bitrix_qashio_credit_card_sage_company_id' => $bitrixQashioCreditCard['sage_company_id'] ?? null,
-            'created_at' => now(),
-            'updated_at' => now(),
         ];
+
+        if (!$isUpdate) {
+            $data['created_at'] = now();
+        }
+        $data['updated_at'] = now();
+
+        Log::channel('qashio')->debug('Prepared transaction data', [
+            'qashio_id' => $transaction['qashioId'],
+            'mode' => $mode,
+            'is_update' => $isUpdate,
+        ]);
+
+        return $data;
     }
     public function createBitrixCashRequest($request)
     {
@@ -230,8 +263,12 @@ Class QashioService
                     foreach ($uploadResults as $result) {
                         if ($result['status'] === 'success' && isset($result['id'])) {
                             $bitrixFileIds[] = $result['id'];
+                            Log::channel('qashio')->debug('Uploaded Qashio receipt', ['file' => $result['file'], 'id' => $result['id']]);
                         } else {
-                            Log::warning("Failed to upload Qashio receipt: {$result['file']}", ['error' => $result['error'] ?? 'Unknown error']);
+                            Log::channel('qashio')->warning('Failed to upload Qashio receipt', [
+                                'file' => $result['file'],
+                                'error' => $result['error'] ?? 'Unknown error',
+                            ]);
                         }
                     }
                 }
@@ -244,8 +281,12 @@ Class QashioService
                 foreach ($uploadResults as $result) {
                     if ($result['status'] === 'success' && isset($result['id'])) {
                         $bitrixFileIds[] = $result['id'];
+                        Log::channel('qashio')->debug('Uploaded user file', ['file' => $result['file'], 'id' => $result['id']]);
                     } else {
-                        Log::warning("Failed to upload user file: {$result['file']}", ['error' => $result['error'] ?? 'Unknown error']);
+                        Log::channel('qashio')->warning('Failed to upload user file', [
+                            'file' => $result['file'],
+                            'error' => $result['error'] ?? 'Unknown error',
+                        ]);
                     }
                 }
             }
@@ -271,18 +312,27 @@ Class QashioService
                     'bitrix_cash_request_id' => $bitrixId,
                 ]);
 
-                Log::info("Created Bitrix cash request for transaction: {$qashioTransaction['qashioId']}", ['bitrix_id' => $bitrixId]);
+                Log::channel('qashio')->info('Created Bitrix cash request', [
+                    'bitrix_id' => $bitrixId,
+                    'user' => Auth::user()->user_name,
+                ]);
                 return [
                     'success' => true,
                     'bitrix_id' => $bitrixId,
                 ];
             }
+            Log::channel('qashio')->error('Failed to create Bitrix cash request', ['qashio_id' => $qashioTransaction['qashioId']]);
+            return ['success' => false, 'error' => 'Bitrix API returned no ID'];
 
         } catch (\Exception $e) {
-            Log::error("Failed to create Bitrix cash request for transaction: {$qashioTransaction['qashioId']}", [
+            Log::channel('qashio')->error('Exception while creating Bitrix cash request', [
+                'qashio_id' => $qashioTransaction['qashioId'],
+                'user' => Auth::user()->user_name,
                 'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
             ]);
-            return false;
+
+            return ['success' => false, 'error' => $e->getMessage()];
         }
     }
     public function prepareBitrixCashRequisitionData($action, $data, $fileIds = [], $qashioTransaction = null)
@@ -354,7 +404,7 @@ Class QashioService
     {
         try {
             if (empty($existingTransaction->bitrix_cash_request_id)) {
-                Log::warning("No Bitrix cash request ID found for transaction: {$existingTransaction->qashioId}");
+                Log::channel('qashio')->warning("No Bitrix cash request ID found for transaction: {$existingTransaction->qashioId}");
                 return [
                     'success' => false,
                     'error' => 'No Bitrix cash request ID associated with this transaction.',
@@ -405,7 +455,7 @@ Class QashioService
                     // Status 1659 = Cancelled
                     $bitrixFields['PROPERTY_943'] = '1659';
                     // Modified By
-                    $bitrixFields['MODIFIED_BY'] = env('BITRIX_ADMIN_USER_ID');;
+                    $bitrixFields['MODIFIED_BY'] = env('BITRIX_ADMIN_USER_ID');
                     // Update Reason
                     $bitrixFields['PROPERTY_1276'] = 'Reversed by CRON job';
                 }
@@ -414,13 +464,13 @@ Class QashioService
             // Update Bitrix cash requisition
             $updateResult = $this->bitrixApiRepo->updateCashRequisition($existingTransaction->bitrix_cash_request_id, $bitrixFields);
             if($updateResult){
-                Log::info("Updated Bitrix cash request for transaction: {$qashioTransaction['qashioId']}");
+                Log::channel('qashio')->info("Updated Bitrix cash request for transaction: {$qashioTransaction['qashioId']}");
                 return [
                     'success' => true,
                 ];
             }
         } catch (\Exception $e) {
-            Log::error("Failed to update Bitrix cash request for transaction: {$qashioTransaction['qashioId']}", [
+            Log::channel('qashio')->error("Failed to update Bitrix cash request for transaction: {$qashioTransaction['qashioId']}", [
                 'error' => $e->getMessage(),
             ]);
         }

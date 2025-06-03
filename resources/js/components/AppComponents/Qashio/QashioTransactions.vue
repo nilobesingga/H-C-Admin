@@ -242,7 +242,7 @@
         </div>
     </div>
     <!-- create transfer form modal -->
-    <create-cash-request-form-modal
+    <qashio-create-cash-request-form-modal
         :page_data="page_data"
         :obj="selected_obj"
         v-if="is_create_cash_request_form_modal"
@@ -434,10 +434,10 @@ export default {
             return this.data.filter(item => {
                 // Filter by search input (case insensitive)
                 const matchesSearch = [
-                    item.qashioId, item.string_id, item.parentId, item.rrn, item.bitrix_cash_request_id,
+                    item.qashioId, item.string_id, item.parentId, item.rrn, item.bitrix_cash_request_id, item.transactionAmount, item.clearingAmount,
                     item.bitrix_qashio_credit_card_category_id, item.bitrix_qashio_credit_card_sage_company_id,
                     item.cardHolderName, item.cardLastFour, item.cardName, item.clearingAmount, item.clearingStatus,
-                    item.merchantName,
+                    item.merchantName, item.transactionCurrency, item.billingCurrency
                 ].some(field => field?.toLowerCase().includes(searchTerm));
 
                 // Filter by selected Category ID
