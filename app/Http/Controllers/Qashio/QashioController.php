@@ -7,14 +7,14 @@ use App\Models\Bitrix\BitrixList;
 use App\Models\Bitrix\BitrixListsSageCompanyMapping;
 use App\Models\Qashio\QashioBitrixMerchantMapping;
 use App\Models\Qashio\QashioTransaction;
-use App\Models\User;
 use App\Models\UserModulePermission;
-use App\Repositories\QashioApiRepository;
 use App\Services\QashioService;
 use App\Services\UserServices;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 
 class QashioController extends Controller
 {
@@ -121,29 +121,60 @@ class QashioController extends Controller
     public function saveBitrixCashRequest(Request $request)
     {
         try {
-
+            Log::channel('qashio')->info('Creating Bitrix cash request', [
+                'user' => Auth::user()->user_name
+            ]);
             $result = $this->qashioService->createBitrixCashRequest($request);
             if ($result['success']) {
+                Log::channel('qashio')->info('Bitrix cash request created successfully', [
+                    'user' => Auth::user()->user_name,
+                    'bitrix_id' => $result['bitrix_id'],
+                ]);
                 return $this->successResponse('Cash Requisition created successfully', null, 201);
             }
 
+            Log::channel('qashio')->error('Failed to create Bitrix cash request', [
+                'user' => Auth::user()->user_name,
+                'result' => $result,
+            ]);
             return $this->errorResponse('Failed to create cash request in Bitrix', null, 500);
 
         } catch (\Exception $e){
+            Log::channel('qashio')->error('Exception while creating Bitrix cash request', [
+                'user' => Auth::user()->user_name,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
             return $this->errorResponse('Something went wrong! Please contact IT.', env('APP_ENV') !== 'production' ? $e->getMessage() : null, 500);
         }
     }
     public function linkQashioTransactionWithBitrix(Request $request, $bitrixCashRequestId)
     {
         try {
-            QashioTransaction::where('qashioId', $request['qashioId'])
+            $qashioId = $request['qashioId'];
+
+            $updated = QashioTransaction::where('qashioId', $qashioId)
                 ->update([
                     'bitrix_cash_request_id' => $bitrixCashRequestId
                 ]);
 
-            return $this->successResponse('Successfully link Qashio Transaction link with Cash Request ', null, 200);
+            if ($updated) {
+                Log::channel('qashio')->info('Successfully linked Qashio transaction with Bitrix cash request', [
+                    'user' => Auth::user()->user_name,
+                    'qashio_id' => $qashioId,
+                    'bitrix_cash_request_id' => $bitrixCashRequestId,
+                ]);
+                return $this->successResponse('Successfully linked Qashio Transaction with Cash Request', null, 200);
+            }
 
         } catch (\Exception $e){
+            Log::channel('qashio')->error('Failed to link Qashio transaction with Bitrix cash request', [
+                'user' => Auth::user()->user_name,
+                'qashio_id' => $qashioId,
+                'bitrix_cash_request_id' => $bitrixCashRequestId,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
             return $this->errorResponse('Something went wrong! Please contact IT.', env('APP_ENV') !== 'production' ? $e->getMessage() : null, 500);
         }
     }
@@ -168,5 +199,50 @@ class QashioController extends Controller
         } catch (\Exception $e){
             return $this->errorResponse('Something went wrong! Please contact IT.', env('APP_ENV') !== 'production' ? $e->getMessage() : null, 500);
         }
+    }
+    public function getQashioLog(Request $request)
+    {
+        try {
+            $logFile = storage_path('logs/qashio.log');
+
+            if (!File::exists($logFile)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Qashio log file not found.',
+                ], 404);
+            }
+
+            // Read last N lines (default 1000) to avoid loading huge files
+            $lines = $request->query('lines', 1000);
+            $lines = min(max((int)$lines, 1), 5000); // Limit between 1 and 5000
+
+            // Read file efficiently
+            $content = $this->getLastLines($logFile, $lines);
+            $logs = array_filter(explode("\n", $content));
+
+            return $this->successResponse('Fetch logs successfully', $logs);
+
+        } catch (\Exception $e) {
+            Log::channel('qashio')->error('Failed to read Qashio log file', [
+                'error' => $e->getMessage(),
+            ]);
+            return $this->errorResponse('Failed to read log file.', $e->getMessage());
+        }
+    }
+    private function getLastLines($filePath, $lines)
+    {
+        $file = new \SplFileObject($filePath, 'r');
+        $file->seek(PHP_INT_MAX);
+        $totalLines = $file->key();
+
+        $startLine = max(0, $totalLines - $lines);
+        $file->seek($startLine);
+
+        $content = '';
+        while (!$file->eof()) {
+            $content .= $file->fgets();
+        }
+
+        return $content;
     }
 }

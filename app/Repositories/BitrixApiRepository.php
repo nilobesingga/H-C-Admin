@@ -577,11 +577,11 @@ class BitrixApiRepository
                 return $response['result'];
             }
 
-            Log::error("Failed to update cash requisition for element ID: {$elementId}");
+            Log::channel('qashio')->error("BitrixApiRepository::updateCashRequisition | Failed to update cash requisition for element ID: {$elementId}");
             return false;
 
         } catch (\Exception $e) {
-            Log::error("Exception while updating cash requisition for element ID: {$elementId}", [
+            Log::channel('qashio')->error("BitrixApiRepository::updateCashRequisition | Exception while updating cash requisition for element ID: {$elementId}", [
                 'error' => $e->getMessage(),
             ]);
             return false;

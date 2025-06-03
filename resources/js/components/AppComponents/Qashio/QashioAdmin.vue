@@ -98,6 +98,17 @@
                         />
                     </div>
                 </div>
+                <!-- View Log -->
+                <div class="flex flex-shrink-0">
+                    <button
+                        class="main-btn !bg-white !border !py-2 !px-5 !min-w-[120px] !text-sm focus:!border-tec-active"
+                        :disabled="loading"
+                        data-modal-toggle="#qashio_view_logs_modal"
+                        @click="openModal('log')"
+                    >
+                        View Logs
+                    </button>
+                </div>
                 <!-- Sync Transactions -->
                 <div class="flex flex-shrink-0">
                     <button
@@ -465,6 +476,11 @@
         v-if="is_merchant_mapping_modal"
         @closeModal="closeModal"
     />
+    <!-- Merchant Mapping Modal -->
+    <qashio-view-logs-modal
+        v-if="is_view_log_modal"
+        @closeModal="closeModal"
+    />
 </template>
 
 <script>
@@ -500,6 +516,7 @@ export default {
             },
             qashio_credit_cards: [],
             is_merchant_mapping_modal: false,
+            is_view_log_modal: false,
             last_sync: null
         }
     },
@@ -655,9 +672,13 @@ export default {
             if (type === 'merchant') {
                 this.is_merchant_mapping_modal = true
             }
+            if (type === 'log') {
+                this.is_view_log_modal = true
+            }
         },
         closeModal() {
             this.is_merchant_mapping_modal = false;
+            this.is_view_log_modal = false;
             this.removeModalBackdrop();
         },
     },
