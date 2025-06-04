@@ -614,7 +614,7 @@ export default {
         // Vatable: match 'Standard Rate' to "Yes", else "No"
         this.assignDynamicField('vatable', this.obj.erpTaxRateName === 'Standard Rate' ? 'Yes' : 'No');
         // Amount
-        this.form.amount = this.obj.clearingStatus === 'pending' ? this.obj.transactionAmount :  (this.obj.clearingAmount ? (parseFloat(this.obj.clearingAmount) +  parseFloat(this.obj.clearingFee)).toFixed(2) : '0.00')
+        this.form.amount = this.obj.clearingStatus === 'pending' ? this.obj.transactionAmount : (this.obj.clearingAmount ? (parseFloat(this.obj.clearingAmount) + parseFloat(this.obj.clearingFee || 0)).toFixed(2) : '0.00')
         // Currency
         this.form.currency = this.obj.clearingStatus === 'pending' ? this.obj.transactionCurrency : this.obj.billingCurrency;
         // Name
