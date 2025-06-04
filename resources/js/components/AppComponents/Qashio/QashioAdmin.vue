@@ -74,7 +74,7 @@
                             <option value="refund">Refund</option>
                         </select>
                     </div>
-                    <!-- Card Mapping -->
+                    <!-- Custom Filter -->
                     <div class="flex flex-shrink-0 w-[230px]">
                         <select
                             class="select select-sm select-input w-[230px]"
@@ -697,10 +697,10 @@ export default {
             return this.data.filter(item => {
                 // Filter by search input (case insensitive)
                 const matchesSearch = [
-                    item.qashioId, item.string_id, item.parentId, item.rrn, item.bitrix_cash_request_id,
+                    item.qashioId, item.string_id, item.parentId, item.rrn, item.bitrix_cash_request_id, item.transactionAmount, item.clearingAmount,
                     item.bitrix_qashio_credit_card_category_id, item.bitrix_qashio_credit_card_sage_company_id,
                     item.cardHolderName, item.cardLastFour, item.cardName, item.clearingAmount, item.clearingStatus,
-                    item.merchantName,
+                    item.merchantName, item.transactionCurrency, item.billingCurrency
                 ].some(field => field?.toLowerCase().includes(searchTerm));
 
                 // Filter by Clearing Status
@@ -709,8 +709,11 @@ export default {
                 // Filter by Transaction Category
                 const matchesCategory = this.filters.transaction_category ? item.transactionCategory === this.filters.transaction_category : true;
 
+                // Custom Filter
+                const matchesCustomFilter = this.filters.custom_filter === 'missing_card' ? !item.cardLastFour : (this.filters.custom_filter === 'missing_cash_requisition' ? !item.bitrix_cash_request_id : true);
+
                 // Return true only if all filters match
-                return matchesSearch && matchesStatus && matchesCategory;
+                return matchesSearch && matchesStatus && matchesCategory && matchesCustomFilter;
             });
         },
     },
