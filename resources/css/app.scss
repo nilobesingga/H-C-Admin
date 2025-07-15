@@ -14,7 +14,7 @@
 @import "../assets/theme/keenicons/solid/style.css";
 
 .page-bg {
-    background-image: url("/public/tec-bg-7.jpg/");
+    // background-image: url("/public/tec-bg-7.svg/");
 }
 
 @keyframes smoothFadeInUp {
@@ -73,7 +73,7 @@
     focus:border-brand-active
 }
 .nav-link {
-    @apply font-semibold px-4 py-1 text-black transition-all duration-300 tracking-tight border border-transparent
+    @apply font-semibold px-4 py-1 text-white transition-all duration-300 tracking-tight border border-transparent
         hover:shadow-md hover:border-black focus:bg-black focus:text-white
 }
 .nav-active {
@@ -128,9 +128,9 @@
     @apply border-red-300 hover:border-red-700
 }
 .main-btn{
-    @apply relative flex min-w-[200px] items-center justify-center border-2 outline-none text-md bg-white
+    @apply relative flex min-w-[200px] items-center justify-center border-2 outline-none text-md bg-[#313d4f]
     px-8 py-3 text-black font-semibold  tracking-tight transition-all duration-500 ease-in-out
-    shadow-sm hover:bg-white hover:shadow-lg overflow-hidden bg-transparent border-black
+    shadow-sm hover:bg-white hover:shadow-lg overflow-hidden bg-transparent border-gray-200 rounded-lg
     focus:border-brand-active
 }
 .main-btn:focus,
@@ -228,7 +228,8 @@
     .modal-body .select-input,
     .input-normal{
         color: #000!important;
-        @apply border-2 h-12 text-lg px-3
+        border-radius: 8px!important;
+        @apply h-12 text-lg px-3 rounded-lg
     }
 
 .modal-footer{

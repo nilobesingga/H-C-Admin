@@ -10,6 +10,9 @@
     <title>CRESCO - @yield('pageTitle')</title>
     <link rel="icon" href="{{ asset('storage/images/logos/CRESCO_favicon.ico') }}" sizes="32x32"/>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
+    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
     @vite(['resources/css/app.scss'])
 </head>
 <body class="antialiased flex h-full text-base text-neutral-700 [--tw-header-height:54px] [--tw-sidebar-width:200px] [--tw-header-bg:var(--tw-light)] [--tw-header-bg-dark:var(--tw-coal-500)] bg-light dark:bg-coal-500">
@@ -36,16 +39,16 @@
     </script>
 
     <div id="app" class="flex grow app">
-        <div class="flex grow flex-col">
+        <div class="flex flex-col grow">
             @include('includes.header')
             @include('includes.navbar')
-            <div class="container-fluid w-full flex px-0 bg-neutral-100 page-bg bg-top bg-cover bg-no-repeat bg-fixed">
+            <div class="flex w-full pt-20 bg-fixed bg-top bg-no-repeat bg-cover container-fluid bg-[#F5F6FA] page-bg">
                 <main class="grow" role="content">
                     @yield('content')
                 </main>
             </div>
+            @include('includes.footer')
         </div>
-        <network-error-modal />
     </div>
 
     @vite(['resources/js/app.js', 'resources/assets/custom/custom.js'])

@@ -7,6 +7,7 @@ use App\Models\Bitrix\BitrixList;
 use App\Models\Bitrix\BitrixListsSageCompanyMapping;
 use App\Models\Bitrix\Country;
 use App\Models\Category;
+use App\Models\Company;
 use App\Models\Module;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
@@ -36,33 +37,26 @@ class AdminSettingsController extends Controller
 
         return view('admin.settings.countries', compact('page'));
     }
-    public function categories()
+    public function companies()
     {
-        $data = Category::select('id', 'name')
-            ->with(['sageCompanies' => function ($q) {
-                $q->selectRaw('MIN(id) as id, category_id, sage_company_code, bitrix_sage_company_name')
-                    ->whereNotNull('sage_company_code')
-                    ->groupBy('category_id', 'sage_company_code', 'bitrix_sage_company_name');
-            }])
-            ->get();
-
-
+        $data = Company::select('id','company_id', 'name')
+                ->orderBy('name')
+                ->get();
         $page = (Object) [
-            'title' => 'Categories',
+            'title' => 'Companies',
             'identifier' => 'admin_settings_categories',
             'data' => $data,
         ];
-
-        return view('admin.settings.categories', compact('page'));
+        $data = getUserModule('Modules');
+        $module = $data['module'];
+        return view('admin.settings.categories', compact('page','module'));
     }
     public function modules()
     {
-        $page = (Object) [
-            'title' => 'Modules',
-            'identifier' => 'admin_settings_modules',
-        ];
-
-        return view('admin.settings.modules', compact('page'));
+        $data = getUserModule('Modules');
+        $page = $data['page'];
+        $module = $data['module'];
+        return view('admin.settings.modules', compact('page','module'));
     }
     public function moduleGetData()
     {

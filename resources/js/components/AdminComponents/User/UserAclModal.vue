@@ -2,24 +2,24 @@
     <div class="modal" data-modal="true" data-modal-backdrop-static="true" id="user_acl_modal">
         <div class="modal-content top-[5%] lg:max-w-[1500px]">
             <div class="modal-header">
-                <h3 class="modal-title capitalize text-xl font-bold tracking-tight">ACL</h3>
+                <h3 class="text-xl font-bold tracking-tight capitalize modal-title">User Access Control</h3>
                 <button class="btn btn-xs btn-icon btn-light focus:!border-tec-active" data-modal-dismiss="true" @click="$emit('closeModal')">
                     <i class="ki-outline ki-cross"></i>
                 </button>
             </div>
             <div class="modal-body">
                 <div class="flex items-center gap-5">
-                    <img class="rounded-full border-2 max-h-[70px] max-w-full ring-2 ring-tec-active border-white shadow-lg shadow-tec-active/30" data-modal-toggle="#modal_profile" :src="obj ? obj.profile.bitrix_profile_photo : null">
+                    <img class="rounded-full border-2 max-h-[70px] max-w-full ring-2 ring-tec-active border-white shadow-lg shadow-tec-active/30" data-modal-toggle="#modal_profile" :src="obj && obj.profile ? '/storage/' + obj.profile.photo : null">
                     <div class="flex flex-col justify-center">
-                        <div class="text-lg font-bold text-neutral-900 tracking-tight">
-                            {{ obj ? obj.profile.bitrix_name : null }} {{ obj ? obj.profile.bitrix_last_name : null }}
+                        <div class="text-lg font-bold tracking-tight text-neutral-900">
+                            {{ obj && obj.profile ? obj.profile.name : null }}
                         </div>
-                        <a class="text-neutral-500 text-sm hover:text-tec-active transition-all duration-300" :href="obj ? 'mailto:' + obj.email : null">{{ obj ? obj.email : null }}</a>
+                        <a class="text-sm transition-all duration-300 text-neutral-500 hover:text-tec-active" :href="obj ? 'mailto:' + obj.email : null">{{ obj ? obj.email : null }}</a>
                     </div>
                 </div>
                 <div class="flex gap-3 pt-3 pb-3">
                     <!-- Modules and Permissions Table -->
-                    <div class="w-3/5 flex">
+                    <div class="flex" :class="(obj.is_admin == 1) ? 'w-full' : 'w-3/5'">
                         <div class="flex flex-col gap-5 grow">
                             <div class="card rounded-none !shadow-sm bg-neutral-100 !border-neutral-200 hover:!border-tec-active transition-all duration-300 grow">
                                 <div class="px-5 py-3 bg-white">
@@ -28,17 +28,17 @@
                                 <div class="scrollable-x-auto">
                                     <table class="w-full">
                                         <thead>
-                                        <tr class="bg-neutral-50 text-neutral-800 text-xs text-left tracking-tight border-b border-neutral-200/50">
-                                            <th class="font-semibold py-2 pl-5">Module</th>
+                                        <tr class="text-xs tracking-tight text-left border-b bg-neutral-50 text-neutral-800 border-neutral-200/50">
+                                            <th class="py-2 pl-5 font-semibold">Module</th>
                                             <th class="font-semibold">View Only</th>
                                             <th class="font-semibold">Full Access</th>
                                         </tr>
                                         </thead>
-                                        <tbody class="text-left text-xs tracking-tight">
+                                        <tbody class="text-xs tracking-tight text-left">
                                         <template v-for="module in form_data.modules" :key="module.id">
                                             <!-- Parent Modules -->
                                             <tr class="transition-all duration-300 text-neutral-800 bg-neutral-100 hover:!bg-white">
-                                                <td class="pl-5 py-2">
+                                                <td class="py-2 pl-5">
                                                     <div class="flex flex-col gap-2.5">
                                                         <label class="checkbox-group">
                                                             <input
@@ -48,7 +48,7 @@
                                                                 :checked="isParentChecked(module)"
                                                                 @change="toggleParentModule(module, $event)"
                                                             >
-                                                            <span class="checkbox-label text-black font-semibold hover:text-tec-active transition-all duration-300">{{ module.name }}</span>
+                                                            <span class="font-semibold text-black transition-all duration-300 checkbox-label hover:text-tec-active">{{ module.name }}</span>
                                                         </label>
                                                     </div>
                                                 </td>
@@ -62,7 +62,7 @@
                                                                 :checked="hasParentPermission(module, 'view_only')"
                                                                 @change="setParentPermission(module, 'view_only', $event)"
                                                             >
-                                                            <span class="checkbox-label text-black font-semibold hover:text-tec-active transition-all duration-300">All</span>
+                                                            <span class="font-semibold text-black transition-all duration-300 checkbox-label hover:text-tec-active">All</span>
                                                         </label>
                                                     </td>
                                                     <td>
@@ -73,13 +73,13 @@
                                                                 :checked="hasParentPermission(module, 'full_access')"
                                                                 @change="setParentPermission(module, 'full_access', $event)"
                                                             >
-                                                            <span class="checkbox-label text-black font-semibold hover:text-tec-active transition-all duration-300">All</span>
+                                                            <span class="font-semibold text-black transition-all duration-300 checkbox-label hover:text-tec-active">All</span>
                                                         </label>
                                                     </td>
                                                 </template>
                                                 <!-- If Parent has NO children, treat as module itself -->
                                                 <template v-else>
-                                                    <td class="text-left pl-2">
+                                                    <td class="pl-2 text-left">
                                                         <input
                                                             type="checkbox"
                                                             class="checkbox checkbox-sm"
@@ -87,7 +87,7 @@
                                                             @change="setPermission(module.id, 'view_only', $event)"
                                                         >
                                                     </td>
-                                                    <td class="text-left pl-2">
+                                                    <td class="pl-2 text-left">
                                                         <input
                                                             type="checkbox"
                                                             class="checkbox checkbox-sm"
@@ -106,7 +106,7 @@
                                             <!-- Child Modules -->
                                             <template v-for="child in module.children" :key="child.id">
                                                 <tr class="transition-all duration-300 text-neutral-800 bg-neutral-100 hover:!bg-white">
-                                                    <td class="pl-6 py-2">
+                                                    <td class="py-2 pl-6">
                                                         <div class="pl-5">
                                                             <label class="checkbox-group">
                                                                 <input
@@ -116,11 +116,11 @@
                                                                     :checked="isModuleChecked(child.id)"
                                                                     @change="toggleChildModule(child, module, $event)"
                                                                 >
-                                                                <span class="checkbox-label hover:text-tec-active transition-all duration-300">{{ child.name }}</span>
+                                                                <span class="transition-all duration-300 checkbox-label hover:text-tec-active">{{ child.name }}</span>
                                                             </label>
                                                         </div>
                                                     </td>
-                                                    <td class="text-left pl-2">
+                                                    <td class="pl-2 text-left">
                                                         <input
                                                             type="checkbox"
                                                             class="checkbox checkbox-sm"
@@ -129,7 +129,7 @@
                                                             @change="setPermission(child.id, 'view_only', $event)"
                                                         >
                                                     </td>
-                                                    <td class="text-left pl-2">
+                                                    <td class="pl-2 text-left">
                                                         <input
                                                             type="checkbox"
                                                             class="checkbox checkbox-sm"
@@ -183,32 +183,62 @@
                         </div>
                     </div>
                     <!-- Categories -->
-                    <div class="w-2/5">
-                        <div class="flex flex-col gap-5">
+                    <div v-if="obj.is_admin == 0" class="w-2/5">
+                        <div class="flex flex-col gap-5 mb-2">
                             <div class="card rounded-none !shadow-sm !border-neutral-200 hover:!border-tec-active transition-all duration-300">
                                 <div class="px-5 py-3">
-                                    <h3 class="card-title !text-neutral-800">Categories</h3>
+                                    <h3 class="card-title !text-neutral-800">Assigned Company</h3>
                                 </div>
                                 <div class="flex flex-col gap-2.5 pl-5 pb-2 bg-neutral-100 pt-2">
-                                    <label class="checkbox-group">
+                                    <div class="flex flex-col gap-0 ml-2" v-for="company in form_data.selected_company" :key="company.company_id">
+                                        <label class="checkbox-group">
+                                            <input
+                                                class="checkbox checkbox-sm"
+                                                type="checkbox"
+                                                :name="company.name"
+                                                :value="company.company_id"
+                                                v-model="form.selected_category_ids"
+                                            >
+                                            <span class="transition-all duration-300 checkbox-label hover:text-tec-active">{{ company.name }}</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div v-if="obj.is_admin == 1" class="flex flex-col gap-5">
+                            <div class="card rounded-none !shadow-sm !border-neutral-200 hover:!border-tec-active transition-all duration-300">
+                                <div class="px-5 py-3">
+                                    <h3 class="card-title !text-neutral-800">Company List</h3>
+                                </div>
+                                <div class="flex flex-col gap-2.5 pl-5 pb-2 bg-neutral-100 pt-2">
+                                    <div class="flex items-center justify-between">
+                                        <label class="checkbox-group">
+                                            <input
+                                                class="checkbox checkbox-sm"
+                                                type="checkbox"
+                                                :checked="areAllCategoriesSelected"
+                                                @change="toggleSelectAllCategories($event)"
+                                            >
+                                            <span class="checkbox-label">All</span>
+                                        </label>
                                         <input
-                                            class="checkbox checkbox-sm"
-                                            type="checkbox"
-                                            :checked="areAllCategoriesSelected"
-                                            @change="toggleSelectAllCategories($event)"
-                                        >
-                                        <span class="checkbox-label">All</span>
-                                    </label>
-                                    <div class="flex flex-col gap-0 ml-2" v-for="category in form_data.categories" :key="category.id">
+                                            type="text"
+                                            v-model="categorySearch"
+                                            placeholder="Search Company..."
+                                            class="px-2 py-1 ml-4 mr-2 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                            style="min-width: 180px;"
+                                        />
+                                    </div>
+                                    <div class="flex flex-col gap-0 ml-2" v-for="category in filteredCategories" :key="category.company_id">
                                         <label class="checkbox-group">
                                             <input
                                                 class="checkbox checkbox-sm"
                                                 type="checkbox"
                                                 :name="category.name"
-                                                :value="category.id"
+                                                :value="category.company_id"
                                                 v-model="form.selected_category_ids"
                                             >
-                                            <span class="checkbox-label hover:text-tec-active transition-all duration-300">{{ category.name }}</span>
+                                            <span class="transition-all duration-300 checkbox-label hover:text-tec-active">{{ category.name }}</span>
                                         </label>
                                     </div>
                                 </div>
@@ -217,7 +247,7 @@
                     </div>
                 </div>
             </div>
-            <div class="modal-footer justify-end">
+            <div class="justify-end modal-footer">
                 <div class="flex gap-4">
                     <button class="secondary-btn !text-md font-semibold !border-2 focus:!border-tec-active !px-10" data-modal-dismiss="true" @click="$emit('closeModal')">
                         Cancel
@@ -242,7 +272,7 @@ export default {
     props: ['obj_id'],
     data() {
         return {
-            obj: null,
+            obj: [],
             form: {
                 selected_category_ids: [],
                 selected_modules: [],
@@ -250,24 +280,27 @@ export default {
             form_data: {
                 modules: [],
                 categories: [],
+                selected_company: [], // New property to hold selected company data
             },
             crud_loading: false,
             moduleParentMap: {},
             moduleChildrenMap: {}, // New map to store module ID to child IDs
+            categorySearch: '',
         }
     },
     methods: {
-        getObjById() {
+        async getObjById() {
             this.crud_loading = true;
-            axios({
+            await axios({
                 url: `/admin/settings/user/${this.obj_id}`,
                 method: 'GET',
             }).then(response => {
                 this.obj = response.data.obj;
                 this.form_data.modules = response.data.modules;
-                this.form_data.categories = response.data.categories;
+                this.form_data.categories = response.data.categories || [];
                 this.form.selected_category_ids = response.data.selected_category_ids || [];
                 this.form.selected_modules = response.data.selected_modules || [];
+                this.form_data.selected_company = response.data.selected_company || [];
                 this.buildModuleMaps();
             }).catch(error => {
                 console.error('Error fetching user data:', error);
@@ -460,12 +493,11 @@ export default {
         },
         toggleSelectAllCategories(event) {
             const isChecked = event.target.checked;
+            var arr = Object.values(this.form_data.categories).map(category => category.company_id);
             if (isChecked) {
-                this.form.selected_category_ids = this.form_data.categories
-                    .filter(category => category.id !== 16)
-                    .map(category => category.id);
+                this.form.selected_category_ids = [...this.form.selected_category_ids, ...arr]; // Ensure unique IDs
             } else {
-                this.form.selected_category_ids = [];
+                this.form.selected_category_ids = this.form.selected_category_ids.filter(id => !arr.includes(id));
             }
         },
         save() {
@@ -495,6 +527,12 @@ export default {
         areAllCategoriesSelected() {
             return this.form_data.categories.length > 0 &&
                 this.form.selected_category_ids.length === this.form_data.categories.length;
+        },
+        filteredCategories() {
+            if (!this.categorySearch) return this.form_data.categories;
+            return Object.values(this.form_data.categories).filter(cat =>
+                cat.name.toLowerCase().includes(this.categorySearch.toLowerCase())
+            );
         },
     },
     mounted() {

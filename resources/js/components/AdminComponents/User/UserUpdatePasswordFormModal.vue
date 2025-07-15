@@ -2,7 +2,7 @@
     <div class="modal" data-modal="true" data-modal-backdrop-static="true" id="user_update_password_form_modal">
         <div class="modal-content top-[5%] lg:max-w-[800px]">
             <div class="modal-header">
-                <h3 class="modal-title capitalize text-xl font-bold tracking-tight">Update Password</h3>
+                <h3 class="text-xl font-bold tracking-tight capitalize modal-title">Update Password</h3>
                 <button class="btn btn-xs btn-icon btn-light focus:!border-tec-active" data-modal-dismiss="true" @click="$emit('closeModal')">
                     <i class="ki-outline ki-cross" ></i>
                 </button>
@@ -12,12 +12,12 @@
                     <div class="flex items-center">
                         <div class="w-5/6">
                             <div class="flex items-center gap-5">
-                                <img class="rounded-full border-2 max-h-[70px] max-w-full ring-2 ring-tec-active border-white shadow-lg shadow-tec-active/30" data-modal-toggle="#modal_profile" :src="obj ? obj.profile.bitrix_profile_photo : null">
+                                <img class="rounded-full border-2 max-h-[60px] max-w-full ring-2 ring-tec-active border-white shadow-lg shadow-tec-active/30" data-modal-toggle="#modal_profile" :src="obj ? '/storage/'+obj.profile.photo : null">
                                 <div class="flex flex-col justify-center">
-                                    <div class="text-lg font-bold text-neutral-900 tracking-tight">
-                                        {{ obj ? obj.profile.bitrix_name : null }} {{ obj ? obj.profile.bitrix_last_name : null }}
+                                    <div class="text-lg font-bold tracking-tight text-neutral-900">
+                                        {{ obj ? obj.profile.name : null }}
                                     </div>
-                                    <a class="text-neutral-500 text-sm hover:text-tec-active transition-all duration-300" :href="obj ? obj.email : null">{{ obj ? obj.email : null }}</a>
+                                    <a class="text-sm transition-all duration-300 text-neutral-500 hover:text-tec-active" :href="obj ? obj.email : null">{{ obj ? obj.email : null }}</a>
                                 </div>
                             </div>
                         </div>
@@ -32,12 +32,12 @@
                     </div>
                     <div class="flex mt-10">
                         <div class="mb-4 w-full gap-2.5">
-                            <label class="form-label flex items-center gap-1 text-sm mb-1" for="password">Password</label>
+                            <label class="flex items-center gap-1 mb-1 text-sm form-label" for="password">Password</label>
                             <input class="input input-sm" id="password" type="text" v-model="form.password" required autofocus="autofocus">
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer justify-end">
+                <div class="justify-end modal-footer">
                     <div class="flex gap-4">
                         <button
                             type="button"

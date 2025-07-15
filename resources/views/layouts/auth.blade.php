@@ -12,7 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
     @vite('resources/css/app.scss')
 </head>
-<body class="antialiased flex h-full text-base text-gray-700 dark:bg-coal-500">
+<body class="flex h-full text-base antialiased text-gray-700 dark:bg-coal-500">
     <script>
         const defaultThemeMode = 'light';
         let themeMode;
@@ -34,11 +34,16 @@
         }
     </script>
     <style>
+        html, body {
+            overflow-y: hidden;
+            margin: 0;
+            padding: 0;
+        }
         .page-bg {
-            background-image: url('tec-bg-7.jpg');
+            background-image: url('hc-bg.svg');
         }
         .dark .page-bg {
-            background-image: url('tec-bg-7.jpg');
+            background-image: url('hc-bg.svg');
         }
     </style>
     @yield('content')

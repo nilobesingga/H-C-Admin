@@ -3,5 +3,6 @@
 @section('content')
     <modules
         :page_data='@json($page)'
+        :module='@json($module)'
     />
 @endsection

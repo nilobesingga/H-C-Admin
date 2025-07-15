@@ -15,7 +15,8 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('parent_id')->nullable();
-            $table->string('bitrix_user_id')->unique();
+            $table->string('bitrix_contact_id')->unique();
+            $table->string('bitrix_user_id')->nullable();
             $table->string('bitrix_webhook_token')->nullable();
             $table->string('user_name')->nullable();
             $table->string('email')->unique();
@@ -28,6 +29,7 @@ return new class extends Migration
             $table->dateTime('last_login')->nullable();
             $table->ipAddress('last_ip')->nullable();
             $table->timestamp('email_verified_at')->nullable();
+            $table->string('type')->nullable()->comment('user,admin,client');
             $table->rememberToken();
             $table->unsignedBigInteger('created_by')->default(0);
             $table->unsignedBigInteger('updated_by')->nullable();
@@ -50,7 +52,7 @@ return new class extends Migration
         });
 
         DB::table('users')->insert([
-            ['parent_id' => 0, 'bitrix_user_id' => '118058', 'bitrix_webhook_token' => 'y2pnen2l579m455u', 'email' => 'farhan.raza@cresco.org', 'password' => bcrypt('123456789'), 'access_token' => md5('1farhan.raza@cresco.org'), 'is_admin' => 1, 'bitrix_active' => 1]
+            ['parent_id' => 0, 'bitrix_user_id' => '118068', 'bitrix_webhook_token' => '6w3w42ec0aq4o1vk', 'email' => 'nilo.besingga@cresco.org', 'password' => bcrypt('123456789'), 'access_token' => md5('1nilo.besingga@cresco.org'), 'is_admin' => 1, 'bitrix_active' => 1]
         ]);
     }
 

@@ -1,30 +1,21 @@
-<footer class="py-3">
+<footer class="py-3 bg-[#444B56] bottom-0 left-0 right-0 z-10">
     <!-- Container -->
-    <div class="container-fluid">
-        <div class="flex flex-col md:flex-row justify-center md:justify-between items-center gap-3 py-2">
-            <div class="flex order-2 md:order-1 gap-2 font-normal text-2sm">
-          <span class="text-gray-500">
-           2024©
-          </span>
-                <a class="text-gray-600 hover:text-primary" href="https://keenthemes.com">
-                    Keenthemes Inc.
+    <div class="container-fluid ">
+        <div class="flex flex-col items-center justify-center gap-3 py-2 ml-24 md:flex-row md:justify-between">
+            <div class="flex order-2 gap-2 font-normal md:order-1 text-2sm">
+                <span class="text-white">
+                © 2025
+                </span>
+                <a class="text-white hover:text-primary" href="https://keenthemes.com">
+                    HensleyCook <span class="mx-1">&bull;</span> Privacy <span class="mx-1">&bull;</span> Terms <span class="mx-1">&bull;</span> Sitemap
                 </a>
             </div>
-            <nav class="flex order-1 md:order-2 gap-4 font-normal text-2sm text-gray-600">
-                <a class="hover:text-primary" href="https://keenthemes.com/metronic/tailwind/docs">
-                    Docs
+            <nav class="flex order-1 gap-4 font-normal text-white md:order-2 text-2sm">
+                <a class="underline hover:text-primary" href="https://keenthemes.com/metronic/tailwind/docs/getting-started/license">
+                    English (UK)
                 </a>
-                <a class="hover:text-primary" href="https://1.envato.market/Vm7VRE">
-                    Purchase
-                </a>
-                <a class="hover:text-primary" href="https://keenthemes.com/metronic/tailwind/docs/getting-started/license">
-                    FAQ
-                </a>
-                <a class="hover:text-primary" href="https://devs.keenthemes.com">
-                    Support
-                </a>
-                <a class="hover:text-primary" href="https://keenthemes.com/metronic/tailwind/docs/getting-started/license">
-                    License
+                <a class="underline hover:text-primary" href="https://devs.keenthemes.com">
+                    Support & Resources
                 </a>
             </nav>
         </div>

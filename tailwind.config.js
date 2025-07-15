@@ -18,6 +18,9 @@ export default {
     darkMode: 'class',
     theme: {
         extend: {
+            animation: {
+                wiggle: 'wiggle 1s ease-in-out infinite',
+            },
             base: {
                 colors: {
                     gray: {

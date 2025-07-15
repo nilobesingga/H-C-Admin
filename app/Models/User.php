@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Models\Bitrix\UserProfile;
+use App\Traits\HasApiTokens;
 use App\Traits\Searchable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -13,7 +14,7 @@ use Illuminate\Notifications\Notifiable;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, Searchable;
+    use HasFactory, Notifiable, Searchable, HasApiTokens;
 
     protected $table = "users";
 
@@ -24,6 +25,7 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'bitrix_user_id',
+        'bitrix_contact_id',
         'bitrix_parent_id',
         'bitrix_webhook_token',
         'email',
@@ -36,7 +38,8 @@ class User extends Authenticatable
         'is_active',
         'last_login',
         'last_ip',
-        'status'
+        'status',
+        'type'
     ];
 
     /**
@@ -64,7 +67,7 @@ class User extends Authenticatable
 
     public function profile(): HasOne
     {
-        return $this->hasOne(UserProfile::class, 'user_id');
+        return $this->hasOne(Contact::class, 'contact_id', 'bitrix_contact_id');
     }
     public function modules() {
         return $this->belongsToMany(Module::class, 'user_module_permission')
@@ -73,7 +76,14 @@ class User extends Authenticatable
     }
     public function categories()
     {
-        return $this->belongsToMany(Category::class)->withTimestamps();
+        return $this->hasMany(CompanyContact::class, 'contact_id', 'bitrix_contact_id')
+            ->join('companies', 'companies.company_id', '=', 'company_contact.company_id')
+            ->select('company_contact.*', 'companies.name as company_name')
+            ->orderBy('companies.name');
     }
 
+    public function userprofile(): HasOne
+    {
+        return $this->hasOne(UserProfile::class, 'user_id', 'id');
+    }
 }

@@ -4,12 +4,8 @@ use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\Settings\AdminSettingsController;
 use App\Http\Controllers\Admin\Settings\AdminUserController;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Company\CompanyDashboardController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\DocumentSyncController;
-use App\Http\Controllers\Qashio\QashioController;
-use App\Http\Controllers\Reports\ReportsController;
-use App\Http\Controllers\Ziina\ZiinaWebhookController;
-use App\Http\Middleware\IsAdminMiddleware;
 use Illuminate\Support\Facades\Route;
 
 //########################################### Auth #################################################
@@ -17,89 +13,50 @@ Route::view('/', 'auth.login')->name('login');
 Route::post('/login', [AuthController::class, 'doLogin'])->name('auth-login');
 Route::get('/login/{accessToken}', [AuthController::class, 'loginByAccessToken']);
 
-Route::middleware(['auth'])->group(function(){
+// 2FA Verification routes
+Route::get('/verify', function () {
+    return view('auth.verify');
+})->name('verify');
+Route::post('/verify', [AuthController::class, 'verify2FA'])->name('verify-2fa');
+
+Route::middleware(['auth', 'verified'])->group(function(){
     //########################################### USER #################################################
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-
+    Route::get('/account-setting', [AuthController::class, 'accountSetting'])->name('account-setting');
     // logout
     Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
     Route::group(['middleware' => ['checkModuleAccess']], function (){
         // Reports
-        Route::group(['prefix' => 'reports', 'as' => 'reports.'], function(){
-            Route::get('/', [ReportsController::class, 'index'])->name('index');
-            Route::get('/purchase-invoices', [ReportsController::class, 'getPurchaseInvoices'])->name('purchase-invoices');
-            Route::get('/cash-requests', [ReportsController::class, 'getCashRequests'])->name('cash-requests');
-            Route::get('/bank-transfers', [ReportsController::class, 'getBankTransfers'])->name('bank-transfers');
-            Route::get('/sales-invoices', [ReportsController::class, 'getSalesInvoices'])->name('sales-invoices');
-            Route::get('/proforma-invoices', [ReportsController::class, 'getProformaInvoices'])->name('proforma-invoices');
-            Route::get('/bank-summary', [ReportsController::class, 'getBankSummary'])->name('bank-summary');
-            Route::get('/expense-planner', [ReportsController::class, 'getExpensePlanner'])->name('expense-planner');
-            Route::get('/bank-monitoring', [ReportsController::class, 'getBankMonitoring'])->name('bank-monitoring');
-            Route::get('/bank-accounts', [ReportsController::class, 'getBankAccounts'])->name('bank-accounts');
-            Route::get('/bank-accounts', [ReportsController::class, 'getBankAccounts'])->name('bank-accounts');
-            Route::get('/cash-received', [ReportsController::class, 'getCashReceived'])->name('cash-received');
-
-            //########################################### CRESCO Reports links ###############################################################
-            Route::get('/cresco-holding', [ReportsController::class, 'redirectToReports'])->name('cresco-holding');
-            Route::get('/cresco-accounting', [ReportsController::class, 'redirectToReports'])->name('cresco-accounting');
-            Route::get('/cresco-sage', [ReportsController::class, 'redirectToReports'])->name('cresco-sage');
-            Route::get('/hensley-and-cook', [ReportsController::class, 'redirectToReports'])->name('hensley-and-cook');
-            Route::get('/orchidx', [ReportsController::class, 'redirectToReports'])->name('orchidx');
-            Route::get('/expense-overview', [ReportsController::class, 'redirectToReports'])->name('expense-overview');
-            Route::get('/managing-director-reports', [ReportsController::class, 'redirectToReports'])->name('managing-director-reports');
-            Route::get('/crm-relationships-report', [ReportsController::class, 'redirectToReports'])->name('crm-relationships-report');
-            Route::get('/demo-reports', [ReportsController::class, 'redirectToReports'])->name('demo-reports');
-            Route::get('/hr-reports', [ReportsController::class, 'redirectToReports'])->name('hr-reports');
-            Route::get('/bank-reports', [ReportsController::class, 'redirectToReports'])->name('bank-reports');
-            Route::get('/running-accounts', [ReportsController::class, 'redirectToReports'])->name('running-accounts');
-
-        });
-        // Cash Pool
-        Route::group(['prefix' => 'cash-pool', 'as' => 'cash-pool.'], function(){
-            Route::get('/cash-pool-report', [ReportsController::class, 'redirectToReports'])->name('cash-pool-report');
-            Route::get('/cash-pool-expense-planner', [ReportsController::class, 'getExpensePlanner'])->name('cash-pool-expense-planner');
-        });
-        // Qashio
-        Route::group(['prefix' => 'qashio', 'as' => 'qashio.'], function(){
-            Route::get('/qashio-admin', [QashioController::class, 'adminIndex'])->name('qashio-admin');
-            Route::get('/qashio-transactions', [QashioController::class, 'transactionsIndex'])->name('qashio-transactions');
-        });
-
     });
-    // Qashio get data
-    Route::post('/qashio/get-data', [QashioController::class, 'getData']);
-    // Qashio Merchants
-    Route::post('/qashio/merchants/get-data', [QashioController::class, 'getMerchantsData']);
-    // save request from qashio transaction
-    Route::post('/qashio/transaction/save', [QashioController::class, 'saveBitrixCashRequest']);
-    // Link Qashio Transaction with Cash Request
-    Route::post('/qashio/transaction/link/{bitrixCashRequestId}', [QashioController::class, 'linkQashioTransactionWithBitrix']);
-    // View Qashio Log
-    Route::get('/qashio/logs', [QashioController::class, 'getQashioLog']);
-
-
-    // Download Cash Release Receipt
-    Route::post('/cash-request/download-released-receipt', [ReportsController::class, 'downloadCashReleasedReceipt']);
-    // Sync FSA / DS2
-    Route::get('/sync/FSA/documents', [DocumentSyncController::class, 'syncFSADocuments'])->name('sync.FSA.documents');
-    Route::get('/sync/FSA/documents/progress', [DocumentSyncController::class, 'getSyncFSADocumentsProgress'])->name('sync.FSA.documents.progress');
-    // Invoice Email Routes
-    Route::controller(App\Http\Controllers\Ziina\InvoiceEmailController::class)->prefix('invoice-emails')->name('invoice-emails.')->group(function() {
-        Route::post('/send', 'sendInvoiceEmail')->name('send');
+    //########################################### Company ###############################################################
+    Route::group(['prefix' => 'company', 'as' => 'company.'], function(){
+        Route::get('/{company?}', [CompanyDashboardController::class, 'index'])->name('index');
+        Route::get('/request/{company?}', [CompanyDashboardController::class, 'getRequest'])->name('request');
+        Route::get('/task/{company?}', [CompanyDashboardController::class, 'getTask'])->name('task');
+        Route::get('/inbox/{company?}', [CompanyDashboardController::class, 'getInbox'])->name('inbox');
+        Route::get('/payment/{company?}', [CompanyDashboardController::class, 'getPayment'])->name('payment');
+        Route::get('/calendar/{company?}', [CompanyDashboardController::class, 'getCalendar'])->name('calendar');
+        Route::get('/wallet/{company?}', [CompanyDashboardController::class, 'getWallet'])->name('wallet');
+        Route::get('/quickchat/{company?}', [CompanyDashboardController::class, 'getQuickChat'])->name('quickchat');
+        Route::get('/switch/{company}', [CompanyDashboardController::class, 'switchCompany'])->name('switch');
     });
 
     //########################################### ADMIN ###############################################################
 
     Route::group(['middleware' => ['isAdmin'], 'prefix' => 'admin', 'as' => 'admin.'], function(){
         // Dashboard
-        Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/task', [AdminDashboardController::class, 'getTask'])->name('task');
+        Route::get('/request', [AdminDashboardController::class, 'getRequest'])->name('request');
+        Route::get('/inbox', [AdminDashboardController::class, 'getInbox'])->name('inbox');
+        Route::get('/user-profile', [AdminDashboardController::class, 'profile'])->name('user-profile');
         // Settings
         Route::prefix('settings')->name('settings.')->group(function (){
             Route::get('/', [AdminSettingsController::class, 'index'])->name('main');
             Route::get('/countries', [AdminSettingsController::class, 'countries'])->name('countries');
-            Route::get('/categories', [AdminSettingsController::class, 'categories'])->name('categories');
+            Route::get('/companies', [AdminSettingsController::class, 'companies'])->name('companies');
             Route::get('/modules', [AdminSettingsController::class, 'modules'])->name('modules');
             Route::post('/modules/get-data', [AdminSettingsController::class, 'moduleGetData']);
             Route::post('/modules/update', [AdminSettingsController::class, 'modulesOrderUpdate']);
@@ -112,15 +69,23 @@ Route::middleware(['auth'])->group(function(){
                 Route::post('/users/get-data', 'getData');
                 Route::get('/user/{id}', 'edit');
                 Route::post('/user/save/{userId}', 'save');
+                // Add user create route
+                Route::post('/users/create', 'create');
             });
             Route::post('/user/{userId}/update-password', [AuthController::class, 'updatePassword']);
         });
-    });
-    Route::get('/payment_logs/{invoice_id}', [ZiinaWebhookController::class, 'handlePaymentLogs'])->name('handlePaymentLogs');
-    Route::get('/payment_status', [ZiinaWebhookController::class, 'PaymentStatus'])->name('PaymentStatus');
-});
 
-Route::get('/ziina-webhook/{invoice_id}', [ZiinaWebhookController::class,'updateStatus'])->name('ziina-webhook');
+        // Contacts
+        Route::resource('contacts', App\Http\Controllers\ContactController::class);
+
+        // Contact Relationships
+        Route::get('/contacts/{contact}/relationships/create', [App\Http\Controllers\ContactController::class, 'createRelationship'])->name('contacts.relationships.create');
+        Route::post('/contacts/{contact}/relationships', [App\Http\Controllers\ContactController::class, 'storeRelationship'])->name('contacts.relationships.store');
+        Route::get('/contacts/{contact}/relationships/{relationship}/edit', [App\Http\Controllers\ContactController::class, 'editRelationship'])->name('contacts.relationships.edit');
+        Route::put('/contacts/{contact}/relationships/{relationship}', [App\Http\Controllers\ContactController::class, 'updateRelationship'])->name('contacts.relationships.update');
+        Route::delete('/contacts/{contact}/relationships/{relationship}', [App\Http\Controllers\ContactController::class, 'destroyRelationship'])->name('contacts.relationships.destroy');
+    });
+});
 
 
 
