@@ -250,4 +250,60 @@ class RequestController extends Controller
             ], 500);
         }
     }
+
+    //update request status
+    public function updateRequestStatus(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'status' => 'required|in:pending,approved,declined,cancelled',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['message' => 'Validation failed', 'errors' => $validator->errors()], 422);
+        }
+        DB::beginTransaction();
+        try {
+            $requestModel = RequestModel::findOrFail($id);
+            $requestModel->status = $request->status;
+            $requestModel->save();
+            DB::commit();
+            return response()->json(['message' => 'Request status updated successfully', 'request' => $requestModel], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Failed to update request status', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function getRequest(Request $request){
+        $limit = $request->input('limit', '');
+        $data =  RequestModel::with(['company', 'contact', 'creator', 'files'])
+            ->orderBy('created_at', 'DESC')
+            ->where('status', $request->input('status', 'pending'))
+            ->limit($limit)
+            ->get()
+            ->map(function ($req) {
+                return [
+                    'id' => $req->id,
+                    'company_id' => $req->company_id,
+                    'company_name' => $req->company ? $req->company->name : 'N/A',
+                    'contact_name' => $req->contact ? $req->contact->name : 'N/A',
+                    'contact_photo' => $req->contact ? Storage::url($req->contact->photo) : null,
+                    'request_no' => $req->request_no,
+                    'type' => str_replace("_"," ", $req->type),
+                    'description' => $req->description,
+                    'category' => $req->category,
+                    'created_by' => $req->created_by,
+                    'updated_at' => date('Y-m-d',strtotime($req->updated_at)),
+                    'created_at' => date('Y-m-d',strtotime($req->created_at)),
+                    'status' => $req->status,
+                    'files' => $req->files->map(function ($file) {
+                        return [
+                            'id' => $file->id,
+                            'file_name' => $file->filename,
+                            'path' => Storage::url($file->path),
+                        ];
+                    })->toArray()
+                ];
+            });
+        return response()->json($data);
+    }
 }

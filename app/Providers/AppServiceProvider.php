@@ -16,12 +16,6 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         // Bind the repository with credential resolution
-        $this->app->bind(BitrixApiRepository::class, function ($app, $params = []) {
-            return new BitrixApiRepository(
-                $app->make(BitrixCredentialResolver::class),
-                $params['user_id'] ?? null
-            );
-        });
     }
 
     /**
@@ -29,6 +23,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Register the TaskObserver
+        \App\Models\TaskModel::observe(\App\Observers\TaskObserver::class);
+
         // Share environment variables globally with all Blade views
         View::share('env', [
             'APP_ENV' => env('APP_ENV'),

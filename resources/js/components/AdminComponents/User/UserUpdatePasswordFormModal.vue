@@ -78,7 +78,7 @@ export default {
         save(){
             this.crud_loading = true
             axios({
-                url: `/admin/settings/user/${this.obj_id}/update-password`,
+                url: `/api/user/${this.obj_id}/update-password`,
                 method: 'POST',
                 data: this.form
             }).then(response => {
@@ -95,7 +95,7 @@ export default {
         getObjById(){
             this.loading = true
             axios({
-                url: `/admin/settings/user/${this.obj_id}`,
+                url: `/api/user/${this.obj_id}`,
                 method: 'GET',
             }).then(response => {
                 this.obj = response.data.obj;

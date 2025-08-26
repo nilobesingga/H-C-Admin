@@ -1,6 +1,8 @@
 <?php
 
+use App\Models\Bitrix\UserProfile;
 use App\Models\Contact;
+use App\Models\TaskModel;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -23,7 +25,7 @@ function getLastDateOfMonthAfterThreeYears()
 
 function profile()
 {
-    $profile = Contact::where('contact_id', Auth::user()->bitrix_contact_id)->first();
+    $profile = UserProfile::where('user_id', Auth::id())->first();
     $profile['profilePhoto'] = $profile->photo ? Storage::url($profile->photo) : '/storage/images/logos/CRESCO_icon.png';
     return $profile;
 }
@@ -77,18 +79,49 @@ function generateRequestNo()
     return $referenceNumber;
 }
 
-function getPendingCount($company_id = 0)
+function getChangeRequestCount($type='document_type')
 {
-    if($company_id == 0) {
-        return 0; // Return 0 if user is not authenticated
-    }
-    $contactId = Auth::user()->bitrix_contact_id;
+    // if($company_id == 0) {
+    //     return 0; // Return 0 if user is not authenticated
+    // }
+    // $contactId = Auth::user()->bitrix_contact_id;
     $pendingCount = DB::table('request')
         ->where('status', 'pending')
-        ->where('contact_id', $contactId)
-        ->where('company_id', $company_id)
+        ->where('type', $type)
+        // ->where('contact_id', $contactId)
+        // ->where('company_id', $company_id)
         ->count();
     return $pendingCount;
+}
+
+function getOpenTaskCount()
+{
+    $tasks = TaskModel::whereExists(function ($query) {
+            $query->select('user_id')
+                    ->from('task_users')
+                    ->whereColumn('task_users.task_id', 'task.id')
+                    ->where('task_users.user_id', Auth::id());
+        })
+        ->where('user_id', Auth::id())
+        ->where('status', 'open')
+        ->count();
+    return $tasks;
+}
+
+function getSetupRequestCount()
+{
+    $setupRequestCount = DB::table('company_setup')
+
+        ->count();
+    return $setupRequestCount;
+}
+
+function getDataChangeRequestCount()
+{
+    $changeRequestCount = DB::table('change_request')
+        ->where('status', 'pending')
+        ->count();
+    return $changeRequestCount;
 }
 
 
@@ -101,27 +134,52 @@ function getUserModule($title = null, $company_id = null)
         'modules.children' => function ($q) {
             $q->join('user_module_permission as ump', function ($join) {
                 $join->on('modules.id', '=', 'ump.module_id')
+                    ->where('modules.admin', 1)
                     ->where('ump.user_id', Auth::id());
             })
             ->orderBy('modules.order', 'ASC');
         },
-        'categories'
+        'categories',
+        'userprofile'
     ])->whereId(Auth::id())->first();
 
-    $pending_request = getPendingCount($company_id ?? 0);
     $module = [];
     if ($user) {
-        $module = $user->modules->map(function ($module) use ($pending_request) {
+        $module = $user->modules->map(function ($module) {
+            $count = 0;
+            if ($module->route == 'setup-request') {
+                $count = getSetupRequestCount();
+            }
+            elseif ($module->route == 'task') {
+                $count = getOpenTaskCount();
+            }
+            elseif ($module->route == 'change-request') {
+                $count = getChangeRequestCount('change_request');
+            }
+            elseif ($module->route == 'document-request') {
+                $count = getChangeRequestCount('document_request');
+            }
+            elseif ($module->route == 'data-request') {
+                $count = getDataChangeRequestCount();
+            }
             return [
                 'id' => $module->id,
                 'name' => $module->name,
                 'route' => $module->route,
                 'icon' => $module->icon,
-                'children' => $module->children->map(function ($child) use ($pending_request) {
+                'count' => $count,
+                'children' => $module->children->map(function ($child) {
                     $count = 0;
-                    if ($child->route == 'company.request') {
-                        $count = $pending_request;
+                    if ($child->route == 'task') {
+                        $count = getOpenTaskCount();
                     }
+                    elseif ($child->route == 'document-request') {
+                        $count = getChangeRequestCount('document_request');
+                    }
+                     elseif ($child->route == 'change-request') {
+                        $count = getChangeRequestCount('change_request');
+                    }
+
                     return [
                         'id' => $child->id,
                         'name' => $child->name,

@@ -288,4 +288,10 @@ class CompanyController extends Controller
         return redirect()->route('companies.show', $company->id)
             ->with('success', 'Contact removed from company successfully');
     }
+
+    public function getCompany()
+    {
+        $company = Company::all();
+        return response()->json($company);
+    }
 }

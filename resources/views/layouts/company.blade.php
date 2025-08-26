@@ -39,6 +39,7 @@
     </script>
 
     <div id="app" class="relative flex flex-col h-full app">
+        <RequestNotification />
         <!-- Header (Sticky position) -->
         @include('company.header.header')
 

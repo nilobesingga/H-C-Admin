@@ -39,6 +39,7 @@
     </script>
 
     <div id="app" class="relative flex flex-col h-full app">
+        <request-notification></request-notification>
         <!-- Header (Sticky position) -->
         @include('admin.includes.admin_header')
 

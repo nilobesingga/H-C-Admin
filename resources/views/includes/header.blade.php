@@ -6,9 +6,10 @@
     <div class="flex flex-wrap items-center justify-between pl-3 pr-2 container-fluid lg:gap-4 " id="header_container">
         <!-- Logo -->
         <div class="flex items-center gap-3">
-            <button class="btn btn-icon btn-light btn-clear btn-sm -ms-2 lg:hidden" data-drawer-toggle="#sidebar">
-                <i class="ki-filled ki-menu">
-                </i>
+            <button class="btn btn-icon text-light btn-clear btn-sm -ms-2 lg:hidden" data-drawer-toggle="#sidebar">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                </svg>
             </button>
             <a href="{{ route('dashboard') }}">
                 <img class="w-40 ml-5 dark:hidden" src="{{ asset('storage/images/logos/Logo.svg') }}"/>
@@ -95,45 +96,6 @@
                         </div>
                         <div class="menu-separator"></div>
                         <div class="flex flex-col">
-                            @if(auth()->user()->is_admin)
-                                <div class="menu-item mb-0.5 px-1.5">
-                                    <div class="menu-link hover:!bg-black/5 !rounded-none">
-                                        <span class="menu-icon"><i class="ki-outline ki-security-user !text-brand-active"></i></span>
-                                        <a class="menu-title !text-neutral-800" href="{{ route('admin.settings.main') }}">Administration</a>
-                                    </div>
-                                </div>
-                            @endif
-                            <div class="menu-item mb-0.5 px-1.5">
-                                <div class="menu-link hover:!bg-black/5 !rounded-none">
-                                    <span class="menu-icon">
-                                        <i class="ki-duotone ki-wallet !text-brand-active">
-                                            <span class="path1"></span>
-                                            <span class="path2"></span>
-                                            <span class="path3"></span>
-                                            <span class="path4"></span>
-                                        </i>
-                                    </span>
-                                    <a class="menu-title !text-neutral-800" href="{{ route('admin.settings.main') }}">Wallet</a>
-                                </div>
-                            </div>
-                             <div class="menu-item mb-0.5 px-1.5">
-                                <div class="menu-link hover:!bg-black/5 !rounded-none">
-                                    <span class="menu-icon"><i class="ki-outline ki-security-user !text-brand-active"></i></span>
-                                    <a class="menu-title !text-neutral-800" href="{{ route('admin.settings.main') }}">Other Services</a>
-                                </div>
-                            </div>
-                            <div class="menu-separator"></div>
-                            <div class="menu-item mb-0.5 px-1.5">
-                                <div class="menu-link hover:!bg-black/5 !rounded-none">
-                                    <span class="menu-icon">
-                                        <i class="ki-duotone ki-setting-2 !text-brand-active">
-                                            <span class="path1"></span>
-                                            <span class="path2"></span>
-                                        </i>
-                                    </span>
-                                    <a class="menu-title !text-neutral-800" href="{{ route('account-setting') }}">Account Settings</a>
-                                </div>
-                            </div>
                             <div class="menu-item px-4 py-1.5">
                                 <a class="btn btn-light btn-cresco !bg-white !border-black !text-black focus:!border-brand-active" href="{{ route('logout') }}">
                                     Log out

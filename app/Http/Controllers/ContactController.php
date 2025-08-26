@@ -414,6 +414,7 @@ class ContactController extends Controller
             'emirates_id_issue_date' => 'nullable|date',
             'emirates_id_expiry_date' => 'nullable|date',
             'address' => 'nullable|string',
+            'email' => 'nullable|string',
             // Add validation for file fields if needed
             'cv_file' => 'nullable|string',
             'photo' => 'nullable',

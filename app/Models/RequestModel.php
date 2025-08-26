@@ -41,8 +41,8 @@ class RequestModel extends Model
     /**
      * Get the request file associated with the request.
      */
-    public function requestFile(): BelongsTo
+    public function files()
     {
-        return $this->belongsTo(RequestFile::class, 'request_id', 'id');
+        return $this->hasMany(RequestFile::class, 'request_id', 'id');
     }
 }
