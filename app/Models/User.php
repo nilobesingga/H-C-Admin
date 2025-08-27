@@ -86,4 +86,11 @@ class User extends Authenticatable
     {
         return $this->hasOne(UserProfile::class, 'user_id', 'id');
     }
+
+    public function notifications()
+    {
+        return $this->belongsToMany(TaskUser::class, 'task_users', 'user_id', 'user_id')
+                    ->withPivot('is_read', 'read_at')
+                    ->withTimestamps();
+    }
 }

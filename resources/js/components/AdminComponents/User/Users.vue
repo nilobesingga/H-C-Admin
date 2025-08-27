@@ -164,9 +164,7 @@ export default {
         getData(isSync = false){
             this.loading = true
             this.data = []
-            axios({
-                url: `/admin/settings/users/get-data`,
-                method: 'POST',
+            axios.post('/api/users/get-data', {
                 data: {
                     filters: this.filters,
                     is_sync: isSync

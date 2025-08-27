@@ -15,6 +15,7 @@ class Contact extends Model
         'cv_file',
         'photo',
         'mobile',
+        'email',
         'phone_no',
         'tin',
         'passport_number',

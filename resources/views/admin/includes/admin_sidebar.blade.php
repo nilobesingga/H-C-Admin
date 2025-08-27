@@ -5,6 +5,17 @@
         <!-- Scrollable Content Area -->
         <div class="relative flex-col items-center flex-grow w-full gap-4 overflow-y-auto" data-scrollable="true"
             data-scrollable-height="auto" data-scrollable-offset="0px" data-scrollable-wrappers="#sidebar_content">
+            <!-- Company Switcher -->
+            <div class="w-full mb-2">
+                <a id="company-switcher-btn" href="{{ route('dashboard') }}"
+                    class="flex items-center w-full gap-3 px-4 py-2 text-left bg-[#3B414B] hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-maroon-600">
+                    <img src="{{ asset('icon/h&c.svg') }}" alt="Admin Icon"
+                        class="border-2 border-white rounded-full shadow w-9 h-9" />
+                    <span class="text-sm font-semibold capitalize">Admin Dashboard</span>
+                </a>
+            </div>
+            <!-- End Company Switcher -->
+            <hr class="my-3" />
             <!-- Menu Items -->
             <nav class="w-full">
                 @if ($module)
@@ -25,16 +36,30 @@
                         @else
                             <a href="{{ route($submodule['route']) }}"
                                 class="flex items-center p-2.5 text-sm rounded hover:bg-gray-700 {{ request()->routeIs($submodule["route"]) ? 'border-l-4 border-orange-400 bg-gray-700' : '' }}">
-                                {{-- <img src="{{ asset($submodule['icon']) }}" class="mr-2 text-white size-6" alt="task"> --}}
+                                <img src="{{ asset($submodule['icon']) }}" class="mr-2 text-white size-6" alt="task">
                                 <span class="font-semibold text-md">{{ $submodule['name'] }}</span>
+                                @if (isset($submodule['count']) && $submodule['count'] > 0)
+                                <span
+                                    class="px-2 py-1 ml-auto text-xs {{ request()->routeIs($submodule['route']) ? 'bg-[#FFA348]' :  'bg-gray-700'}} rounded-full">{{
+                                    $submodule['count'] }}</span>
+                                @endif
                             </a>
                         @endif
                 @endforeach
                 @endif
+                <hr class="my-3" />
+                <div class="px-2">
+                    <a href="https://reports.cresco.org/portal-access" target="_blank"
+                        class="flex items-center p-2.5 text-sm rounded hover:bg-gray-700">
+                        <img src="{{ asset('icon/accounting_portal.svg') }}" class="mr-2 size-6" alt="settings">
+                        <span class="text-sm font-semibold">Portal Access</span>
+                    </a>
+                </div>
+                <hr class="my-3" />
             </nav>
             <!-- Fixed Bottom Navigation -->
             <div class="absolute left-0 w-full py-3 mt-auto text-center bg-[#252B36] bottom-16">
-                <a href=""
+                <a href="{{ route('chat') }}"
                     class="flex items-center p-4 mx-6 -mb-2 text-sm text-white transition bg-orange-500 rounded hover:bg-orange-600">
                     <img src="{{ asset('icon/chat.svg') }}" class="ml-2 mr-2 size-8" alt="quickchat">
                     <span class="text-xl font-semibold">Quick Chat</span>

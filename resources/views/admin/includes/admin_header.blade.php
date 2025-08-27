@@ -7,12 +7,13 @@
     <div class="flex flex-wrap items-center justify-between pl-3 pr-2 container-fluid lg:gap-4" id="header_container">
         <!-- Logo -->
         <div class="flex items-center gap-3">
-            <button class="btn btn-icon btn-light btn-clear btn-sm -ms-2 lg:hidden" data-drawer-toggle="#sidebar">
-                <i class="ki-filled ki-menu">
-                </i>
+            <button class="btn btn-icon text-light btn-clear btn-sm -ms-2 lg:hidden" data-drawer-toggle="#sidebar">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                </svg>
             </button>
-            <a href="{{ route('admin.dashboard') }}">
-                <img class="w-40 ml-5 dark:hidden" src="{{ asset('storage/images/logos/Logo.svg') }}"/>
+            <a href="{{ route('dashboard') }}">
+                <img class="w-40 ml-2 dark:hidden" src="{{ asset('img/Logo.svg') }}"/>
             </a>
 
             <!-- Navs -->
@@ -217,14 +218,14 @@
                     <div class="flex items-center space-x-2 rounded-full menu-toggle btn btn-icon ">
                         <img alt="{{ Auth::user()->name ?? 'User' }}"
                             class="justify-center transition-all duration-300 border border-black rounded-full shadow-lg size-8 shrink-0 ring-1 ring-transparent hover:border-white hover:ring-brand-active hover:shadow-brand-shadow"
-                            src="{{ asset('/storage/images/logos/Logo.svg') }}">
-                        <span class="text-sm font-medium text-white">Admin</span>
+                            src="{{ asset('/img/Logo.svg') }}">
+                        <span class="text-sm font-medium text-white">{{ getFirstChars(profile()->name) }}</span>
                     </div>
                     <div class="menu-dropdown menu-default rounded-none backdrop-blur light:border-black w-screen max-w-[250px]">
                         <div class="flex items-center justify-between px-5 py-1.5 gap-1.5 relative">
                             <div class="flex flex-col gap-2">
                                 <div>
-                                    <img src="{{ asset('/storage/images/logos/Logo.svg') }}" class="inline-block w-12 h-12 border border-white rounded-full shadow-lg ring-2 ring-brand-active shadow-brand-shadow"/>
+                                    <img src="{{ asset('img/Logo.svg') }}" class="inline-block w-12 h-12 border border-white rounded-full shadow-lg ring-2 ring-brand-active shadow-brand-shadow"/>
                                 </div>
                                 <div class="flex flex-col gap-1.5 mt-4 text-black">
                                     <span class="text-sm font-semibold leading-none text-black">{{ Auth::user()->name }}</span>
@@ -245,7 +246,7 @@
                                             <span class="path2"></span>
                                         </i>
                                     </span>
-                                    <a class="menu-title !text-neutral-800" href="{{ route('admin.user-profile') }}">My Profile</a>
+                                    <a class="menu-title !text-neutral-800" href="{{ route('user-profile') }}">My Profile</a>
                                 </div>
                             </div>
                             <div class="menu-item px-4 py-1.5">

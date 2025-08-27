@@ -5,7 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class RequestModel extends Model
 {
     use HasFactory;
@@ -41,8 +42,15 @@ class RequestModel extends Model
     /**
      * Get the request file associated with the request.
      */
-    public function requestFile(): BelongsTo
+    public function files()
     {
-        return $this->belongsTo(RequestFile::class, 'request_id', 'id');
+        return $this->hasMany(RequestFile::class, 'request_id', 'id');
+    }
+
+    public function comments(): HasMany
+    {
+        return $this->hasMany(RequestConversation::class, 'request_id')
+                ->where('parent_id',0)
+                ->with(['author','replies', 'files']);
     }
 }

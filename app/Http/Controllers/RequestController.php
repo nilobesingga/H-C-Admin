@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Company;
 use App\Models\Contact;
+use App\Models\RequestConversationFile;
 use App\Models\RequestFile;
 use App\Models\RequestModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
@@ -249,5 +251,113 @@ class RequestController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+    }
+
+    //update request status
+    public function updateRequestStatus(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'status' => 'required|in:pending,approved,declined,cancelled',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['message' => 'Validation failed', 'errors' => $validator->errors()], 422);
+        }
+        DB::beginTransaction();
+        try {
+            $requestModel = RequestModel::findOrFail($id);
+            $requestModel->status = $request->status;
+            $requestModel->save();
+            DB::commit();
+            return response()->json(['message' => 'Request status updated successfully', 'request' => $requestModel], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Failed to update request status', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function getRequest(Request $request){
+        $limit = $request->input('limit', '');
+        $data =  RequestModel::with(['company', 'contact', 'creator', 'files'])
+            ->orderBy('created_at', 'DESC')
+            ->where('status', $request->input('status', 'pending'))
+            ->limit($limit)
+            ->get()
+            ->map(function ($req) {
+                return [
+                    'id' => $req->id,
+                    'company_id' => $req->company_id,
+                    'company_name' => $req->company ? $req->company->name : 'N/A',
+                    'contact_name' => $req->contact ? $req->contact->name : 'N/A',
+                    'contact_photo' => $req->contact ? Storage::url($req->contact->photo) : null,
+                    'request_no' => $req->request_no,
+                    'type' => str_replace("_"," ", $req->type),
+                    'description' => $req->description,
+                    'category' => $req->category,
+                    'created_by' => $req->created_by,
+                    'updated_at' => date('Y-m-d',strtotime($req->updated_at)),
+                    'created_at' => date('Y-m-d',strtotime($req->created_at)),
+                    'status' => $req->status,
+                    'files' => $req->files->map(function ($file) {
+                        return [
+                            'id' => $file->id,
+                            'file_name' => $file->filename,
+                            'path' => Storage::url($file->path),
+                        ];
+                    })->toArray()
+                ];
+            });
+        return response()->json($data);
+    }
+
+    public function getRequestDetails($requestId)
+    {
+        $request = RequestModel::with([
+            'comments',
+            'company',
+            'contact',
+            'creator',
+            'files'
+        ])->findOrFail($requestId);
+
+        return response()->json($request);
+    }
+
+    public function storeComment(Request $request, $taskId)
+    {
+        $request->validate([
+            'message' => 'required|string|max:1000',
+        ]);
+
+        $task = RequestModel::findOrFail($taskId);
+
+        if($request->has('status')) {
+            $task->status = $request->status;
+            $task->save();
+        }
+
+        $comment = $task->comments()->create([
+            'message' => $request->message,
+            'user_id' => Auth::id(),
+            'parent_id' => $request->parent_id ?? 0
+        ]);
+
+         // Store files if any
+        if ($request->hasFile('files')) {
+            foreach ($request->file('files') as $file) {
+                $path = $file->store('request-comment-files/' . $comment->id, 'public');
+
+                RequestConversationFile::create([
+                    'request_conversation_id' => $comment->id,
+                    'file_name' => $file->getClientOriginalName(),
+                    'file_path' => $path
+                ]);
+            }
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Comment added successfully',
+            'comment' => $comment->load('author')
+        ], 201);
     }
 }

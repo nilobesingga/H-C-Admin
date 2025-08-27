@@ -68,7 +68,7 @@ export default {
         handleSubmit() {
             this.loading = true;
             // Replace with your actual API endpoint
-            axios.post('/admin/settings/users/create', this.form)
+            axios.post('/settings/users/create', this.form)
                 .then(() => {
                     this.$emit('closeModal');
                 })

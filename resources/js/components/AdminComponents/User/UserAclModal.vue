@@ -292,7 +292,7 @@ export default {
         async getObjById() {
             this.crud_loading = true;
             await axios({
-                url: `/admin/settings/user/${this.obj_id}`,
+                url: `/settings/user/${this.obj_id}`,
                 method: 'GET',
             }).then(response => {
                 this.obj = response.data.obj;
@@ -503,7 +503,7 @@ export default {
         save() {
             this.crud_loading = true;
             axios({
-                url: `/admin/settings/user/save/${this.obj_id}`,
+                url: `/settings/user/save/${this.obj_id}`,
                 method: 'POST',
                 data: this.form
             }).then(response => {

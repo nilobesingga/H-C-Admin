@@ -10,7 +10,6 @@ use App\Models\Module;
 use App\Models\Permission;
 use App\Models\User;
 use App\Models\UserModulePermission;
-use App\Services\Bitrix\BitrixService;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -22,10 +21,8 @@ use Illuminate\Support\Str;
 class AdminUserController extends Controller
 {
     use ApiResponser;
-    protected $bitrixService;
-    public function __construct(BitrixService $bitrixService)
+    public function __construct()
     {
-        $this->bitrixService = $bitrixService;
     }
     public function index()
     {
@@ -45,9 +42,9 @@ class AdminUserController extends Controller
             $query = User::with('profile', 'categories', 'modules')
                     ->orderByRaw('LOWER(user_name) ASC');
 
-            if (isset($filters['bitrix_active'])) {
-                $query->where('bitrix_active', $filters['bitrix_active']);
-            }
+            // if (isset($filters['bitrix_active'])) {
+            //     $query->where('bitrix_active', $filters['bitrix_active']);
+            // }
 
             // Apply search filter
             if (!empty($filters['search'])) {
@@ -194,6 +191,31 @@ class AdminUserController extends Controller
             return response()->json(['message' => 'User created successfully'], 200);
         } catch (\Exception $e) {
             DB::rollBack();
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function getUsers()
+    {
+        try {
+            $filters = request('filters');
+            $query = User::with('userprofile')
+                    ->orderByRaw('LOWER(user_name) ASC');
+            // Apply search filter
+            if (!empty($filters['search'])) {
+                $search = strtolower($filters['search']);
+
+                $query->where(function ($q) use ($search) {
+                    $q->whereRaw('LOWER(email) LIKE ?', ["%$search%"])
+                        ->orWhereRaw('LOWER(user_name) LIKE ?', ["%$search%"])
+                        ->orWhereHas('userprofile', function ($q) use ($search) {
+                            $q->whereRaw('LOWER(name) LIKE ?', ["%$search%"]);
+                        });
+                });
+            }
+            return $query->get();
+
+        } catch (\Exception $e){
             return response()->json(['message' => $e->getMessage()], 500);
         }
     }

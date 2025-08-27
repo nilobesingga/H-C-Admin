@@ -1,17 +1,17 @@
 <template>
-    <div class="container-fluid px-3">
+    <div class="px-3 container-fluid">
         <!-- Page Header -->
         <div class="py-7">
             <div class="flex items-center justify-between">
                 <!-- Title -->
-                <div class="flex flex-col justify-start w-full max-w-sm text-black font-bold text-3xl tracking-tight">
+                <div class="flex flex-col justify-start w-full max-w-sm text-3xl font-bold tracking-tight text-black">
                     {{ page_data.title }}
                 </div>
 
-                <div class="flex items-center gap-4 flex-wrap w-full justify-end">
+                <div class="flex flex-wrap items-center justify-end w-full gap-4">
                     <div class="flex min-w-96">
                         <div class="relative w-full">
-                            <i class="ki-outline ki-magnifier leading-none text-md text-black absolute top-1/2 left-3 transform -translate-y-1/2"></i>
+                            <i class="absolute leading-none text-black transform -translate-y-1/2 ki-outline ki-magnifier text-md top-1/2 left-3"></i>
                             <input
                                 class="input input-sm text-input !ps-8"
                                 placeholder="Search"
@@ -34,11 +34,11 @@
             </div>
         </div>
         <!-- Content -->
-        <div class="relative flex-grow overflow-auto table-container shadow-md border border-tec">
+        <div class="relative flex-grow overflow-auto border shadow-md table-container border-tec">
             <!-- Table -->
-            <table class="w-full table table-main table-border align-middle text-xs table-fixed">
+            <table class="table w-full text-xs align-middle table-fixed table-main table-border">
                 <thead>
-                    <tr class="text-left tracking-tight">
+                    <tr class="tracking-tight text-left">
                         <th class="sticky top-0 w-10">#</th>
                         <th class="sticky top-0 w-10">Order No</th>
                         <th class="sticky top-0 w-[150px]">Name</th>
@@ -56,7 +56,7 @@
                     @change="updateOrder"
                 >
                     <template #item="{ element }">
-                        <tr class="cursor-move group transition-all duration-300 text-neutral-800">
+                        <tr class="transition-all duration-300 cursor-move group text-neutral-800">
                             <td scope="row">{{ element.id }}</td>
                             <td>{{ element.order }}</td>
                             <td>{{ element.name }}</td>
@@ -123,7 +123,7 @@ export default {
             this.loading = true
             this.data = []
             axios({
-                url: `/admin/settings/modules/get-data`,
+                url: `/settings/modules/get-data`,
                 method: 'POST',
                 data: {
                     filters: this.filters,

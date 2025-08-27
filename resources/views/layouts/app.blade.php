@@ -40,6 +40,7 @@
 
     <div id="app" class="flex grow app">
         <div class="flex flex-col grow">
+            <request-notification></request-notification>
             @include('includes.header')
             @include('includes.navbar')
             <div class="flex w-full pt-20 bg-fixed bg-top bg-no-repeat bg-cover container-fluid bg-[#F5F6FA] page-bg">

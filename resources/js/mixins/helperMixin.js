@@ -1,3 +1,5 @@
+import axios from '../plugins/axios';
+
 export default {
     data() {
         return {
@@ -188,14 +190,73 @@ export default {
                     }
                 });
         },
+
+        // Token management methods
+        getToken() {
+            return localStorage.getItem('access_token');
+        },
+
+        setToken(token) {
+            localStorage.setItem('access_token', token);
+        },
+
+        removeToken() {
+            localStorage.removeItem('access_token');
+        },
+
+        // Axios helper methods
+        async apiGet(url, config = {}) {
+            try {
+                const response = await axios.get(url, config);
+                return response.data;
+            } catch (error) {
+                this.handleApiError(error);
+                throw error;
+            }
+        },
+
+        async apiPost(url, data = {}, config = {}) {
+            try {
+                const response = await axios.post(url, data, config);
+                return response.data;
+            } catch (error) {
+                this.handleApiError(error);
+                throw error;
+            }
+        },
+
+        async apiPut(url, data = {}, config = {}) {
+            try {
+                const response = await axios.put(url, data, config);
+                return response.data;
+            } catch (error) {
+                this.handleApiError(error);
+                throw error;
+            }
+        },
+
+        async apiDelete(url, config = {}) {
+            try {
+                const response = await axios.delete(url, config);
+                return response.data;
+            } catch (error) {
+                this.handleApiError(error);
+                throw error;
+            }
+        },
+
+        handleApiError(error) {
+            const message = error.response?.data?.message || 'An error occurred';
+            this.errorToast(message);
+        },
     },
     mounted() {
         this.setTableNoDataColspan();
-        this.adjustReportsTableHeight();
+        // this.adjustReportsTableHeight();
     },
     updated() {
         this.setTableNoDataColspan();
-        this.adjustReportsTableHeight();
+        // this.adjustReportsTableHeight();
     },
     beforeDestroy() {
         if (this._resizeHandler) {

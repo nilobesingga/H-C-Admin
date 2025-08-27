@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Bitrix\UserProfile;
 use App\Models\Contact;
 use App\Models\User;
 use App\Traits\ApiResponser;
@@ -41,9 +42,6 @@ class AuthController extends Controller
             }
 
             $request->session()->regenerate();
-            if($user->is_admin) {
-                return redirect()->route('admin.dashboard');
-            }
             return redirect()->route('dashboard');
         } else {
             Auth::logout();
@@ -69,9 +67,6 @@ class AuthController extends Controller
                     'last_ip' => request()->getClientIp(),
                     'status' => 'online',
                 ]);
-                if($user->is_admin) {
-                    return redirect()->route('admin.dashboard');
-                }
                 return redirect()->intended('dashboard');
             }
             else{
@@ -175,6 +170,17 @@ class AuthController extends Controller
                 now()->addDays(7)
             );
             $expiresAt = now()->addDays(7)->toDateTimeString();
+
+            UserProfile::updateOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'name' => $request['name'],
+                    'user_id' => $user->id,
+                    'phone' => $request['phone_no'] ?? '',
+                    'birthday' => $request['birthday'] ?? ''
+                ]
+            );
+
             return response()->json([
                 'success' => true,
                 'message' => 'Registration successful',
@@ -210,7 +216,7 @@ class AuthController extends Controller
             // Determine if the input is an email or username
             $loginField = filter_var($credentials['login'], FILTER_VALIDATE_EMAIL) ? 'email' : 'user_name';
 
-            if (Auth::attempt([$loginField => $credentials['login'], 'password' => $credentials['password']])) {
+            if (Auth::attempt([$loginField => $credentials['login'], 'password' => $credentials['password']], $request->boolean('remember'))) {
                 $user = Auth::user();
 
                 if ($user->bitrix_active != 1) {
@@ -225,31 +231,28 @@ class AuthController extends Controller
                     'status' => 'online'
                 ]);
 
-                // Revoke all existing tokens
-                $user->tokens()->delete();
+                // Use the existing access_token or create a new one
+                $accessToken = $user->access_token ?? Str::random(64);
 
-                // Create a new token
-                $tokenResult = $user->createToken(
-                    'auth_token',
-                    ['*'],
-                    now()->addDays(7)
-                );
+                // Update or set the access token
+                if (!$user->access_token) {
+                    $user->update(['access_token' => $accessToken]);
+                }
 
                 return $this->successResponse('Login successful', [
-                    'user' => $user->only(['id', 'email', 'user_name', 'bitrix_contact_id', 'bitrix_user_id']),
-                    'access_token' => $tokenResult->plainTextToken,
+                    'access_token' => $accessToken,
                     'token_type' => 'Bearer',
-                    'expires_at' => $tokenResult->accessToken->expires_at
-                ]);
+                    'expires_at' => now()->addDays(7)->toDateTimeString(),
+                    'user' => $user->only(['id', 'email', 'user_name', 'bitrix_contact_id', 'is_admin'])
+                ], 200);
             }
 
-            return $this->errorResponse('Invalid credentials', null, 401);
+            return response()->json([
+                'success' => false,
+                'message' => 'Username or password is incorrect'
+            ], 401);
         } catch (\Exception $e) {
-            return $this->errorResponse(
-                'Login failed',
-                config('app.debug') === true ? $e->getMessage() : null,
-                500
-            );
+            return $this->errorResponse($e->getMessage(), null, 500);
         }
     }
 
@@ -295,18 +298,17 @@ class AuthController extends Controller
     public function apiLogout(Request $request)
     {
         try {
-            // Update user status
-            $request->user()->update(['status' => 'offline']);
-
-            // Revoke the token that was used to authenticate the current request
-            if ($request->user()) {
-                if ($request->user()->currentAccessToken()) {
-                    $request->user()->currentAccessToken()->delete();
-                }
-
-                // You can also revoke all tokens if needed
-                // $request->user()->tokens()->delete();
+            $user = Auth::user();
+            if ($user) {
+                // Update user status to offline
+                $user->update([
+                    'status' => 'offline',
+                    // Optionally invalidate the token
+                    // 'access_token' => null
+                ]);
             }
+
+            Auth::logout();
 
             return $this->successResponse('Logged out successfully');
         } catch (\Exception $e) {

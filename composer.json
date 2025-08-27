@@ -9,6 +9,7 @@
         "barryvdh/laravel-snappy": "^1.0",
         "guzzlehttp/guzzle": "^7.9",
         "laravel/framework": "^11.9",
+        "laravel/reverb": "^1.5",
         "laravel/tinker": "^2.9",
         "league/flysystem-sftp-v3": "^3.29"
     },
