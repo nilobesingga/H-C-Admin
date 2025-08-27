@@ -7,7 +7,7 @@
                 <div class="flex-1 p-6 border-r">
                     <div class="mb-6">
                         <div class="flex items-center justify-between mb-4">
-                            <h3 class="mb-2 text-lg font-semibold">{{ task.title }}</h3>
+                            <h3 class="mb-2 text-lg font-semibold">{{ (task.type === 'change_request') ? 'Change Request' : 'Document Request'  }}</h3>
                             <button class="flex items-center px-4 py-2 space-x-1 text-sm font-normal text-gray-700 bg-gray-200 rounded-md hover:bg-red-800 hover:text-white">
                                 <span>Send Reminder</span>
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
@@ -44,17 +44,16 @@
                         <h3 class="mb-4 font-semibold text-gray-700">Comments</h3>
                         <div class="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
                             <!-- Comment 1 -->
-                            <comment-thread
+                            <request-comment-thread
                                 v-for="(comment, i) in task.comments"
                                 :key="`comment-${i}`"
                                 :comment="comment"
                                 :task="task"
                                 :current-user="currentUser"
                                 :level="0"
-                                @reply-added="handleCommentReplyAdded"
                             />
                         </div>
-                        <div class="pt-3 mt-4 border-t border-gray-200" v-if="task.status !== 'completed'">
+                        <div class="pt-3 mt-4 border-t border-gray-200" v-if="task.status !== 'approved'">
                             <div class="flex space-x-3">
                                 <div class="flex items-center justify-center flex-shrink-0 w-8 h-8 text-white bg-blue-600 border border-indigo-200 rounded-full">
                                     <span class="text-sm font-medium">{{ getInitials(currentUser) }}</span>
@@ -123,7 +122,10 @@
                         :class="{
                                     'bg-[#FFF2DE] text-orange-400': task.status === 'open',
                                     'bg-blue-700 text-white': task.status === 'pending',
-                                    'bg-green-700 text-white': task.status === 'completed'
+                                    'bg-green-700 text-white': task.status === 'approved',
+                                    'bg-yellow-300 text-white': task.status === 'cancelled',
+                                    'bg-red-700 text-white': task.status === 'declined',
+
                                 }"
                         >
                             <span class="font-medium capitalize"
@@ -133,8 +135,8 @@
 
                         <div class="space-y-4">
                             <div class="flex justify-between">
-                                <span class="text-sm text-gray-500">Task No.:</span>
-                                <span class="text-sm font-medium">{{ task.id }}</span>
+                                <span class="text-sm text-gray-500">Request No.:</span>
+                                <span class="text-sm font-medium">{{ task.request_no }}</span>
                             </div>
 
                             <div class="flex justify-between">
@@ -147,62 +149,85 @@
                                 <span class="text-sm font-medium">{{ formatDate(task.updated_at) }}</span>
                             </div>
 
-                            <div class="flex justify-between">
-                                <span class="text-sm text-gray-500">Due date:</span>
-                                <span class="text-sm font-medium">{{ formatDate(task.deadline) }}</span>
+                            <div class="pt-4 border-t">
+                                <h4 class="mb-2 text-sm text-gray-500">Category</h4>
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-sm font-medium">{{  task.category }}</span>
+                                </div>
                             </div>
-
                             <div class="pt-4 border-t">
                                 <h4 class="mb-2 text-sm text-gray-500">Company</h4>
-                                <div class="flex items-center space-x-2" v-for="(company, userIndex) in task.companies" :key="userIndex">
+                                <div class="flex items-center space-x-2">
                                     <div class="flex items-center justify-center flex-shrink-0 w-8 h-8 text-white bg-orange-300 rounded-full">
-                                        <span class="text-xs font-medium">{{ getInitials((company) ? company.name : 'NA') }}</span>
+                                        <span class="text-xs font-medium">{{ getInitials((task.company) ? task.company.name : 'NA') }}</span>
                                     </div>
-                                    <span class="text-sm font-medium">{{ (company) ? company.name : 'NA'}}</span>
+                                    <span class="text-sm font-medium">{{ (task.company) ? task.company.name : 'NA'}}</span>
                                 </div>
                             </div>
 
                             <div class="pt-4 border-t">
-                                <h4 class="mb-2 text-sm text-gray-500">Responsible Person</h4>
-                                <div class="flex items-center space-x-2" v-for="(user, userIndex) in task.responsible" :key="userIndex">
-                                    <div v-if="user.pivot.type == 'responsible'" class="flex items-center justify-center flex-shrink-0 w-8 h-8 text-white bg-blue-600 rounded-full">
-                                        <span class="text-xs font-medium">{{ getInitials((user.userprofile) ? user.userprofile.name : 'NA') }}</span>
+                                <h4 class="mb-2 text-sm text-gray-500">Request By</h4>
+                                <div class="flex items-center space-x-2">
+                                    <div class="flex items-center justify-center flex-shrink-0 w-8 h-8 text-white bg-blue-600 rounded-full">
+                                        <span class="text-xs font-medium">{{ getInitials((task.contact) ? task.contact.name : 'NA') }}</span>
                                     </div>
-                                    <span class="text-sm font-medium">{{ (user.userprofile) ? user.userprofile.name : 'NA' }}</span>
-                                </div>
-                            </div>
-
-                            <div class="pt-4 border-t">
-                                <h4 class="mb-2 text-sm text-gray-500">Paticipants</h4>
-                                <div class="flex items-center space-x-2" v-for="(user, userIndex) in task.participants" :key="userIndex">
-                                    <div v-if="user.pivot.type == 'participant'" class="flex items-center justify-center flex-shrink-0 w-8 h-8 text-white bg-green-600 rounded-full">
-                                        <span class="text-xs font-medium">{{ getInitials((user.userprofile) ? user.userprofile.name : 'NA') }}</span>
-                                    </div>
-                                    <span class="text-sm font-medium">{{ (user.userprofile) ? user.userprofile.name : 'NA' }}</span>
+                                    <span class="text-sm font-medium">{{ (task.contact) ? task.contact.name : 'NA' }}</span>
                                 </div>
                             </div>
 
                             <div class="pt-4 border-t">
                                 <h4 class="mb-2 text-sm text-gray-500">H&C Observers</h4>
-                                <div v-if="task.observers && task.observers.length" class="space-y-2">
-                                    <div v-for="(user, userIndex) in task.observers" :key="userIndex" class="flex items-center space-x-2">
+                                <div class="space-y-2">
+                                    <div class="flex items-center space-x-2">
                                         <div class="flex items-center justify-center flex-shrink-0 w-8 h-8 text-white bg-purple-600 rounded-full">
-                                            <span class="text-xs font-medium">{{ getInitials((user.userprofile) ? user.userprofile.name : 'NA') }}</span>
+                                            <span class="text-xs font-medium">{{ getInitials((page_data.user.userprofile) ? page_data.user.userprofile.name : 'NA') }}</span>
                                         </div>
-                                        <span class="text-sm font-medium">{{ (user.userprofile) ? user.userprofile.name : 'NA' }}</span>
+                                        <span class="text-sm font-medium">{{ (page_data.user.userprofile) ? page_data.user.userprofile.name : 'NA' }}</span>
                                     </div>
                                 </div>
-                                <div v-else class="text-sm text-gray-500">No observers</div>
                             </div>
                         </div>
 
-                         <button v-if="task.status !== 'completed'"
-                        @click="markAsComplete(task)"
-                        class="w-full px-4 py-2 mt-6 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                        Mark as complete
-                    </button>
-                     <!-- <button
+                         <div v-if="task.status == 'pending'" class="relative mt-2">
+                            <button
+                                @click="toggleStatusDropdown(task)"
+                                class="w-full px-1 py-2 text-sm text-white bg-blue-400 border border-gray-300 rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-700 focus:border-blue-400"
+                            >
+                                Change Status
+                            </button>
+
+                            <!-- Dropdown Menu -->
+                            <div v-if="openDropdownId === task.id"
+                                class="absolute right-0 z-10 w-48 mt-2 origin-top-right bg-white border border-gray-200 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                                <div class="py-1">
+                                    <a href="#"
+                                        @click.prevent="updateStatus(task, 'approved')"
+                                        class="flex items-center px-4 py-2 text-sm text-green-600 hover:bg-gray-100">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        Approved
+                                    </a>
+                                    <a href="#"
+                                        @click.prevent="updateStatus(task, 'declined')"
+                                        class="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                        Declined
+                                    </a>
+                                    <a href="#"
+                                        @click.prevent="updateStatus(task, 'cancelled')"
+                                        class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-100">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                        Cancelled
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    <!-- <button
                        @click="$emit('close')"
                         class="w-full px-4 py-2 mt-6 text-sm font-medium text-white bg-orange-600 rounded-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500"
                     >
@@ -218,18 +243,18 @@
 </template>
 
 <script>
-import CommentThread from '../CommentThread.vue';
+import RequestCommentThread from '../RequestCommentThread.vue';
 export default {
-    name: 'TaskDetailedModal',
+    name: 'RequestDetailedModal',
     components: {
-        CommentThread
+        RequestCommentThread
     },
     props: {
         show: {
             type: Boolean,
             default: false
         },
-        taskId: {
+        requestId: {
             type: [Number, String],
             default: null
         },
@@ -242,10 +267,57 @@ export default {
         return {
             currentUser: this.page_data.user.userprofile.name || 'Current User',
             task: {},
-            newComment: ''
+            newComment: '',
+            openDropdownId: null
         };
     },
     methods: {
+        toggleStatusDropdown(request) {
+                // If clicking the same dropdown that's already open, close it
+                if (this.openDropdownId === request.id) {
+                    this.openDropdownId = null;
+            } else {
+                // Otherwise, open this dropdown (and close any other)
+                this.openDropdownId = request.id;
+            }
+        },
+
+        updateStatus(request, newStatus) {
+            request.status = newStatus;
+            this.openDropdownId = null; // Close the dropdown
+            this.handleStatusChange(request);
+        },
+
+        // Click outside to close dropdown
+        handleClickOutside(event) {
+            if (!event.target.closest('.relative')) {
+                this.openDropdownId = null;
+            }
+        },
+
+        async handleStatusChange(request) {
+            this.isLoading = true;
+            // Here you would typically make an API call to update the status
+            // For example:
+            await axios.post(`/api/requests/${request.id}`, { status: request.status })
+                .then(response => {
+                    this.successToast('Request status updated successfully');
+                })
+                .catch(error => {
+                    this.errorToast('Failed to update request status');
+                    // Revert the status change
+                    request.status = originalStatus;
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                });
+
+            // For now, we'll just simulate the API call
+            setTimeout(() => {
+                this.successToast('Request status updated successfully');
+                this.isLoading = false;
+            }, 500);
+        },
         getTaskBorderColor(task) {
             switch (task.status) {
                 case 'pending':
@@ -318,11 +390,11 @@ export default {
             task.selectedFiles.splice(index, 1);
         },
         fetchTaskDetails() {
-            // This would make an API call to get the task details based on taskId
+            // This would make an API call to get the task details based on requestId
             // For now, we're using the default data
-            if (this.taskId) {
+            if (this.requestId) {
                 // Example API call:
-                axios.get(`/api/tasks/${this.taskId}`)
+                axios.get(`/api/requests/${this.requestId}`)
                    .then(response => {
                        this.task = response.data;
                        console.log('Fetching task details for ID:', this.task);
@@ -354,7 +426,7 @@ export default {
                 });
             }
 
-            await axios.post(`/api/tasks/comments/${task.id}`, formData, {
+            await axios.post(`/api/requests/comments/${task.id}`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
@@ -459,7 +531,7 @@ export default {
             formData.append('comment_id', comment.id);
             formData.append('user_id', this.page_data.user.id);
 
-            axios.post(`/api/tasks/comments/like/${comment.id}`, formData)
+            axios.post(`/api/requests/comments/like/${comment.id}`, formData)
                 .then(response => {
                     if(response.data.status === 'success') {
                         comment.isLiked = !comment.isLiked;
@@ -504,7 +576,7 @@ export default {
             formData.append('user_id', this.page_data.user.id);
             formData.append('parent_id', comment.id); // Ensure we're setting the parent_id
 
-            await axios.post(`/api/tasks/comments/${task.id}`, formData)
+            await axios.post(`/api/requests/comments/${task.id}`, formData)
                 .then(response => {
                     if(response.data.status === 'success') {
                         // Initialize replies array if it doesn't exist
@@ -548,13 +620,13 @@ export default {
     },
     watch: {
         show(newVal) {
-            if (newVal && this.taskId) {
+            if (newVal && this.requestId) {
                 this.fetchTaskDetails();
             }
         }
     },
     mounted() {
-        if (this.show && this.taskId) {
+        if (this.show && this.requestId) {
             this.fetchTaskDetails();
         }
     }

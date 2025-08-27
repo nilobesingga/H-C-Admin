@@ -36,6 +36,7 @@ class TaskModel extends Model
     public function comments(): HasMany
     {
         return $this->hasMany(TaskConversation::class, 'task_id')
+                ->where('parent_id',0)
                 ->with(['author','replies', 'files']);
     }
 

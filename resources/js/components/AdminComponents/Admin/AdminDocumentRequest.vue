@@ -131,7 +131,7 @@
                 <div
                     v-for="(req, index) in paginatedRequests"
                     :key="index"
-                    class="grid grid-cols-12 px-6 py-4 transition-colors duration-150 border-b border-gray-200 hover:bg-gray-50"
+                    class="grid grid-cols-12 px-6 py-4 transition-colors duration-150 border-b border-gray-200 hover:bg-gray-50" @click="openRequestDetailedModal(req.id)"
                 >
                     <!-- <div class="flex items-center col-span-2 font-medium">
                         <div v-if="req.contact_photo == null" class="flex-shrink-0">
@@ -173,42 +173,10 @@
                     <div class="col-span-2">
                         <div v-if="req.status == 'pending'" class="relative">
                             <button
-                                @click="toggleStatusDropdown(req)"
-                                class="w-full px-1 py-1 text-sm text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                class="w-full px-2 py-2 text-sm text-white bg-blue-600 border border-gray-300 rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             >
-                                Change Status
+                                Acknowledge
                             </button>
-
-                            <!-- Dropdown Menu -->
-                            <div v-if="openDropdownId === req.id"
-                                class="absolute right-0 z-10 w-48 mt-2 origin-top-right bg-white border border-gray-200 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                                <div class="py-1">
-                                    <a href="#"
-                                        @click.prevent="updateStatus(req, 'approved')"
-                                        class="flex items-center px-4 py-2 text-sm text-green-600 hover:bg-gray-100">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                        </svg>
-                                        Approved
-                                    </a>
-                                    <a href="#"
-                                        @click.prevent="updateStatus(req, 'declined')"
-                                        class="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                        </svg>
-                                        Declined
-                                    </a>
-                                    <a href="#"
-                                        @click.prevent="updateStatus(req, 'cancelled')"
-                                        class="flex items-center px-4 py-2 text-sm text-gray-600 hover:bg-gray-100">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                        </svg>
-                                        Cancelled
-                                    </a>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -275,17 +243,20 @@
             </div>
         </div>
         <TaskModal :show="showTaskModal" :currentUser="page_data.user" @close="showTaskModal = false" @submit="fetchTasks" />
+        <RequestDetailedModal :show="showRequestDetailedModal" :page_data="page_data" :requestId="selectedRequestId" :request="selectedRequest" @close="showRequestDetailedModal = false" />
     </div>
 </template>
 <script>
 import TaskModal from './Modal/TaskModal.vue';
 import RequestForms from '../../AppComponents/Shared/RequestForms.vue';
+import RequestDetailedModal from './Modal/RequestDetailedModal.vue';
 
     export default {
         name: 'admin-document-request',
         components: {
             RequestForms,
-            TaskModal
+            TaskModal,
+            RequestDetailedModal
         },
         props: {
             page_data: { type: Object, required: true },
@@ -316,7 +287,9 @@ import RequestForms from '../../AppComponents/Shared/RequestForms.vue';
                 selectedRequests: [],
                 isLoading: false,
                 openDropdownId: null, // Track which dropdown is currently open
-
+                showRequestModal: false,
+                showRequestDetailedModal: false,
+                selectedRequestId: null,
                 // Tab options
                 tabs: [
                     { label: 'Pending', value: 'pending', count: 1 },
@@ -357,6 +330,10 @@ import RequestForms from '../../AppComponents/Shared/RequestForms.vue';
             }
         },
         methods: {
+            openRequestDetailedModal(requestId) {
+                this.selectedRequestId = requestId;
+                this.showRequestDetailedModal = true;
+            },
             getInitials(name) {
                 if (!name) return '';
                 return name.split(' ')

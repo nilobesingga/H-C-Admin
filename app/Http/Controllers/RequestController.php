@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Company;
 use App\Models\Contact;
+use App\Models\RequestConversationFile;
 use App\Models\RequestFile;
 use App\Models\RequestModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
@@ -305,5 +307,57 @@ class RequestController extends Controller
                 ];
             });
         return response()->json($data);
+    }
+
+    public function getRequestDetails($requestId)
+    {
+        $request = RequestModel::with([
+            'comments',
+            'company',
+            'contact',
+            'creator',
+            'files'
+        ])->findOrFail($requestId);
+
+        return response()->json($request);
+    }
+
+    public function storeComment(Request $request, $taskId)
+    {
+        $request->validate([
+            'message' => 'required|string|max:1000',
+        ]);
+
+        $task = RequestModel::findOrFail($taskId);
+
+        if($request->has('status')) {
+            $task->status = $request->status;
+            $task->save();
+        }
+
+        $comment = $task->comments()->create([
+            'message' => $request->message,
+            'user_id' => Auth::id(),
+            'parent_id' => $request->parent_id ?? 0
+        ]);
+
+         // Store files if any
+        if ($request->hasFile('files')) {
+            foreach ($request->file('files') as $file) {
+                $path = $file->store('request-comment-files/' . $comment->id, 'public');
+
+                RequestConversationFile::create([
+                    'request_conversation_id' => $comment->id,
+                    'file_name' => $file->getClientOriginalName(),
+                    'file_path' => $path
+                ]);
+            }
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Comment added successfully',
+            'comment' => $comment->load('author')
+        ], 201);
     }
 }

@@ -70,7 +70,9 @@ Route::middleware(['auth.api.token','admin'])->group(function () {
     // Request Routes
     Route::controller(RequestController::class)->group(function(){
         Route::post('/requests/{id}', 'updateRequestStatus');
+        Route::get('/requests/{id}', 'getRequestDetails');
         Route::get('/requests', 'getRequest');
+        Route::post('requests/comments/{id}', 'storeComment');
     });
 });
 
